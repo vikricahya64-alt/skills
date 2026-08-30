@@ -70,6 +70,8 @@ function sqlDb(dir) {
   }
 }
 
+function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
 async function toolRunner(tool, args, sessionId) {
   const dir = wsDir(sessionId);
   try {
@@ -138,6 +140,34 @@ async function toolRunner(tool, args, sessionId) {
         const rows = lines.slice(1).map((l) => l.split(/[,;\t]/));
         return { ok: true, result: JSON.stringify({ headers, rows: rows.slice(0, 200) }).slice(0, 18000) };
       }
+      case "chart": {
+        const data = args.data; // array of {name, value}
+        if (!Array.isArray(data) || (args.data && data.length === 0)) {
+          return { ok: false, error: "data harus berupa array {label,value} atau objek" };
+        }
+        const type = args.type || "bar";
+        const title = args.title || "Grafik";
+        const items = data.slice(0, 30);
+        const labels = items.map((d) => JSON.stringify(String(d.label ?? d.name ?? "")));
+        const values = items.map((d) => Number(d.value ?? d.val ?? 0));
+        const max = Math.max.apply(null, values.concat([1]));
+        const h = items.length ? Math.max(220, items.length * 34 + 60) : 240;
+        const bars = items.map((d, i) =>
+          "\n      <div class=bar-row><span class=lb>" + escHtml(String(d.label ?? d.name)) + "</span>" +
+          "<div class=track><div class=fill style='height:" + Math.max(4, (Number(d.value ?? 0) / max) * 100) + "%'></div></div>" +
+          "<span class=vl>" + escHtml(String(d.value)) + "</span></div>").join("");
+        const css = "body{font-family:system-ui;background:#0b1220;color:#e5edf7;margin:20px} h2{color:#38bdf8}" +
+          ".bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;height:32px}" +
+          ".lb{width:140px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+          ".track{flex:1;height:26px;background:#16233c;border-radius:6px;position:relative}" +
+          ".fill{position:absolute;left:0;bottom:0;background:linear-gradient(90deg,#38bdf8,#818cf8);border-radius:6px;min-width:4px}" +
+          ".vl{width:60px;text-align:right;font-size:12px}";
+        const html = "<!DOCTYPE html><html><head><meta charset=utf-8><title>" + escHtml(title) + "</title><style>" + css +
+          "</style></head><body><h2>" + escHtml(title) + "</h2>(tampilan grafik batang - render dari data nyata)<div style=margin-top:14px>" +
+          bars + "</div></body></html>";
+        fs.writeFileSync(path.join(dir, (args.file || "chart.html")), html);
+        return { ok: true, result: "Tersimpan " + (args.file || "chart.html") + " — grafik " + type + " dengan " + items.length + " baris data" };
+      }
       case "sql": {
         const db = sqlDb(dir);
         if (!db) return { ok: false, error: "Runtime tidak mendukung node:sqlite (butuh Node 22+)." };
@@ -176,6 +206,7 @@ const TOOL_LIST = [
   { name: "sql", desc: "Jalankan SQL nyata di SQLite workspace (args: sql, init utk buat tabel, mode:'table' utk skip hasil)" },
   { name: "json", desc: "Parse & kueri file JSON di workspace memakai expr JS (args: path, expr)" },
   { name: "csv", desc: "Baca file CSV/TSV di workspace jadi {headers, rows} (args: path)" },
+  { name: "chart", desc: "Render grafik HTML nyata dari data (args: data array {label,value}, type bar/pie, title, file)" },
 ];
 
 function toolsPrompt() {

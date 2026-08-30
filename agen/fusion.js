@@ -19,6 +19,10 @@ const DOMAINS = [
   { d: "automation", kw: ["automation", "otomasi", "workflow otomatis", "scheduler", "cron", "script", "batch", "rpa", "pipeline", "task otomatis", "repeatable", "register", "scheduled"] },
   { d: "lang", kw: ["translate", "terjemahan", "translation", "language", "bahasa", "multilingual", "i18n", "localization", "lokalisasi", "subtitle", "dubbing", "adaptation"] },
   { d: "rendering", kw: ["render", "markdown", "html", "pdf", "slides", "presentasi", "template", "layout", "visual", "gambar", "image", "video", "dokumen", "document", "convert", "format", "export", "design", "ui"] },
+  { d: "finops", kw: ["finops", "cost", "biaya", "budget", "billing", "spend", "pricing", "kuota", "price", "anggaran", "optimalisasi biaya", "helm chart cost"] },
+  { d: "dataviz", kw: ["chart", "visu", "dashboard", "grafana", "graph", "plot", "report", "laporan", "bigquery graph", "monitor chart", "slide grafik"] },
+  { d: "comms", kw: ["email", "mail", "notif", "telegram", "slack", "pesan", "messages", "outreach", "notification", "channel", "sms"] },
+  { d: "backup", kw: ["backup", "restore", "snapshot", "disaster", "recovery", "migrat", "failover", "cadangan", "pemulihan", "dr"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -118,6 +122,10 @@ function attachSkills(tax, items) {
     automation: "combo-automation-workflow",
     lang: "combo-translation-lang",
     rendering: "combo-rendering-everything",
+    finops: "combo-finops-cost",
+    dataviz: "combo-dataviz-reporting",
+    comms: "combo-email-notifications",
+    backup: "combo-backup-disaster-recovery",
     misc: "combo-generalist-master",
   };
   for (const [domain, capId] of Object.entries(DOMAIN_CAP)) {
