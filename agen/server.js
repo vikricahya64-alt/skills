@@ -130,6 +130,8 @@ function loadPacks() {
   if (!PACKS) { PACKS = {}; }
   return PACKS;
 }
+let _fusionCache = null;
+
 function ensurePacks() {
   let packs = loadPacks();
   if (Object.keys(packs).length) return packs;
@@ -379,7 +381,7 @@ app.get("/api/fusion", (req, res) => {
     const enrich = FUSION.attachSkills(tax, items);
     const covered = new Set();
     for (const e of enrich) for (const n of e.allSkills || []) covered.add(n);
-    res.json({
+    const payload = {
       totalSkills: cards.length,
       covered: covered.size,
       coveragePct: Math.round((100 * covered.size) / cards.length),
@@ -392,7 +394,9 @@ app.get("/api/fusion", (req, res) => {
         skillCount: (e.allSkills || []).length,
         skills: (e.allSkills || []).slice(0, 60),
       })),
-    });
+    };
+    _fusionCache = payload;
+    res.json(payload);
   } catch (e) {
     res.status(500).json({ error: String((e && e.message) || e) });
   }
