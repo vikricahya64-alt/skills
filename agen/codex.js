@@ -59,6 +59,17 @@ async function runShell(cmd, sessionId) {
   });
 }
 
+function sqlDb(dir) {
+  // node:sqlite built-in (Node 22+). Fallback pesan jelas bila runtime lebih lama.
+  try {
+    const { DatabaseSync } = require("node:sqlite");
+    const db = new DatabaseSync(dir + "/work.sqlite");
+    return db;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function toolRunner(tool, args, sessionId) {
   const dir = wsDir(sessionId);
   try {
@@ -104,6 +115,25 @@ async function toolRunner(tool, args, sessionId) {
           result: picks.map((c) => KB.formatCard(c, 900)).join("\n\n") || "(tidak ada skill cocok)",
         };
       }
+      case "sql": {
+        const db = sqlDb(dir);
+        if (!db) return { ok: false, error: "Runtime tidak mendukung node:sqlite (butuh Node 22+)." };
+        try {
+          const init = String(args.init || "");
+          if (init.trim()) db.exec(init);
+          const sql = String(args.sql || "");
+          if (!sql.trim()) return { ok: false, error: "SQL kosong" };
+          const stmt = db.prepare(sql);
+          if (/^\s*(select|pragma|with|explain)/i.test(sql.trim())) {
+            const rows = stmt.all();
+            return { ok: true, result: JSON.stringify(rows).slice(0, 18000) || "[]" };
+          }
+          const info = stmt.run();
+          return { ok: true, result: JSON.stringify(info) };
+        } catch (e) {
+          return { ok: false, error: String((e && e.message) || e).slice(0, 500) };
+        }
+      }
       default:
         return { ok: false, error: "Tool tidak dikenal: " + tool };
     }
@@ -118,7 +148,8 @@ const TOOL_LIST = [
   { name: "write", desc: "Tulis/ubah file di workspace (args: path, content)" },
   { name: "bash", desc: "Jalankan perintah shell/Node/Python di workspace (args: command)" },
   { name: "fetch", desc: "Ambil konten URL publik (args: url)" },
-  { name: "kb", desc: "Cari knowledge base 769 skill (args: query, max)" },
+  { name: "kb", desc: "Cari knowledge base 1042 skill (args: query, max)" },
+  { name: "sql", desc: "Jalankan SQL nyata di SQLite workspace (args: sql, init opsional utk buat tabel)" },
 ];
 
 function toolsPrompt() {

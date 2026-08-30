@@ -8,6 +8,7 @@ const { CAPS, pickCapabilities } = require("./capabilities.js");
 const KB = require("./knowledge.js");
 const CODEX = require("./codex.js");
 const EVO = require("./capabilities2.js");
+const FUSION = require("./fusion.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -193,7 +194,7 @@ function fileSummary(file) {
 function buildPrompt(q, sess, top, evo) {
   const parts = [];
   parts.push(
-    "Kamu Agen AI Google Cloud (gcp-agent) hasil EVOLUSI 769 skill -> kemampuan nyata tingkat tinggi. " +
+    "Kamu Agen AI Google Cloud (gcp-agent) hasil EVOLUSI 1042 skill -> kemampuan nyata tingkat tinggi. " +
     "Jawab bahasa Indonesia, padat, akurat, beri langkah konkret. Jujur jika tidak yakin."
   );
 
@@ -321,6 +322,33 @@ app.get("/api/evolution", (req, res) => {
   });
 });
 
+app.get("/api/fusion", (req, res) => {
+  try {
+    const cards = KB.loadCards();
+    const tax = FUSION.buildTaxonomy(cards);
+    const items = EVO.PRIMES.concat(EVO.COMBOS);
+    const enrich = FUSION.attachSkills(tax, items);
+    const covered = new Set();
+    for (const e of enrich) for (const n of e.allSkills || []) covered.add(n);
+    res.json({
+      totalSkills: cards.length,
+      covered: covered.size,
+      coveragePct: Math.round((100 * covered.size) / cards.length),
+      taxonomy: Object.fromEntries(Object.entries(tax).map(([k, v]) => [k, v.length]).sort((a, b) => a[1] - b[1])),
+      capabilities: enrich.map((e) => ({
+        id: e.id,
+        name: e.name,
+        emoji: e.emoji,
+        insight: e.insight,
+        skillCount: (e.allSkills || []).length,
+        skills: (e.allSkills || []).slice(0, 60),
+      })),
+    });
+  } catch (e) {
+    res.status(500).json({ error: String((e && e.message) || e) });
+  }
+});
+
 app.post("/ask", async (req, res) => {
   if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur di server." });
   const q = String((req.body && req.body.question) || "").trim();
@@ -413,7 +441,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.0.2",
+    version: "3.1.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,

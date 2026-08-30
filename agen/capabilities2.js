@@ -161,6 +161,14 @@ const COMBOS = [
     insight: "Kontrak pintar & dApps yang aman sejak desain: pahami attack vectors, uji menyeluruh, dan terapkan threat modeling sebelum jaringan utama.",
   },
   {
+    id: "combo-generalist-master",
+    name: "Generalist & Operator Fusion",
+    emoji: "🧰",
+    keywords: ["umum", "tugas", "operasional", "workspace", "fleksibel", "multi-domain", "lintas", "general", "everything", "skill campuran"],
+    skills: ["internal-comms", "template-skill", "implement", "wait-what", "council", "crosspost", "returns-reverse-logistics", "rules-distill"],
+    insight: "Kemampuan serba-bisa: menangkap semua skill lintas-kategori yang tidak masuk satu domain sempit — operasional umum, template, workflow campuran, dan troubleshooting fleksibel — agar tak ada pengetahuan yang terbuang.",
+  },
+  {
     id: "combo-secure-data-pipeline",
     name: "Secure Data Pipeline",
     emoji: "🗃️",
