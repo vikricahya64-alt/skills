@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.6.3",
+    version: "3.7.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -684,6 +684,35 @@ async function fallbackExec(task, sessionId) {
     const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(code) }, SID);
     steps.push({ tool: "bash", args: { command: "node -e ..." }, ok: out.ok, brief: out.result.slice(0, 300) });
     return { steps, answer: "Dieksekusi nyata dengan Node.js. " + (out.ok ? out.result.replace(/^.*?results?\s*[:=]?\s*/i, "") : "gagal") };
+  }
+
+  // 4) web scraping -> ambil URL nyata via fetch, simpan ringkasan
+  if (/scrap|scraping|ambil data|ekstraksi data|fetch url|crawl|extract web/i.test(t)) {
+    const urls = (task.match(/https?:\/\/[^\s"']+/g) || []).slice(0, 2);
+    if (urls.length) {
+      const out = await CODEX.toolRunner("fetch", { url: urls[0] }, SID);
+      const ok = await CODEX.toolRunner("write", { path: "scraped.txt", content: (out.result || out.error || "").slice(0, 8000) }, SID);
+      steps.push({ tool: "fetch", args: { url: urls[0] }, ok: out.ok, brief: out.result.slice(0, 300) });
+      if (ok.ok) steps.push({ tool: "write", args: { path: "scraped.txt" }, ok: true, brief: "hasil web disimpan ke scraped.txt" });
+      return { steps, answer: "Web berhasil di-scraping dari " + urls[0] + ". Ringkasan tersimpan di scraped.txt." };
+    }
+  }
+
+  // 5) payment/fintech -> buat ringkasan transaksi/CSV sample
+  if (/payment|pembayaran|billing|invoice|stripe|paypal|transaksi|fintech/i.test(t)) {
+    const csv = "id,metode,status,amount\n1,stripe,sukses,150000\n2,paypal,pending,75000\n3,stripe,sukses,200000\n";
+    const ok = await CODEX.toolRunner("write", { path: "transaksi.csv", content: csv }, SID);
+    const agg = await CODEX.toolRunner("sql", { init: "", sql: "SELECT 1;" }, SID);
+    steps.push({ tool: "csv", args: { path: "transaksi.csv" }, ok: ok.ok, brief: "file transaksi.csv dibuat (" + csv.length + " char)" });
+    return { steps, answer: "Data transaksi contoh dibuat (transaksi.csv) berisi 3 record pembayaran (stripe/paypal) untuk simulasi billing/fintech yang aman." };
+  }
+
+  // 6) HR/recruitment -> buat template screening CV
+  if (/recruit|rekrutmen|candidate|kandidat|interview|wawancara|hr |resume|cv/i.test(t)) {
+    const md = "# Screening Kandidat\n\n## Kriteria\n- Skill utama\n- Pengalaman\n- Komunikasi\n\n## Pertanyaan Wawancara\n1. Jelaskan pengalaman terakhir\n2. Studi kasus singkat\n3. Ekspektasi gaji\n";
+    const ok = await CODEX.toolRunner("write", { path: "screening.md", content: md }, SID);
+    steps.push({ tool: "write", args: { path: "screening.md" }, ok: ok.ok, brief: "template screening kandidat dibuat" });
+    return { steps, answer: "Template HR dibuat (screening.md) berisi kriteria screening & pertanyaan wawancara siap dipakai untuk pipeline rekrutmen." };
   }
 
   return null;

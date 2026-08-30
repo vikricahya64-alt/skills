@@ -23,6 +23,9 @@ const DOMAINS = [
   { d: "dataviz", kw: ["chart", "visu", "dashboard", "grafana", "graph", "plot", "report", "laporan", "bigquery graph", "monitor chart", "slide grafik"] },
   { d: "comms", kw: ["email", "mail", "notif", "telegram", "slack", "pesan", "messages", "outreach", "notification", "channel", "sms"] },
   { d: "backup", kw: ["backup", "restore", "snapshot", "disaster", "recovery", "migrat", "failover", "cadangan", "pemulihan", "dr"] },
+  { d: "scraping", kw: ["scrap", "crawl", "extract", "web page", "fetch", "parsing", "data extraction", "url", "scraper", "ambil data", "html parse"] },
+  { d: "fintech", kw: ["payment", "pembayaran", "billing", "invoice", "stripe", "paypal", "transaksi", "refund", "wallet", "fintech", "tagihan", "gateway"] },
+  { d: "hr", kw: ["hr", "recruit", "rekrutmen", "hiring", "candidate", "kandidat", "interview", "wawancara", "onboard", "talent", "karyawan", "resume", "cv", "employee"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -126,6 +129,9 @@ function attachSkills(tax, items) {
     dataviz: "combo-dataviz-reporting",
     comms: "combo-email-notifications",
     backup: "combo-backup-disaster-recovery",
+    scraping: "combo-web-scraping-intel",
+    fintech: "combo-payment-fintech",
+    hr: "combo-hr-recruitment",
     misc: "combo-generalist-master",
   };
   for (const [domain, capId] of Object.entries(DOMAIN_CAP)) {
