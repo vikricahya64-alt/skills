@@ -79,17 +79,57 @@ function extractCore(text) {
   return merged;
 }
 
+// ---- Ekstraksi mendalam: blok kode asli + kalimat logika/aturan ----
+function extractDeep(text) {
+  const body = text.replace(/^---\n[\s\S]*?\n(?:---|\.\.\.)\n/, "");
+  const lines = body.split(/\r?\n/);
+  const codes = [];
+  const logic = [];
+  let inCode = false, codeLang = "", codeBuf = [];
+
+  const flushCode = () => {
+    const src = codeBuf.join("\n").trim();
+    if (src.length > 3) codes.push({ lang: codeLang, src: src.slice(0, 1400) });
+    codeBuf = [];
+  };
+
+  for (const ln of lines) {
+    const t = ln.trim();
+    if (/^```/.test(t)) {
+      if (!inCode) { inCode = true; codeLang = (t.match(/^```([a-z0-9_-]+)/i) || [])[1] || ""; continue; }
+      flushCode(); inCode = false;
+      continue;
+    }
+    if (inCode) {
+      codeBuf.push(ln);
+      if (codeBuf.length >= 34) { flushCode(); inCode = false; }
+      continue;
+    }
+    // Baris tuntunan: bullet/awalan instruksi penting
+    if (/^[-*]\s+(always|never|don'?t|jangan|use when|use it when|when to use|best practice|pastikan|selalu|langkah|step|first|always use|never use|avoid)\b/i.test(t) ||
+        /^(always|never|use when|jangan|selalu|avoid|pastikan)\b/i.test(t)) {
+      if (t.length > 8 && t.length < 280) logic.push(t.replace(/^[-*]\s+/, ""));
+    }
+    if (logic.length > 16) break;
+  }
+  if (inCode) flushCode();
+  return { codes: codes.slice(0, 8), logic: logic.slice(0, 12) };
+}
+
 // ---- Bangun kartu pengetahuan satu skill ----
 function buildCard(f, relName) {
   const text = fs.readFileSync(f, "utf8");
   const fm = parseFrontmatter(text);
   const name = fm.name || relName;
   const core = extractCore(text);
+  const deep = extractDeep(text);
   return {
     name,
     description: fm.description.slice(0, 900),
     keywords: fm.keywords.slice(0, 20),
     core: core.slice(0, 10),
+    codes: deep.codes,
+    logic: deep.logic,
   };
 }
 
@@ -197,7 +237,42 @@ function formatCard(card, maxChars = 2200) {
     lines.push("Prosedur inti:");
     for (const c of card.core.slice(0, 6)) lines.push("• " + c);
   }
+  if (card.logic && card.logic.length) {
+    lines.push("Logika kunci:");
+    for (const l of card.logic.slice(0, 5)) lines.push("◈ " + l);
+  }
+  if (card.codes && card.codes.length) {
+    lines.push("Kode nyata:");
+    for (const c of card.codes.slice(0, 3)) {
+      lines.push(c.src.split("\n").slice(0, 12).join("\n"));
+    }
+  }
   return lines.join("\n").slice(0, maxChars);
 }
 
-module.exports = { loadCards, pickCards, formatCard, buildCard, extractCore };
+// ---- FUSI KODE & LOGIKA: gabungkan isi beberapa kartu jadi knowledge pack ----
+function fusionPack(cards, maxChars = 6000) {
+  const parts = [];
+  let budget = maxChars;
+  const used = new Set();
+  for (const card of cards) {
+    if (!card || used.has(card.name)) continue;
+    used.add(card.name);
+    const cs = (card.codes || []).slice(0, 4);
+    const lg = (card.logic || []).slice(0, 6);
+    if (!cs.length && !lg.length) continue;
+    const block = [];
+    block.push("## " + card.name);
+    if (lg.length) block.push("Logika: " + lg.join(" | "));
+    for (const c of cs) {
+      block.push("```" + (c.lang || "") + "\n" + c.src.slice(0, 900) + "\n```");
+    }
+    const joined = block.join("\n\n");
+    if (joined.length > budget) break;
+    budget -= joined.length;
+    parts.push(joined);
+  }
+  return parts.join("\n\n");
+}
+
+module.exports = { loadCards, pickCards, formatCard, buildCard, extractCore, extractDeep, fusionPack };

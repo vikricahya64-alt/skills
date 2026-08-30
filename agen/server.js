@@ -216,6 +216,9 @@ function buildPrompt(q, sess, top, evo) {
   if (top.length) {
     const skillsBlock = top.map((s) => KB.formatCard(s, 1500)).join("\n\n");
     parts.push("Knowledge base skill relevan (kutip prosedur inti):\n" + skillsBlock);
+    // FUSI KODE & LOGIKA: cuplikan kode asli + aturan dari skill terpilih
+    const pack = KB.fusionPack(top, 5000);
+    if (pack) parts.push("FUSI KODE & LOGIKA dari skill (gunakan persis, jangan mengarang):\n" + pack);
   } else {
     parts.push("(tidak ada skill spesifik dipilih; gunakan pengetahuan umum Google Cloud)");
   }
@@ -441,7 +444,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.1.0",
+    version: "3.2.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -499,13 +502,17 @@ app.post("/api/agent", async (req, res) => {
   const capTxt = evoList.length
     ? evoList.map((c) => "Evolusi terpilih: " + c.name + " (cakupan " + (c.skills || c.domains || []).join(", ") + ")" + (c.insight ? " — " + c.insight : "")).join("\n")
     : "";
+  // FUSI KODE & LOGIKA dari skill teratas utk tugas ini (arahan eksekusi nyata)
+  const kbTop = KB.pickCards(task, KB.loadCards(), 3);
+  const kbPack = KB.fusionPack(kbTop, 3500);
 
   const SYSTEM = "Kamu agen eksekusi (seperti Codex) dengan akses penuh ke workspace. " +
     "Jawab/kerjakan tugas user. Gunakan tool bila perlu langkah nyata (jalankan kode, baca/tulis file, cek web, cari KB). " +
     "LINGKUNGAN: Linux serverless; Node.js tersedia (jalankan JS via node -e). Python TIDAK terpasang - jangan coba python3/python/pip. " +
     "Untuk kalkulasi atau skrip, tulis file .js lalu jalankan: node namafile.js. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
-    capTxt + "\n\n" + kbHints;
+    capTxt + (kbPack ? "\n\nFUSI KODE & LOGIKA dari knowledge base (gunakan persis):\n" + kbPack : "") +
+    "\n\n" + kbHints;
 
   const messages = [{ role: "user", parts: [{ text: SYSTEM + "\n\nTUGAS USER:\n" + task }] }];
   let modelOut;
