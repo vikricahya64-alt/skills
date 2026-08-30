@@ -74,16 +74,16 @@ jobs:
           arch: x86_64
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          # Catatan: action menjalankan tiap baris script sebagai `sh -c` tersendiri,
+          # jadi `cd` antarbaris tidak bertahan. Setiap baris dibuat mandiri.
           script: |
-            cd android
-            gradle assembleDebug --no-daemon
-            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            cd android && gradle assembleDebug --no-daemon
+            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -n com.vikri.gcpagent/.MainActivity
-            sleep 8
+            sleep 10
             echo "=== Current focus ==="
             adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" || true
-            mFocus=$(adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp")
-            echo "$mFocus" | grep -iq gcpagent && echo "APP LAUNCHED OK" || (echo "APP NOT IN FOREGROUND"; exit 1)
+            adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | grep -iq gcpagent && echo "APP LAUNCHED OK" || (echo "APP NOT IN FOREGROUND"; exit 1)
             echo "=== Crash check (logcat) ==="
             adb logcat -d | grep -iE "FATAL EXCEPTION|AndroidRuntime.*FATAL" | head -20 || true
 
@@ -158,7 +158,7 @@ jobs:
       - name: Bangun APK dari AAB (bukti AAB berfungsi & distribusi Play)
         run: |
           curl -fsSL -o /tmp/bundletool.jar \
-            https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
+            https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
           mkdir -p /tmp/from-aab
           # APK universal (gabung semua ABI) — bisa di-install langsung
           java -jar /tmp/bundletool.jar build-apks \
