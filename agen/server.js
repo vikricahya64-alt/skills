@@ -377,31 +377,51 @@ function startProgress(res) {
   };
 }
 
+function briefArgs(args) {
+  if (!args) return "";
+  const keys = ["command", "code", "script", "path", "install", "url", "sql", "query", "file", "content"];
+  for (const k of keys) {
+    if (args[k] != null) {
+      let v = String(args[k]).replace(/\s+/g, " ").trim();
+      if (v.length > 64) v = v.slice(0, 64) + "…";
+      return "(" + k + ": " + v + ")";
+    }
+  }
+  return "";
+}
+
 // Eksekusi tool yang adaptif: jika sebuah tool GAGAL, otomatis coba cara lain yang tersedia
 // (run/npm/bash/sql) agar perintah tetap tereksekusi — bukan berhenti di langkah pertama.
-async function execCallsRobust(calls, sessionId, doneCalls, steps, emitStep) {
+// prog(msg) dipakai utk melaporkan progres real-time per tool ke user.
+async function execCallsRobust(calls, sessionId, doneCalls, steps, emitStep, prog) {
   const results = [];
   for (const c of (calls || []).slice(0, 6)) {
     const key = c.tool + ":" + JSON.stringify(c.args || {});
     if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
     doneCalls.add(key);
+    const brief = briefArgs(c.args);
+    if (prog) prog("⚙️ Menjalankan " + c.tool + " " + brief);
     const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
     if (out.ok) {
       steps.push({ tool: c.tool, args: c.args, ok: true, brief: (out.result || "").slice(0, 400) });
       if (emitStep) emitStep({ tool: c.tool, ok: true, brief: (out.result || "").slice(0, 400) });
+      if (prog) prog("✅ " + c.tool + " berhasil " + brief);
       results.push("(" + c.tool + ") " + out.result.slice(0, 3000));
       continue;
     }
     // === Tool gagal -> coba alternatif nyata secara otomatis ===
     const why = (out.error || out.result || "");
+    if (prog) prog("⚠️ " + c.tool + " gagal " + brief + " — mencari cara lain…");
     const altOut = await tryAlternatives(c, sessionId, why);
     if (altOut && altOut.ok) {
       steps.push({ tool: c.tool + "->alt", args: c.args, ok: true, brief: (altOut.result || "").slice(0, 400) });
       if (emitStep) emitStep({ tool: c.tool + " (via " + altOut.used + ")", ok: true, brief: (altOut.result || "").slice(0, 400) });
+      if (prog) prog("🔄 " + c.tool + " dieksekusi via " + altOut.used + " " + brief);
       results.push("(" + c.tool + " gagal: " + why.slice(0, 200) + " -> jalankan via " + altOut.used + " berhasil: " + altOut.result.slice(0, 2000) + ")");
     } else {
       steps.push({ tool: c.tool, args: c.args, ok: false, brief: (why || "gagal").slice(0, 400) });
       if (emitStep) emitStep({ tool: c.tool, ok: false, brief: (why || "gagal").slice(0, 400) });
+      if (prog) prog("❌ " + c.tool + " tetap gagal " + brief + " — lanjut strategi lain…");
       results.push("(" + c.tool + ") GALAT: " + why.slice(0, 2000));
     }
   }
@@ -644,7 +664,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.15.0",
+    version: "3.15.1",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -804,7 +824,7 @@ app.post("/api/agent", async (req, res) => {
     let feed = modelOut;
     if (calls.length) {
       prog("⚙️ Mengeksekusi " + calls.length + " tool (dengan fallback cara lain bila gagal)…");
-      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); });
+      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); }, prog);
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan: kerjakan tugas, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });
@@ -928,7 +948,7 @@ app.post("/api/run", async (req, res) => {
 
     if (calls.length) {
       prog("⚙️ Mengeksekusi " + calls.length + " tool (dengan fallback cara lain bila gagal)…");
-      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); });
+      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); }, prog);
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan misi sampai selesai, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });

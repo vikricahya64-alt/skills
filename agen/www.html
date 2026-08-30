@@ -29,9 +29,13 @@ header .sub{font-size:11px;color:var(--muted)}
 .step{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;word-break:break-word}
 .step .tl{font-weight:600;color:var(--accent)}
 .step.ok{border-color:#14532d;background:rgba(16,185,129,.08)}
+.step.prog{border-color:#0e7490;background:rgba(14,116,144,.10)}
 .step .progText{color:var(--accent);font-size:12px;font-style:italic}
-.progDots{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;animation:progPulse 1s ease-in-out infinite}
-@keyframes progPulse{0%,100%{opacity:.3}50%{opacity:1}}
+.step .liveDot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#22d3ee;margin:0 6px;box-shadow:0 0 8px #22d3ee;animation:progPulse 1s ease-in-out infinite}
+.step .liveLbl{font-size:10px;font-weight:700;color:#22d3ee;letter-spacing:.5px;margin-right:6px}
+.progText.blink{animation:progBlink 1.2s ease-in-out infinite}
+@keyframes progPulse{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes progBlink{0%,100%{opacity:1}50%{opacity:.45}}
 .step.err{border-color:#7f1d1d;background:rgba(251,113,133,.08)}
 .step .out{font-family:ui-monospace,monospace;background:#0b1626;padding:4px 6px;border-radius:6px;margin-top:4px;font-size:11.5px;white-space:pre-wrap}
 #status.on{color:var(--ok)}#status.off{color:var(--err)}
@@ -476,12 +480,19 @@ function parseSSE(buf){
 function streamRun(url, q, box, title, finishMeta, t){
   return new Promise(function(resolvePromise, rejectPromise){
     var statusEl=document.createElement('div');
-    statusEl.className='step ok';
-    statusEl.innerHTML='<span class="tl">'+title+'</span> <span class="progText">memulai…</span>';
+    statusEl.className='step prog';
+    statusEl.innerHTML='<span class="tl">'+title+'</span> <span class="liveDot"></span><span class="liveLbl">LIVE</span> <span class="progText">memulai…</span>';
     box.appendChild(statusEl);
     $('chat').scrollTop=$('chat').scrollHeight;
     var seenSteps=0;
     var finished=false;
+    function setLive(msg){
+      statusEl.querySelector('.liveLbl').textContent='● BERJALAN';
+      var pt=statusEl.querySelector('.progText');
+      pt.textContent=msg||'bekerja…';
+      pt.classList.add('blink');
+      $('chat').scrollTop=$('chat').scrollHeight;
+    }
     function finishOk(d){
       if(finished)return; finished=true;
       if(t)t.remove();
@@ -506,10 +517,10 @@ function streamRun(url, q, box, title, finishMeta, t){
       rejectPromise(err||new Error('stream error'));
     }
     function handleEvent(ev){
-      if(ev.event==='start'){ statusEl.querySelector('.progText').textContent='mengaktifkan…'; return; }
+      if(ev.event==='start'){ setLive('mengaktifkan…'); return; }
       if(ev.event==='progress'){
-        if(ev.data&&ev.data.msg)statusEl.querySelector('.progText').textContent=ev.data.msg;
-        $('chat').scrollTop=$('chat').scrollHeight; return;
+        if(ev.data&&ev.data.msg)setLive(ev.data.msg);
+        return;
       }
       if(ev.event==='step'){
         var st=ev.data;
@@ -517,8 +528,8 @@ function streamRun(url, q, box, title, finishMeta, t){
         var tbl=renderToolResult(st.brief||'');
         e.innerHTML='<span class="tl">#'+(seenSteps+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
         box.appendChild(e);seenSteps++;
-        statusEl.querySelector('.progText').textContent=st.ok?('tool '+st.tool+' selesai') : ('tool '+st.tool+' gagal, coba lain…');
-        $('chat').scrollTop=$('chat').scrollHeight; return;
+        setLive(st.ok?('✅ '+st.tool+' selesai') : ('⚠️ '+st.tool+' gagal — mencari cara lain…'));
+        return;
       }
       if(ev.event==='error'){ finishErr(new Error(ev.data&&ev.data.error||'stream error')); return; }
       if(ev.event==='done'){ finishOk(ev.data); return; }
@@ -556,7 +567,7 @@ function sendRun(q){
   if(!q)return;
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi — ikuti progres di bawah&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
   $('chatWrap').appendChild(box);
   streamRun('/api/run',q,box,'▶ misi',true,t)
@@ -574,7 +585,7 @@ function sendAgent(){
   if(!q)return;
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('⚡ mengeksekusi&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('⚡ mengeksekusi — ikuti progres di bawah&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>⚡ Langkah agen:</strong>';
   $('chatWrap').appendChild(box);
   streamRun('/api/agent',q,box,'⚙ eksekusi',false,t)
