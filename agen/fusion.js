@@ -25,6 +25,10 @@ const DOMAINS = [
   { d: "backup", kw: ["backup", "restore", "snapshot", "disaster", "recovery", "migrat", "failover", "cadangan", "pemulihan", "dr"] },
   { d: "scraping", kw: ["scrap", "crawl", "extract", "web page", "fetch", "parsing", "data extraction", "url", "scraper", "ambil data", "html parse"] },
   { d: "fintech", kw: ["payment", "pembayaran", "billing", "invoice", "stripe", "paypal", "transaksi", "refund", "wallet", "fintech", "tagihan", "gateway"] },
+  { d: "game", kw: ["game", "unity", "godot", "unreal", "3d", "xr", "shader", "gameplay", "level design", "scene", "spatial", "engine", "multiplayer", "world", "immersive", "technical artist", "rapid prototype"] },
+  { d: "academic", kw: ["historian", "psycholog", "statistician", "anthropolog", "narratolog", "geographer", "academic", "scholar", "scientific", "jurnal"] },
+  { d: "healthcare", kw: ["healthcare", "health", "emr", "cdss", "phi", "hipaa", "medical", "clinical", "patient", "pasien", "pharma", "farmaci", "wellness", "medis", "rekam medis"] },
+  { d: "project", kw: ["project manager", "sprint", "delivery", "roadmap", "stakeholder", "agile", "jira", "milestone", "prioritiz", "gis", "bim", "cartograph", "mapping", "drone", "geospasial", "geospatial", "survey", "pemetaan"] },
   { d: "hr", kw: ["hr", "recruit", "rekrutmen", "hiring", "candidate", "kandidat", "interview", "wawancara", "onboard", "talent", "karyawan", "resume", "cv", "employee"] },
 ];
 
@@ -132,6 +136,10 @@ function attachSkills(tax, items) {
     scraping: "combo-web-scraping-intel",
     fintech: "combo-payment-fintech",
     hr: "combo-hr-recruitment",
+    game: "combo-game-xr",
+    academic: "combo-academic-research",
+    healthcare: "combo-healthcare-ai",
+    project: "combo-project-delivery",
     misc: "combo-generalist-master",
   };
   for (const [domain, capId] of Object.entries(DOMAIN_CAP)) {

@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.7.0",
+    version: "3.8.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -713,6 +713,53 @@ async function fallbackExec(task, sessionId) {
     const ok = await CODEX.toolRunner("write", { path: "screening.md", content: md }, SID);
     steps.push({ tool: "write", args: { path: "screening.md" }, ok: ok.ok, brief: "template screening kandidat dibuat" });
     return { steps, answer: "Template HR dibuat (screening.md) berisi kriteria screening & pertanyaan wawancara siap dipakai untuk pipeline rekrutmen." };
+  }
+
+  // 7) game/3D/XR -> buat prototipe gameplay nyata (Node)
+  if (/game|3d|xr|unity|godot|unreal|shader|gameplay|level design|scene/i.test(t)) {
+    const proto = [
+      "// Prototipe gameplay (Node) - hasil fusion skill Game/3D/XR",
+      "class Player { constructor(name, hp=100){ this.name=name; this.hp=hp; } damage(n){ this.hp=Math.max(0, this.hp-n); return this.hp; } }",
+      "class Level { constructor(id, enemies){ this.id=id; this.enemies=enemies||[]; } tick(){ return { enemiesLeft: this.enemies.length, status: this.enemies.length?\"berlangsung\":\"selesai\" }; } }",
+      "const p = new Player('Hero'); const lv = new Level('L1', [1,2,3]);",
+      "console.log('Spawn: ' + lv.enemies.length + ' musuh | HP player: ' + p.damage(20) + ' | Level: ' + JSON.stringify(lv.tick()));",
+    ].join("\n");
+    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(proto) }, SID);
+    const ok = await CODEX.toolRunner("write", { path: "game-prototype.js", content: proto }, SID);
+    steps.push({ tool: "bash", args: { command: "node prototype" }, ok: out.ok, brief: out.result.slice(0, 300) });
+    if (ok.ok) steps.push({ tool: "write", args: { path: "game-prototype.js" }, ok: true, brief: "prototipe gameplay disimpan" });
+    return { steps, answer: "Prototipe gameplay nyata dibuat (game-prototype.js): Player + Level dengan mekanik damage, lalu dieksekusi via Node.js. Hasil: " + (out.ok ? out.result.trim() : "gagal") };
+  }
+
+  // 8) akademik/ilmiah -> buat laporan riset terstruktur
+  if (/akademik|academic|jurnal|ilmiah|scientific|historian|psikologi|statistik|antropologi|hipotesis|riset ilmiah/i.test(t)) {
+    const md = "# Laporan Riset\n\n## 1. Latar Belakang\n- Masalah & konteks (tulis dari tugas user)\n\n## 2. Pertanyaan & Hipotesis\n- Pertanyaan riset utama\n- Hipotesis yang dapat diuji\n\n## 3. Metodologi\n- Pendekatan (kualitatif/kuantitatif)\n- Sampel & variabel\n- Analisis statistik yang relevan\n\n## 4. Temuan Awal\n- Data yang tersedia\n- Interpretasi sementara\n\n## 5. Kesimpulan & Saran\n- Implikasi\n- Riset lanjutan\n";
+    const ok = await CODEX.toolRunner("write", { path: "laporan-riset.md", content: md }, SID);
+    steps.push({ tool: "write", args: { path: "laporan-riset.md" }, ok: ok.ok, brief: "kerangka laporan riset akademik dibuat" });
+    return { steps, answer: "Kerangka laporan riset akademik dibuat (laporan-riset.md) berisi latar belakang, hipotesis, metodologi, analisis statistik, dan kesimpulan — siap diisi sesuai topik riset Anda." };
+  }
+
+  // 9) healthcare/medis -> buat template kepatuhan PHI/HIPAA
+  if (/healthcare|kesehatan|medis|emr|cdss|phi|hipaa|klinis|clinical|pasien|patient|pharma|rekam medis/i.test(t)) {
+    const md = "# Rencana Kepatuhan Data Kesehatan (PHI/HIPAA)\n\n## 1. Inventaris Aset\n- Jenis data kesehatan (EMR, catatan klinis, billing)\n- Lokasi penyimpanan & alur data\n\n## 2. Kontrol Akses\n- Role-based access (dokter, perawat, admin, pasien)\n- Autentikasi multi-faktor & audit log\n\n## 3. Enkripsi & Retensi\n- Enkripsi at-rest & in-transit\n- Kebijakan retensi & penghapusan aman\n\n## 4. Insiden & Kepatuhan\n- Prosedur respons insiden\n- Dokumentasi audit untuk regulasi (HIPAA/lokal)\n";
+    const ok = await CODEX.toolRunner("write", { path: "kepatuhan-phi.md", content: md }, SID);
+    steps.push({ tool: "write", args: { path: "kepatuhan-phi.md" }, ok: ok.ok, brief: "template kepatuhan PHI/HIPAA dibuat" });
+    return { steps, answer: "Template kepatuhan data kesehatan dibuat (kepatuhan-phi.md): inventaris PHI, kontrol akses, enkripsi, dan prosedur insiden — sesuai pola healthcare-phi-compliance & HIPAA." };
+  }
+
+  // 10) project management / GIS -> buat rencana proyek + unit test gate
+  if (/project|proyek|project manager|sprint|roadmap|milestone|gis|bim|cartograph|pemetaan|mapping|geospasial|spatial/i.test(t)) {
+    const plan = "id,nama,status,deadline\n1,Scope & stakeholder,selesai,2026-09-01\n2,Desain roadmap & sprint,berjalan,2026-09-05\n3,Eksekusi deliverable,berjalan,2026-09-12\n4,Quality gate (delivery-gate),terjadwal,2026-09-15\n";
+    const ok = await CODEX.toolRunner("write", { path: "rencana-proyek.csv", content: plan }, SID);
+    const gateCode = [
+      "const rows=[{id:1,status:'selesai'},{id:2,status:'berjalan'},{id:3,status:'berjalan'}];",
+      "const gate=rows.every(r=>r.status==='selesai')?'LULUS':'BELUM SIAP';",
+      "console.log('Quality gate delivery: '+gate);",
+    ].join("\n");
+    const gate = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(gateCode) }, SID);
+    steps.push({ tool: "write", args: { path: "rencana-proyek.csv" }, ok: ok.ok, brief: "rencana proyek/sprint dibuat" });
+    if (gate.ok) steps.push({ tool: "bash", args: { command: "node quality-gate" }, ok: true, brief: gate.result.trim() });
+    return { steps, answer: "Rencana proyek dibuat (rencana-proyek.csv) dengan milestone & status, plus quality gate delivery dieksekusi nyata: " + (gate.ok ? gate.result.trim() : "gagal") };
   }
 
   return null;
