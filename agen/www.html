@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agen AI Google Cloud</title>
+<style>
+:root{--bg:#0b1220;--panel:#111c30;--panel2:#16233c;--accent:#38bdf8;--accent2:#818cf8;--text:#e5edf7;--muted:#8ea2bd;--ok:#34d399;--err:#fb7185;--line:#22324e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#0e2a4a 0%,var(--bg) 55%);color:var(--text);display:flex;flex-direction:column;height:100vh;height:100dvh}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(17,28,48,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+header h1{font-size:15px;margin:0;line-height:1.1}
+header .sub{font-size:11px;color:var(--muted)}
+#status{margin-left:auto;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);padding:4px 10px;border-radius:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+#status.on{color:var(--ok)}#status.off{color:var(--err)}
+#banner{display:none;margin:8px 12px 0;padding:10px 12px;border-radius:10px;background:#3a1522;border:1px solid #5b2233;color:var(--err);font-size:13px}
+#chat{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+.wrap{max-width:760px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:8px;max-width:100%}
+.msg .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
+.user .av{background:#0ea5e9}
+.bot .av{background:linear-gradient(135deg,#334155,#475569)}
+.bub{max-width:86%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word}
+.user{margin-left:auto}.user .bub{background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border-bottom-right-radius:4px}
+.bot .bub{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub pre{background:#0b1626;border:1px solid var(--line);border-radius:10px;padding:10px;overflow-x:auto;font-size:12.5px;line-height:1.5;margin:8px 0}
+.bub code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0b1626;padding:1px 5px;border-radius:5px;font-size:12.5px}
+.bub pre code{background:none;padding:0;display:block;white-space:pre}
+.bub h3,.bub h4{font-size:13.5px;margin:10px 0 4px;color:var(--accent)}
+.bub ul,.bub ol{margin:6px 0;padding-left:20px}
+.bub li{margin:2px 0}
+.bub a{color:var(--accent)}
+.typing .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--muted);margin:0 2px;animation:blink 1.2s infinite}
+.typing .dot:nth-child(2){animation-delay:.2s}.typing .dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.tagline{display:block;margin-top:8px;font-size:11px;color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.pill{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:2px 9px;color:var(--muted)}
+.copyBtn{font-size:11px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:2px 8px;cursor:pointer}
+.copyBtn:hover{color:var(--accent);border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;max-width:760px;margin:0 auto;padding:2px 12px 8px;width:100%}
+.chip{font-size:12px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;padding:6px 12px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+#files{display:flex;flex-wrap:wrap;gap:8px;max-width:760px;margin:0 auto;padding:8px 12px 0;width:100%}
+.fchip{display:flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:5px 8px 5px 5px;font-size:12px;color:var(--muted);max-width:240px}
+.fchip img{width:34px;height:34px;object-fit:cover;border-radius:8px;background:#0b1626}
+.fchip .fi{width:34px;height:34px;border-radius:8px;background:#0b1626;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.fchip .fn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.fchip button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px}
+.fchip button:hover{color:var(--err)}
+#drop{display:none;position:fixed;inset:0;z-index:50;background:rgba(11,18,32,.7);backdrop-filter:blur(2px);align-items:center;justify-content:center;border:3px dashed var(--accent);color:var(--accent);font-size:16px;pointer-events:none}
+#drop.on{display:flex}
+footer{background:rgba(17,28,48,.9);border-top:1px solid var(--line);padding:8px 12px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+#qbar{display:flex;gap:8px;max-width:760px;margin:0 auto;width:100%;align-items:flex-end}
+textarea#q{flex:1;resize:none;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;font-family:inherit;line-height:1.4;max-height:140px;min-height:46px}
+textarea#q:focus{outline:none;border-color:var(--accent)}
+#sendBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-size:18px;cursor:pointer}
+#sendBtn:disabled{opacity:.5}
+#attBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#attBtn:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">&#9729;&#65039;</div>
+  <div>
+    <h1>Agen AI Google Cloud</h1>
+    <div class="sub">Semua skill GCP &middot; diproses di cloud</div>
+  </div>
+  <span id="status">menghubungkan&hellip;</span>
+</header>
+<div id="banner"></div>
+<div id="chat"><div class="wrap" id="chatWrap"></div></div>
+<div class="chips" id="chips">
+  <button class="chip">Apa itu Google Cloud Storage?</button>
+  <button class="chip">Cara deploy aplikasi ke Cloud Run</button>
+  <button class="chip">Setup BigQuery untuk analitik</button>
+  <button class="chip">Rekomendasi firewall GCP</button>
+</div>
+<div id="files"></div>
+<footer>
+  <form id="qbar">
+    <button type="button" id="attBtn" title="Lampirkan file/gambar">&#128206;</button>
+    <textarea id="q" rows="1" placeholder="Tanya apa saja soal Google Cloud&hellip; (Enter kirim, Shift+Enter baris baru)"></textarea>
+    <button type="submit" id="sendBtn" title="Kirim">&#10148;</button>
+  </form>
+</footer>
+<input type="file" id="fileInput" multiple accept=".csv,.json,.md,.log,.txt,.py,.js,.ts,.java,.kt,.go,.rs,.c,.cpp,.h,.sh,.sql,.html,.css,.xml,.yml,.yaml,.tf,image/*" style="display:none">
+<div id="drop">Lepaskan file di sini</div>
+<script>
+var SID = 's-' + Math.random().toString(36).slice(2);
+var files = [];
+var busy = false;
+function $(id){return document.getElementById(id);}
+function esc(s){var d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
+function showBanner(msg){var b=$('banner');b.textContent=msg;b.style.display=msg?'block':'none';}
+function setStatus(t,cls){var s=$('status');s.textContent=t;s.className=cls||'';}
+function addMsg(role,html){
+  var wrap=$('chatWrap');
+  var m=document.createElement('div');m.className='msg '+role;
+  var av=document.createElement('div');av.className='av';av.textContent=(role==='user'?'\u{1F9D1}':'U+2601');
+  var bub=document.createElement('div');bub.className='bub';bub.innerHTML=html;
+  m.appendChild(av);m.appendChild(bub);
+  wrap.appendChild(m);
+  $('chat').scrollTop=$('chat').scrollHeight;
+  return m;
+}
+function md(src){
+  var s=esc(src);
+  s=s.replace(/```[\s\S]*?```/g,function(m){
+    var c=m.replace(/^```[a-z]*\n?/,'').replace(/\n?```$/,'');
+    return '<pre><code>'+esc(c)+'</code></pre>';
+  });
+  s=s.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  s=s.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/^### (.*)$/gm,'<h4>$1</h4>');
+  s=s.replace(/^## (.*)$/gm,'<h4>$1</h4>');
+  var lines=s.split('\n'),out=[],list=null;
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i];
+    if(/^\s*[-*] (.*)$/.test(l)){
+      if(!list){list=document.createElement('ul');out.push(list);}
+      var li=document.createElement('li');li.innerHTML=l.replace(/^\s*[-*] /,'');list.appendChild(li);
+    }else if(/^\s*\d+\. (.*)$/.test(l)){
+      if(!list||list.tagName!=='OL'){list=document.createElement('ol');out.push(list);}
+      var li=document.createElement('li');li.innerHTML=l.replace(/^\s*\d+\. /,'');list.appendChild(li);
+    }else{
+      list=null;out.push(l);
+    }
+  }
+  var h='';for(var j=0;j<out.length;j++){h+=(out[j]&&out[j].tagName?out[j].outerHTML:out[j]+'<br>');}
+  return h;
+}
+function kindOf(name){
+  name=(name||'').toLowerCase();
+  if(name.endsWith('.csv'))return 'CSV';
+  if(name.endsWith('.json'))return 'JSON';
+  if(name.endsWith('.md'))return 'Markdown';
+  if(name.endsWith('.log'))return 'Log';
+  if(name.endsWith('.txt'))return 'Teks';
+  if(/\.(png|jpe?g|webp|gif|bmp)$/.test(name))return 'Gambar';
+  if(/\.(py|js|ts|java|kt|go|rs|c|cpp|h|sh|sql|html|css|xml|yml|yaml|tf)$/.test(name))return 'Kode';
+  return 'File';
+}
+function readFile(f){
+  return new Promise(function(resolve){
+    var kind=kindOf(f.name);
+    if(kind==='Gambar'){
+      var r=new FileReader();
+      r.onload=function(){resolve({name:f.name,kind:kind,mime:f.type||'image/png',base64:r.result.split(',')[1],size:f.size});};
+      r.readAsDataURL(f);
+    }else{
+      f.text().then(function(t){resolve({name:f.name,kind:kind,mime:f.type||'text/plain',text:t.slice(0,300000),size:f.size});});
+    }
+  });
+}
+function renderFiles(){
+  var box=$('files');box.innerHTML='';
+  files.forEach(function(f,i){
+    var c=document.createElement('div');c.className='fchip';
+    var inner='';
+    if(f.kind==='Gambar'&&f.base64){inner='<img src="data:'+f.mime+';base64,'+f.base64+'" alt="">';}
+    else{var em={CSV:'📊',JSON:'🧾',Markdown:'📝',Log:'🧪',Kode:'💻',Teks:'📄'}[f.kind]||'📎';inner='<div class="fi">'+em+'</div>';}
+    c.innerHTML=inner+'<span class="fn">'+esc(f.name)+'</span><button type="button" title="Hapus">✕</button>';
+    c.querySelector('button').onclick=function(){files.splice(i,1);renderFiles();};
+    box.appendChild(c);
+  });
+}
+function addFiles(fl){
+  if(!fl||!fl.length)return;
+  setStatus('membaca file&hellip;');
+  var all=[].slice.call(fl).slice(0,5);
+  Promise.all(all.map(readFile)).then(function(list){
+    files=files.concat(list).slice(0,8);
+    renderFiles();
+    setStatus((files.length?files.length+' file siap':'siap'));
+    addMsg('bot','✅ <strong>'+list.length+' file</strong> siap dianalisis: '+list.map(function(f){return esc(f.name);}).join(', ')+'.<br>Tanyakan sesuatu tentang file itu (teks, data, atau gambar bisa dilihat).');
+  });
+}
+function typing(){
+  var w=$('chatWrap');
+  var m=document.createElement('div');m.className='msg bot typing';
+  m.innerHTML='<div class="av">&#9729;&#65039;</div><div class="bub"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
+  w.appendChild(m);$('chat').scrollTop=$('chat').scrollHeight;
+  return m;
+}
+function send(){
+  if(busy)return;
+  var q=$('q').value.trim();
+  if(!q)return;
+  $('q').value='';autoGrow();
+  addMsg('user',esc(q));
+  var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('memproses di cloud&hellip;');
+  var body={question:q,sessionId:SID,files:files.map(function(f){
+    var o={name:f.name,kind:f.kind,mime:f.mime};
+    if(f.kind==='Gambar'){o.base64=f.base64;}else{o.text=f.text||'';}
+    return o;
+  })};
+  fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+    .then(function(res){
+      t.remove();
+      if(res.d.error)throw new Error(res.d.error);
+      var b=addMsg('bot',md(res.d.answer)).querySelector('.bub');
+      var meta=document.createElement('div');meta.className='meta';
+      if(res.d.skills&&res.d.skills.length){var s=document.createElement('span');s.className='pill';s.textContent='📚 '+res.d.skills.join(' · ');meta.appendChild(s);}
+      if(res.d.files&&res.d.files.length){var f=document.createElement('span');f.className='pill';f.textContent='📎 '+res.d.files.length+' file';meta.appendChild(f);}
+      var cp=document.createElement('button');cp.className='copyBtn';cp.textContent='Salin';
+      cp.onclick=function(){if(navigator.clipboard){navigator.clipboard.writeText(res.d.answer);}cp.textContent='✓';setTimeout(function(){cp.textContent='Salin';},1500);};
+      meta.appendChild(cp);b.appendChild(meta);
+      setStatus('siap');
+    })
+    .catch(function(err){
+      t.remove();
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc(err.message||'server error'));
+      showBanner('Server tidak merespons atau terjadi error. Coba lagi sebentar lagi.');
+      setStatus('error','off');
+    })
+    .finally(function(){busy=false;$('sendBtn').disabled=false;});
+}
+function autoGrow(){var q=$('q');q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';}
+function resetChat(){
+  if(busy)return;
+  fetch('/api/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:SID})}).catch(function(){});
+  files=[];renderFiles();
+  $('chatWrap').innerHTML='';
+  welcome();
+  showBanner('');setStatus('sesi direset');
+}
+function welcome(){
+  var w=$('chatWrap');
+  var bub='Halo! Saya agen AI <strong>Google Cloud</strong> — punya akses ke semua skill GCP (Cloud Run, BigQuery, Kubernetes, Security, dan lainnya).<br><br>📎 Bisa <strong>upload file</strong> (CSV, JSON, kode, log) atau <strong>gambar</strong> (paste/seret) untuk dianalisis.<br><br>Silakan tanya apa saja!';
+  var m=document.createElement('div');m.className='msg bot';
+  m.innerHTML='<div class="av">&#9729;&#65039;</div><div class="bub">'+bub+'</div>';
+  w.appendChild(m);
+}
+document.getElementById('qbar').addEventListener('submit',function(e){e.preventDefault();send();});
+$('q').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+});
+$('q').addEventListener('input',autoGrow);
+$('attBtn').addEventListener('click',function(){$('fileInput').click();});
+$('fileInput').addEventListener('change',function(){addFiles(this.files);this.value='';});
+document.addEventListener('paste',function(e){
+  var items=e.clipboardData&&e.clipboardData.items;if(!items)return;
+  var imgs=[];for(var i=0;i<items.length;i++){if(items[i].type.indexOf('image')===0){imgs.push(items[i].getAsFile());}}
+  if(imgs.length)addFiles(imgs);
+});
+var dragN=0;
+document.addEventListener('dragenter',function(e){e.preventDefault();dragN++;$('drop').classList.add('on');});
+document.addEventListener('dragover',function(e){e.preventDefault();});
+document.addEventListener('dragleave',function(e){e.preventDefault();if(--dragN<=0){dragN=0;$('drop').classList.remove('on');}});
+document.addEventListener('drop',function(e){
+  e.preventDefault();dragN=0;$('drop').classList.remove('on');
+  if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files);
+});
+document.querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click',function(){$('q').value=c.textContent;autoGrow();$('q').focus();});
+});
+var clearBtn=document.createElement('button');clearBtn.className='chip';clearBtn.textContent='🔄 Reset percakapan';
+clearBtn.style.marginLeft='auto';
+clearBtn.addEventListener('click',resetChat);
+document.getElementById('chips').appendChild(clearBtn);
+welcome();
+fetch('/api/info').then(function(r){return r.json();}).then(function(d){
+  setStatus('✅ '+d.skills+' skill · '+(d.model||'AI'));$('status').classList.add('on');
+}).catch(function(){setStatus('offline','off');});
+</script>
+</body>
+</html>
