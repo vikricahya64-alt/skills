@@ -571,7 +571,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.14.1",
+    version: "3.14.2",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -953,9 +953,9 @@ async function fallbackExec(task, sessionId) {
   // 2) permintaan SQL/database -> buat & query SQLite nyata
   if (/sql|database|sqlite|tabel|query|rata.?rata|average|sum|count/i.test(t)) {
     const init = "CREATE TABLE IF NOT EXISTS data(id INTEGER PRIMARY KEY, nilai REAL); INSERT OR IGNORE INTO data(id,nilai) VALUES (1,10),(2,20),(3,30);";
-    const out1 = CODEX.toolRunner("sql", { init, sql: "SELECT AVG(nilai) AS avg_nilai, COUNT(*) AS total FROM data;" }, SID);
-    steps.push({ tool: "sql", args: { init, sql: "SELECT AVG(nilai) ..." }, ok: out1.ok, brief: out1.result.slice(0, 300) });
-    return { steps, answer: "SQLite nyata dibuat & dieksekusi. Hasil: " + (out1.ok ? out1.result : "gagal") };
+    const out1 = await CODEX.toolRunner("sql", { init, sql: "SELECT AVG(nilai) AS avg_nilai, COUNT(*) AS total FROM data;" }, SID);
+    steps.push({ tool: "sql", args: { init, sql: "SELECT AVG(nilai) ..." }, ok: out1.ok, brief: String(out1.result || out1.error || "").slice(0, 300) });
+    return { steps, answer: "SQLite nyata dibuat & dieksekusi. Hasil: " + (out1.ok ? out1.result : ("gagal: " + (out1.error || ""))) };
   }
 
   // 3) permintaan hitung/eksekusi kode -> jalankan node nyata
