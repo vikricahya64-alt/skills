@@ -8,9 +8,9 @@ if (!KEY) { console.log('Set dulu: export GEMINI_API_KEY="kunci"'); process.exit
 
 const REPO = path.resolve(__dirname, "..");
 const SKILLS_DIR = path.join(REPO, "skills");
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-const genAI = new GoogleGenerativeAI(KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+const model = new GoogleGenerativeAI(KEY).getGenerativeModel({ model: MODEL });
 
 function findSkills(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {

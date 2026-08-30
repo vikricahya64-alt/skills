@@ -23,9 +23,7 @@ jobs:
 
       - name: Cek sintaks kode
         working-directory: agen
-        run: |
-          node --check agent.js
-          node --check server.js
+        run: npm run check
 
       - name: Cek semua skill dimuat agen
         run: |
@@ -35,23 +33,17 @@ jobs:
           echo "Skill di repo: $expected, Skill di index.json: $actual"
           test "$expected" -eq "$actual"
 
-      - name: Cek server.js membaca seluruh direktori skills
+      - name: Uji server memuat seluruh skill
         working-directory: agen
         run: |
-          node -e "
-            const fs = require('fs');
-            const path = require('path');
-            const SKILLS_DIR = path.resolve('..', 'skills');
-            function findSkills(dir, out = []) {
-              for (const name of fs.readdirSync(dir)) {
-                const p = path.join(dir, name);
-                if (fs.statSync(p).isDirectory()) findSkills(p, out);
-                else if (name === 'SKILL.md') out.push(p);
-              }
-              return out;
-            }
-            const found = findSkills(SKILLS_DIR).length;
-            const expected = fs.readdirSync(SKILLS_DIR).length ? found : 0;
-            console.log('Skill terbaca server: ' + found);
-            if (found === 0) process.exit(1);
+          GEMINI_API_KEY=dummy node -e "
+            const app = require('./server.js');
+            const server = app.listen(0, async () => {
+              const port = server.address().port;
+              const res = await fetch('http://127.0.0.1:' + port + '/api/skills');
+              const body = await res.json();
+              console.log('Skill terbaca server: ' + body.total);
+              if (body.total === 0) process.exit(1);
+              server.close();
+            });
           "

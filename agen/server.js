@@ -4,65 +4,120 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "64kb" }));
 
 const KEY = process.env.GEMINI_API_KEY;
-const REPO = path.resolve(__dirname, "..");
-const SKILLS_DIR = path.join(REPO, "skills");
 const PORT = process.env.PORT || 3000;
+const MAX_LEN = 500;
 
-const genAI = new GoogleGenerativeAI(KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+// Lokasi direktori skills bisa berbeda antara lokal dan bundel Vercel.
+function resolveSkillsDir() {
+  const candidates = [
+    path.resolve(__dirname, "..", "skills"),   // repo lokal: <root>/skills
+    path.resolve(__dirname, "skills"),          // bila server disalin ke agen/
+    path.resolve(process.cwd(), "skills"),      // working dir
+    "/var/task/skills",                         // bundel Vercel (jika ada)
+  ];
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(path.join(c, "cloud"))) return c;
+    } catch (_) { /* coba kandidat berikutnya */ }
+  }
+  // Fallback: kandidat pertama yang ada.
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) return c;
+    } catch (_) { /* teruskan */ }
+  }
+  return candidates[0];
+}
+
+const SKILLS_DIR = resolveSkillsDir();
 
 function findSkills(dir, out = []) {
-  for (const name of fs.readdirSync(dir)) {
+  let entries;
+  try {
+    entries = fs.readdirSync(dir);
+  } catch (_) {
+    return out;
+  }
+  for (const name of entries) {
     const p = path.join(dir, name);
-    if (fs.statSync(p).isDirectory()) findSkills(p, out);
-    else if (name === "SKILL.md") out.push(p);
+    try {
+      if (fs.statSync(p).isDirectory()) findSkills(p, out);
+      else if (name === "SKILL.md") out.push(p);
+    } catch (_) { /* lewati */ }
   }
   return out;
 }
 
-const index = findSkills(SKILLS_DIR).map(f => ({
-  f,
-  name: f.replace(SKILLS_DIR + "/", "").replace("/SKILL.md", ""),
-  preview: fs.readFileSync(f, "utf-8").slice(0, 800)
-}));
-console.log("Skill dimuat: " + index.length);
-
-app.get("/api/skills", (req, res) => {
-  res.json({ total: index.length, skills: index.map(({ name }) => name) });
-});
+let index = [];
+try {
+  index = findSkills(SKILLS_DIR).map((f) => ({
+    f,
+    name: f.replace(SKILLS_DIR + "/", "").replace("/SKILL.md", ""),
+    preview: fs.readFileSync(f, "utf-8").slice(0, 800),
+  }));
+} catch (_) {
+  index = [];
+}
+console.log("Skill dimuat: " + index.length + " dari " + SKILLS_DIR);
 
 const STOP = new Set(["apa","itu","ini","dan","atau","di","ke","dari","pada","yang","dengan","untuk","bagaimana","cara","buat","membuat","adalah","tolong","the","a","an","of","to","in","on","for","how","what","is","with","and"]);
-function tokens(q){return q.toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>2&&!STOP.has(w));}
-function pick(q){
-  const words=tokens(q);
-  return index.map(it=>{
-    const nameHay=it.name.toLowerCase().replace(/[^a-z0-9]+/g," ");
-    const prevHay=it.preview.toLowerCase();
-    let s=0;
-    for(const w of words){ if(nameHay.includes(w))s+=3; if(prevHay.includes(w))s+=1; }
-    return {...it,s};
-  }).sort((a,b)=>b.s-a.s);
+function tokens(q) {
+  return q.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
+}
+function pick(q) {
+  const words = tokens(q);
+  return index.map((it) => {
+    const nameHay = it.name.toLowerCase().replace(/[^a-z0-9]+/g, " ");
+    const prevHay = it.preview.toLowerCase();
+    let s = 0;
+    for (const w of words) {
+      if (nameHay.includes(w)) s += 3;
+      if (prevHay.includes(w)) s += 1;
+    }
+    return { ...it, s };
+  }).sort((a, b) => b.s - a.s);
 }
 
-app.post("/ask", async (req,res)=>{
-  const q=(req.body.question||"").trim();
-  if(!q) return res.status(400).json({error:"Pertanyaan kosong"});
-  try{
-    const top=pick(q).filter(x=>x.s>0).slice(0,3);
-    const context=top.length
-      ? top.map(x=>"=== SKILL: "+x.name+" ===\n"+fs.readFileSync(x.f,"utf-8")).join("\n\n")
-      : "(tidak ada skill spesifik; gunakan pengetahuan Google Cloud umum)";
-    const r=await model.generateContent(
-      "Kamu agen AI ahli Google Cloud. Jawab dalam bahasa Indonesia, ringkas namun lengkap.\n\nKonteks skill:\n"+context+"\n\nPertanyaan: "+q
-    );
-    res.json({answer:r.response.text(),skills:top.map(x=>x.name)});
-  }catch(e){ res.status(500).json({error:e.message}); }
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", skills: index.length, hasKey: !!KEY });
 });
 
-app.get("/", (req,res)=>{ res.send(HTML); });
+app.get("/api/skills", (req, res) => {
+  res.json({ total: index.length, skills: index.map((s) => s.name) });
+});
+
+app.post("/ask", async (req, res) => {
+  if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur di server." });
+  const q = String(req.body && req.body.question || "").trim();
+  if (!q) return res.status(400).json({ error: "Pertanyaan kosong" });
+  if (q.length > MAX_LEN) return res.status(400).json({ error: "Pertanyaan terlalu panjang (maks " + MAX_LEN + " karakter)." });
+
+  let model;
+  try {
+    const genAI = new GoogleGenerativeAI(KEY);
+    model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+  } catch (_) {
+    return res.status(500).json({ error: "Gagal menyiapkan model." });
+  }
+
+  try {
+    const top = pick(q).filter((x) => x.s > 0).slice(0, 3);
+    const context = top.length
+      ? top.map((x) => "=== SKILL: " + x.name + " ===\n" + fs.readFileSync(x.f, "utf-8")).join("\n\n")
+      : "(tidak ada skill spesifik; gunakan pengetahuan Google Cloud umum)";
+    const r = await model.generateContent(
+      "Kamu agen AI ahli Google Cloud. Jawab dalam bahasa Indonesia, ringkas namun lengkap.\n\nKonteks skill:\n" + context + "\n\nPertanyaan: " + q
+    );
+    res.json({ answer: r.response.text(), skills: top.map((x) => x.name) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/", (req, res) => { res.send(HTML); });
 
 const HTML = `<!DOCTYPE html>
 <html lang="id">
@@ -109,7 +164,7 @@ async function kirim(e){
   try{
     var r=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
     var d=await r.json();
-    bot.textContent=d.answer||d.error;
+    bot.textContent=d.answer||d.error||('HTTP '+r.status);
     if(d.skills&&d.skills.length){
       var t=document.createElement('span');
       t.className='tag';
@@ -124,6 +179,6 @@ async function kirim(e){
 </html>`;
 
 if (require.main === module) {
-  app.listen(PORT, () => console.log("Server jalan di port " + PORT));
+  app.listen(PORT, () => console.log("Server jalan di port " + PORT + " (skill: " + index.length + ")"));
 }
 module.exports = app;

@@ -1,16 +1,19 @@
 {
-  "name": "agen",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "gcp-agent",
+  "version": "2.0.0",
+  "description": "Sisi server Agen AI Google Cloud (diproses di cloud, bukan di perangkat).",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "agent": "node agent.js",
+    "check": "node --check server.js && node --check agent.js && node --check agent-v1.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["gcp", "agent", "gemini", "skills"],
+  "license": "Apache-2.0",
   "type": "commonjs",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/generative-ai": "^0.24.1",
+    "express": "^4.21.2"
   }
 }
