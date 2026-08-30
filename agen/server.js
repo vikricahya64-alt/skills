@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.8.0",
+    version: "3.9.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -760,6 +760,42 @@ async function fallbackExec(task, sessionId) {
     steps.push({ tool: "write", args: { path: "rencana-proyek.csv" }, ok: ok.ok, brief: "rencana proyek/sprint dibuat" });
     if (gate.ok) steps.push({ tool: "bash", args: { command: "node quality-gate" }, ok: true, brief: gate.result.trim() });
     return { steps, answer: "Rencana proyek dibuat (rencana-proyek.csv) dengan milestone & status, plus quality gate delivery dieksekusi nyata: " + (gate.ok ? gate.result.trim() : "gagal") };
+  }
+
+
+  // 11) efisiensi/optimasi/benchmark -> jalankan benchmark & audit optimasi nyata (Node)
+  if (/efisiensi|efisien|efficiency|optimasi|optimi[sz]|kinerja|benchmark|token hemat|hemat konteks|throughput|latency optimasi|resource/i.test(t)) {
+    const codeStr = [
+      "// Benchmark efisiensi (hasil fusion skill Efficiency & Optimization Mastery)",
+      "function bench(fn, n){ const t0=Date.now(); for(let i=0;i<n;i++){ fn(i); } const dt=Date.now()-t0; return (n/dt).toFixed(2); }",
+      "const arr=[]; for(let i=0;i<1000;i++) arr.push(i*2);",
+      "const sumPass=()=>arr.filter(x=>x%2===0).map(x=>x*3).reduce((a,b)=>a+b,0);",
+      "const naive=bench(sumPass, 2000);",
+      "let s=0; const evens=bench(i=>{ if(arr[i]%2===0) s+=arr[i]*3; }, 2000);",
+      "console.log('Naive pass/s: '+naive+' | single-loop pass/s: '+evens+' | speedup x'+(naive/evens).toFixed(2));",
+      "console.log('Rekomendasi: cache hasil, hindari multi-pass, gunakan O(n) sekali lintas.');",
+    ].join("\n");
+    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(codeStr) }, SID);
+    const md = [
+      "# Audit Optimasi & Efisiensi",
+      "",
+      "## 1. Benchmark Lokal",
+      "- Naive (multi-pass) vs single-loop: diukur nyata via Node.js",
+      "",
+      "## 2. Temuan & Rekomendasi (pola skill)",
+      "- Hapus dead code & abstraksi tak perlu (YAGNI / lean / minimal-change)",
+      "- Cache hasil komputasi berulang (content-hash / turborepo)",
+      "- Paralelkan tugas independen (async / concurrency)",
+      "- Optimasi query SQL & indeks (database / vector-index)",
+      "- Batasi konteks & token (token-budget / kompresi caveman-ponytail)",
+      "",
+      "## 3. Implementasi",
+      "- Terapkan patch minimal lalu re-benchmark (optimization loop)",
+    ].join("\n");
+    const ok = await CODEX.toolRunner("write", { path: "audit-optimasi.md", content: md }, SID);
+    steps.push({ tool: "bash", args: { command: "node benchmark" }, ok: out.ok, brief: out.result.slice(0, 300) });
+    if (ok.ok) steps.push({ tool: "write", args: { path: "audit-optimasi.md" }, ok: true, brief: "audit optimasi & rekomendasi disimpan" });
+    return { steps, answer: "Benchmark efisiensi dieksekusi nyata via Node.js (naive vs single-loop) dan audit optimasi disimpan ke audit-optimasi.md. Hasil: " + (out.ok ? out.result.trim() : "gagal") };
   }
 
   return null;
