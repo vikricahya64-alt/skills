@@ -1,6 +1,6 @@
 # Agent Skills
 
-[![Install via skills.sh](https://img.shields.io/badge/skills.sh-install-green)](https://skills.sh/google/skills)
+[![Install via skills.sh](https://img.shields.io/badge/skills.sh-install-green)](https://skills.sh/vikricahya64-alt/skills)
 
 This repository contains [Agent Skills](https://agentskills.io/home) for Google
 products and technologies, including [Google Cloud](https://cloud.google.com).
@@ -11,7 +11,7 @@ products and technologies, including [Google Cloud](https://cloud.google.com).
 ## Installation
 
 ```bash
-npx skills add google/skills
+npx skills add vikricahya64-alt/skills
 ```
 
 From the `npx install` command, you can select the specific skills from this
@@ -177,9 +177,24 @@ This repo also bundles Google product plugins (Skills + MCP servers) for agent h
 
 | Agent harness | Install |
 | :--- | :--- |
-| **Claude Code** | `claude plugin marketplace add google/skills`, then `claude plugin install <plugin>@google-plugins` |
-| **Codex** | `codex plugin marketplace add google/skills`, then install from the `/plugins` browser |
-| **Antigravity CLI** | `agy plugin install https://github.com/google/skills/<plugin-path>` |
+| **Claude Code** | `claude plugin marketplace add vikricahya64-alt/skills`, then `claude plugin install <plugin>@google-plugins` |
+| **Codex** | `codex plugin marketplace add vikricahya64-alt/skills`, then install from the `/plugins` browser |
+| **Antigravity CLI** | `agy plugin install https://github.com/vikricahya64-alt/skills/<plugin-path>` |
+
+## Katalog semua skill (index.json)
+
+Repositori ini memuat katalog semua skill di [`index.json`](./index.json), yang
+dipakai oleh skill finder (`skills/developers/finding-google-skills`) dan
+endpoint API agar semua skill dapat dikeluarkan/ditemukan.
+
+- Format: `{ "skills": [ { "name", "description", "entrypoint" } ] }`
+- Dibuat otomatis oleh workflow `.github/workflows/index.yml` setiap ada
+  perubahan pada `skills/**` (regenerasi + auto-commit).
+- Generate manual: `node tools/generate-index.js`
+- Diverifikasi di CI (`ci.yml`) bahwa semua `SKILL.md` masuk ke katalog.
+
+Server agen juga memuat semua skill saat startup. Endpoint
+`GET /api/skills` mengeluarkan daftar seluruh nama skill yang tersedia.
 
 ## Support
 
