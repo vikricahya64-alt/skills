@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.6.2",
+    version: "3.6.3",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -637,7 +637,7 @@ app.post("/api/agent", async (req, res) => {
   // FALLBACK eksekusi nyata: bila tugas butuh eksekusi & tak ada tool call dari model
   if (!steps.length && needExec) {
     try {
-      const parsed = fallbackExec(task, sessionId);
+      const parsed = await fallbackExec(task, sessionId);
       if (parsed) { steps.push(...parsed.steps); if (!answer) answer = parsed.answer; }
     } catch (_) {}
     if (steps.length && !answer) answer = "Dieksekusi nyata di cloud. Lihat langkah di atas.";
@@ -648,7 +648,7 @@ app.post("/api/agent", async (req, res) => {
 });
 
 // Fallback executor: bila model tidak mengeluarkan tool-call, jalankan rantai nyata
-function fallbackExec(task, sessionId) {
+async function fallbackExec(task, sessionId) {
   const t = task.toLowerCase();
   const steps = [];
   const SID = sessionId;
@@ -663,7 +663,7 @@ function fallbackExec(task, sessionId) {
     const vals = fit.length >= 2 ? fit : values;
     const data = vals.map((v, i) => ({ label: "S" + (i + 1), value: v }));
     const fname = "output-chart.html";
-    const out = CODEX.toolRunner("chart", { data, type: "bar", title: "Visualisasi Data", file: fname }, SID);
+    const out = await CODEX.toolRunner("chart", { data, type: "bar", title: "Visualisasi Data", file: fname }, SID);
     steps.push({ tool: "chart", args: { data, file: fname }, ok: out.ok, brief: out.result.slice(0, 300) });
     return { steps, answer: "Grafik nyata dibuat dan disimpan sebagai <b>" + fname + "</b> (" + vals.length + " baris data)." };
   }
@@ -681,7 +681,7 @@ function fallbackExec(task, sessionId) {
     const nums = (task.match(/\b\d+(?:\.\d+)?\b/g) || []).map(Number);
     const sumx = nums.reduce((a, b) => a + (Number.isFinite(b) ? b : 0), 0);
     const code = "console.log('Hasil perhitungan: ' + (" + sumx + "))";
-    const out = CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(code) }, SID);
+    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(code) }, SID);
     steps.push({ tool: "bash", args: { command: "node -e ..." }, ok: out.ok, brief: out.result.slice(0, 300) });
     return { steps, answer: "Dieksekusi nyata dengan Node.js. " + (out.ok ? out.result.replace(/^.*?results?\s*[:=]?\s*/i, "") : "gagal") };
   }
