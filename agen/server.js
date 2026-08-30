@@ -9,6 +9,7 @@ const KB = require("./knowledge.js");
 const CODEX = require("./codex.js");
 const EVO = require("./capabilities2.js");
 const FUSION = require("./fusion.js");
+const RUN = require("./run.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -398,7 +399,7 @@ app.get("/api/capabilities", (req, res) => {
 app.get("/api/evolution", (req, res) => {
   res.json({
     primes: EVO.PRIMES.map((p) => ({ id: p.id, name: p.name, emoji: p.emoji, domains: p.domains, insight: p.insight })),
-    combos: EVO.COMBOS.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, skills: c.skills, insight: c.insight })),
+    combos: EVO.COMBOS.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, skills: c.skills, insight: c.insight, commands: RUN.COMBO_COMMANDS[c.id] || [] })),
   });
 });
 
@@ -559,7 +560,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.10.0",
+    version: "3.11.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -748,6 +749,95 @@ app.post("/api/agent", async (req, res) => {
 
   sessions.delete(sessionId); // workspace agen bersifat ephemeral per panggilan (stateless serverless)
   res.json({ answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
+});
+
+// ===== SINGLE-COMMAND CAPABILITY ENGINE (1 perintah -> misi otomatis, seperti Codex) =====
+app.post("/api/run", async (req, res) => {
+  if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur." });
+  const task = String((req.body && req.body.task) || "").trim();
+  const sessionId = String((req.body && req.body.sessionId) || "default").slice(0, 64);
+  if (!task) return res.status(400).json({ error: "Perintah kosong" });
+  if (task.length > 4000) return res.status(400).json({ error: "Perintah terlalu panjang (maks 4000)." });
+
+  const cap = RUN.matchSkill(task);
+  const mission = cap ? RUN.buildMission(task, cap, sessionId) : RUN.buildGeneric(task);
+
+  let model;
+  try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
+
+  const messages = [{ role: "user", parts: [{ text: mission.system + "\n\nPERINTAH USER (1 perintah):\n" + task }] }];
+  let modelOut;
+  try { const r = await model.generateContent(messages[0].parts); modelOut = r.response.text(); }
+  catch (e) { return res.status(429).json({ error: String((e && e.message) || e), retry: true }); }
+
+  let answer = "";
+  const steps = [];
+  const doneCalls = new Set();
+  const MAX_IT = 6;
+  let final = false;
+
+  function extractCalls(text) {
+    const calls = [];
+    const re = /\{\s*"tool"\s*:\s*"([a-z]+)"\s*,\s*"args"\s*:\s*(\{(?:[^{}])*\})\s*\}/g;
+    let m;
+    while ((m = re.exec(text))) {
+      try { calls.push({ tool: m[1], args: JSON.parse(m[2]) }); } catch (_) {}
+    }
+    return calls;
+  }
+
+  for (let i = 0; i < MAX_IT; i++) {
+    const calls = extractCalls(modelOut);
+    const sel = modelOut.indexOf("[SELESAI]");
+    const hasFinish = sel !== -1;
+
+    if (calls.length) {
+      const results = [];
+      for (const c of calls.slice(0, 6)) {
+        const key = c.tool + ":" + JSON.stringify(c.args || {});
+        if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
+        doneCalls.add(key);
+        const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
+        steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
+        results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
+      }
+      const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
+        "\n\nLanjutkan misi sampai selesai, lalu tutup dengan [SELESAI]...";
+      messages.push({ role: "user", parts: [{ text: toolText }] });
+      try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+      catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal lanjut: " + (e.message || e) }); break; }
+      continue;
+    }
+
+    if (hasFinish) {
+      answer = modelOut.slice(sel + "[SELESAI]".length).trim();
+      final = true;
+      break;
+    }
+
+    messages.push({ role: "user", parts: [{ text: "Lanjutkan misi: kerjakan langkah berikutnya atau tutup dengan [SELESAI]<jawaban akhir dalam Bahasa Indonesia>." }] });
+    try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+    catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal: " + (e.message || e) }); break; }
+  }
+
+  // Fallback eksekusi nyata bila model tidak memanggil tool sama sekali
+  if (!steps.length) {
+    try {
+      const parsed = await fallbackExec(task, sessionId);
+      if (parsed) { steps.push(...parsed.steps); if (!answer) answer = parsed.answer; }
+    } catch (_) {}
+  }
+
+  sessions.delete(sessionId);
+  res.json({
+    answer: answer || modelOut || "(misi tidak menghasilkan jawaban akhir)",
+    final,
+    steps,
+    sessionId,
+    mode: "run",
+    skill: cap ? { id: cap.id, name: cap.emoji + " " + cap.name } : null,
+    skillKey: mission.skillKey,
+  });
 });
 
 // Fallback executor: bila model tidak mengeluarkan tool-call, jalankan rantai nyata

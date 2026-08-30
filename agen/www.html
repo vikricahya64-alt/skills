@@ -22,6 +22,8 @@ header .sub{font-size:11px;color:var(--muted)}
 .cap h4{margin:0;font-size:13.5px;color:var(--text)}
 .cap .ci{font-size:12px;color:var(--muted);margin:4px 0}
 .cap .cb{font-size:11.5px;background:var(--panel2);border:1px solid var(--line);color:var(--accent);border-radius:10px;padding:3px 9px;cursor:pointer}
+.cap .runRow{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.cap .runBtn{font-size:11.5px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;border:none;border-radius:14px;padding:4px 10px;cursor:pointer;font-weight:600}
 .cap .cb:hover{border-color:var(--accent)}
 .cap pre{background:#0b1626;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;white-space:pre-wrap;max-height:260px;overflow:auto;margin:6px 0 0}
 .step{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;word-break:break-word}
@@ -373,14 +375,16 @@ function renderCaps(){
     var ev=res[0], pk=res[1];
     var items=[];
     (ev.primes||[]).forEach(function(p){items.push({type:'PRIME',id:p.id,name:p.name,emoji:p.emoji,insight:p.insight});});
-    (ev.combos||[]).forEach(function(c){items.push({type:'KEMAMPUAN FUSION',id:c.id,name:c.name,emoji:c.emoji,insight:c.insight});});
+    (ev.combos||[]).forEach(function(c){items.push({type:'KEMAMPUAN FUSION',id:c.id,name:c.name,emoji:c.emoji,insight:c.insight,commands:c.commands||[]});});
     pan.innerHTML='';
     items.forEach(function(it){
       var info=(pk.packs||{})[it.id];
       var card=document.createElement('div');card.className='cap';
+      var runBtns=(it.commands&&it.commands.length)?'<div class="runRow">'+it.commands.map(function(c){return '<button class="runBtn" type="button">▶ '+esc(c)+'</button>';}).join('')+'</div>':'';
       card.innerHTML='<h4>'+it.emoji+' '+esc(it.name)+' <span style="font-size:10px;color:var(--muted)">'+it.type+'</span></h4>'+
         '<div class="ci">'+esc(it.insight||'')+'</div>'+
         (info?'<div class="ci">🧩 '+info.skillCount+' skill · '+info.codes+' kode · '+info.logic+' logika</div>':'')+
+        runBtns+
         '<button class="cb" type="button">📂 Lihat logika & kode</button><div class="capBody" style="display:none"></div>';
       card.querySelector('.cb').onclick=function(){
         var body=card.querySelector('.capBody');
@@ -391,6 +395,9 @@ function renderCaps(){
           body.innerHTML='<pre>'+esc(txt)+'</pre>';
         }).catch(function(){body.innerHTML='<div class="ci">gagal memuat</div>';});
       };
+      card.querySelectorAll('.runBtn').forEach(function(btn){
+        btn.onclick=function(){var cmd=this.textContent.replace(/^▶\s*/,'');$('q').value=cmd;autoGrow();sendRun(cmd);};
+      });
       pan.appendChild(card);
     });
     var total=items.length;
@@ -448,6 +455,45 @@ function addActionBtns(bub,lastQ){
     bar.appendChild(b);
   });
   bub.appendChild(bar);
+}
+function sendRun(q){
+  if(busy)return;
+  q=String(q||'').trim();
+  if(!q)return;
+  $('q').value='';autoGrow();
+  addMsg('user',esc(q));
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi kemampuan&hellip;');
+  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
+  var holder=$('chatWrap');
+  holder.appendChild(box);
+  $('chat').scrollTop=$('chat').scrollHeight;
+  fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID}),signal:abortCtrl.signal})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+    .then(function(res){
+      t.remove();
+      if(res.d.error)throw new Error(res.d.error);
+      if(res.d.skill){var st=document.createElement('div');st.className='step ok';st.innerHTML='<span class="tl">KEMAMPUAN</span> '+esc(res.d.skill.name);box.appendChild(st);}
+      (res.d.steps||[]).forEach(function(st,i){
+        var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
+        var tbl=renderToolResult(st.brief||'');
+        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
+        box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
+      });
+      lastAnswerText=res.d.answer||'';
+      var ans=document.createElement('div');ans.style.marginTop='8px';
+      ans.innerHTML=md(lastAnswerText||'(tidak ada hasil akhir)');
+      box.appendChild(ans);
+      addActionBtns(box, lastAnswerText);
+      $('chat').scrollTop=$('chat').scrollHeight;
+      setStatus('selesai');
+    })
+    .catch(function(err){
+      t.remove();
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc(err.message||'server error'));
+      showBanner('Single-command error. Coba lagi.');
+      setStatus('error','off');
+    })
+    .finally(function(){busy=false;$('sendBtn').disabled=false;hidePause();abortCtrl=null;});
 }
 function sendAgent(){
   if(busy)return;
