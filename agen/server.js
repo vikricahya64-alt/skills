@@ -11,6 +11,7 @@ const CODEX = require("./codex.js");
 const EVO = require("./capabilities2.js");
 const FUSION = require("./fusion.js");
 const RUN = require("./run.js");
+const OUTPUTS = require("./outputs.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -1038,20 +1039,45 @@ app.post("/api/run", async (req, res) => {
   // Fallback eksekusi nyata bila model tidak memanggil tool sama sekali
   const hasOk = steps.some((s) => s.ok);
   if (!hasOk) {
-    prog("🛠️ Menjalankan eksekusi langsung (fallback engine — menyiapkan file & perintah nyata)…");
+    // 1) Resep output nyata deterministik per kemampuan (Fusion Level 2)
+    let recipeUsed = false;
     try {
-      const parsed = await fallbackExec(task, sessionId);
-      if (parsed && parsed.steps && parsed.steps.length) {
-        for (const st of parsed.steps) {
+      const recipe = await OUTPUTS.runRecipe(mission.skillKey, task, sessionId);
+      if (recipe && recipe.steps && recipe.steps.length) {
+        recipeUsed = true;
+        prog("🛠️ Menjalankan resep output nyata untuk kemampuan: " + mission.skillName + "…");
+        for (const st of recipe.steps) {
           steps.push(st);
           if (emit) emit("step", st);
-          if (useStream) await new Promise((r) => setTimeout(r, 400)); // tampil bertahap = progres nyata
+          if (useStream) await new Promise((r) => setTimeout(r, 300));
         }
-        answer = parsed.answer;
-        prog("✅ Eksekusi fallback selesai — semua langkah nyata berhasil dijalankan.");
+        answer = recipe.answer;
+        prog("✅ Resep output nyata selesai — semua langkah dieksekusi dan artefak tersimpan.");
       }
     } catch (_) {}
+    if (!recipeUsed) {
+      prog("🛠️ Menjalankan eksekusi langsung (fallback engine — menyiapkan file & perintah nyata)…");
+      try {
+        const parsed = await fallbackExec(task, sessionId);
+        if (parsed && parsed.steps && parsed.steps.length) {
+          for (const st of parsed.steps) {
+            steps.push(st);
+            if (emit) emit("step", st);
+            if (useStream) await new Promise((r) => setTimeout(r, 400)); // tampil bertahap = progres nyata
+          }
+          answer = parsed.answer;
+          prog("✅ Eksekusi fallback selesai — semua langkah nyata berhasil dijalankan.");
+        }
+      } catch (_) {}
+    }
   }
+
+  let projectZip = null;
+  try {
+    const wdir = CODEX.wsDir(sessionId);
+    const wfiles = ZIP.collectFiles(wdir);
+    if (wfiles.length) projectZip = ZIP.buildZip(wfiles).toString("base64");
+  } catch (_) {}
 
   const payload = {
     answer: answer || modelOut || "(misi tidak menghasilkan jawaban akhir)",
@@ -1061,9 +1087,11 @@ app.post("/api/run", async (req, res) => {
     mode: "run",
     skill: cap ? { id: cap.id, name: cap.emoji + " " + cap.name } : null,
     skillKey: mission.skillKey,
+    canDownload: true,
+    projectZip,
   };
   if (useStream) {
-    prog("✅ Selesai — menyusun hasil akhir…");
+    prog("✅ Selesai — menyusun jawaban akhir & artefak…");
     emit("done", payload);
     res.end();
     return;
@@ -1077,6 +1105,15 @@ async function fallbackExec(task, sessionId) {
   const t = task.toLowerCase();
   const steps = [];
   const SID = sessionId;
+
+  // Jalankan kode Node multi-baris NYATA tanpa rawan quoting shell:
+  function runNode(code) {
+    const wdir = CODEX.wsDir(SID);
+    const file = require("path").join(wdir, "__fusion_run.js");
+    require("fs").mkdirSync(wdir, { recursive: true });
+    require("fs").writeFileSync(file, String(code ?? ""));
+    return CODEX.toolRunner("bash", { command: "node " + JSON.stringify(file) }, SID);
+  }
 
   // 1) permintaan chart/grafik -> render chart nyata
   if (/chart|grafik|visualisasi|bar chart|line/.test(t)) {
@@ -1106,8 +1143,8 @@ async function fallbackExec(task, sessionId) {
     const nums = (task.match(/\b\d+(?:\.\d+)?\b/g) || []).map(Number);
     const sumx = nums.reduce((a, b) => a + (Number.isFinite(b) ? b : 0), 0);
     const code = "console.log('Hasil perhitungan: ' + (" + sumx + "))";
-    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(code) }, SID);
-    steps.push({ tool: "bash", args: { command: "node -e ..." }, ok: out.ok, brief: out.result.slice(0, 300) });
+    const out = await runNode(code);
+    steps.push({ tool: "bash", args: { command: "node ..." }, ok: out.ok, brief: out.result.slice(0, 300) });
     return { steps, answer: "Dieksekusi nyata dengan Node.js. " + (out.ok ? out.result.replace(/^.*?results?\s*[:=]?\s*/i, "") : "gagal") };
   }
 
@@ -1149,7 +1186,7 @@ async function fallbackExec(task, sessionId) {
       "const p = new Player('Hero'); const lv = new Level('L1', [1,2,3]);",
       "console.log('Spawn: ' + lv.enemies.length + ' musuh | HP player: ' + p.damage(20) + ' | Level: ' + JSON.stringify(lv.tick()));",
     ].join("\n");
-    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(proto) }, SID);
+    const out = await runNode(proto);
     const ok = await CODEX.toolRunner("write", { path: "game-prototype.js", content: proto }, SID);
     steps.push({ tool: "bash", args: { command: "node prototype" }, ok: out.ok, brief: out.result.slice(0, 300) });
     if (ok.ok) steps.push({ tool: "write", args: { path: "game-prototype.js" }, ok: true, brief: "prototipe gameplay disimpan" });
@@ -1181,7 +1218,7 @@ async function fallbackExec(task, sessionId) {
       "const gate=rows.every(r=>r.status==='selesai')?'LULUS':'BELUM SIAP';",
       "console.log('Quality gate delivery: '+gate);",
     ].join("\n");
-    const gate = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(gateCode) }, SID);
+    const gate = await runNode(gateCode);
     steps.push({ tool: "write", args: { path: "rencana-proyek.csv" }, ok: ok.ok, brief: "rencana proyek/sprint dibuat" });
     if (gate.ok) steps.push({ tool: "bash", args: { command: "node quality-gate" }, ok: true, brief: gate.result.trim() });
     return { steps, answer: "Rencana proyek dibuat (rencana-proyek.csv) dengan milestone & status, plus quality gate delivery dieksekusi nyata: " + (gate.ok ? gate.result.trim() : "gagal") };
@@ -1200,7 +1237,7 @@ async function fallbackExec(task, sessionId) {
       "console.log('Naive pass/s: '+naive+' | single-loop pass/s: '+evens+' | speedup x'+(naive/evens).toFixed(2));",
       "console.log('Rekomendasi: cache hasil, hindari multi-pass, gunakan O(n) sekali lintas.');",
     ].join("\n");
-    const out = await CODEX.toolRunner("bash", { command: "node -e " + JSON.stringify(codeStr) }, SID);
+    const out = await runNode(codeStr);
     const md = [
       "# Audit Optimasi & Efisiensi",
       "",

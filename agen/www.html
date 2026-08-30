@@ -88,18 +88,6 @@ header .sub{font-size:11px;color:var(--muted)}
 .act:hover{border-color:var(--accent);color:var(--accent)}
 .dlbtn{font-size:12px;background:var(--accent);border:none;color:#fff;border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:8px;font-weight:600;transition:.15s}
 .dlbtn:hover{opacity:.88}
-.confirmOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:999}
-.confirmBox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:420px;width:calc(100% - 40px);box-shadow:0 10px 40px rgba(0,0,0,.5);text-align:center}
-.confirmBox h4{margin:0 0 8px;color:#fbbf24}
-.confirmBox .ci{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.5}
-.confirmBox .cfw{display:inline-block;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.45);color:#fbbf24;font-weight:800;border-radius:8px;padding:1px 8px;letter-spacing:2px}
-.confirmBox input{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:14px;text-align:center;letter-spacing:1px;margin-bottom:12px;outline:none}
-.confirmBox input:focus{border-color:var(--accent)}
-.confirmBox .runRow{display:flex;gap:8px;justify-content:center}
-.confirmBox .runBtn{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px;transition:.15s}
-.confirmBox .runBtn:disabled{opacity:.4;cursor:not-allowed}
-.confirmBox .cb{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:13px}
-.confirmBox .cb:hover{border-color:#f87171;color:#f87171}
 .quickRow{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px;max-width:760px;margin:0 auto;width:100%}
 .quick{font-size:11.5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:16px;padding:5px 11px;cursor:pointer}
 .quick:hover{border-color:var(--accent);color:var(--accent)}
@@ -134,8 +122,6 @@ textarea#q:focus{outline:none}
 #sendBtn:disabled{opacity:.5}
 #attBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #attBtn:hover{border-color:var(--accent);color:var(--accent)}
-#keyBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-#keyBtn:hover{border-color:#fbbf24;color:#fbbf24}
 </style>
 </head>
 <body>
@@ -188,7 +174,6 @@ textarea#q:focus{outline:none}
   <form id="qbar">
     <button type="button" id="micBtn" title="Input suara (convert suara ke teks)">🎤</button>
     <button type="button" id="attBtn" title="Lampirkan file/gambar">&#128206;</button>
-    <button type="button" id="keyBtn" title="Atur kata kunci verifikasi">🔑</button>
     <textarea id="q" rows="1" placeholder="Tanya apa saja soal Google Cloud&hellip; (Enter kirim, Shift+Enter baris baru)"></textarea>
     <button type="button" id="pauseBtn" title="Jeda / hentikan proses" style="display:none">⏸</button>
     <button type="submit" id="sendBtn" title="Kirim">&#10148;</button>
@@ -299,6 +284,13 @@ function send(){
   var q=$('q').value.trim();
   if(!q)return;
   if(MODE==='coder'){sendAgent();return;}
+  if(awaitingKata){confirmKata(q);return;}
+  if(/^(ganti|ubah|res?).?kata.?kunci/i.test(q)){
+    $('q').value='';autoGrow();hideHero();
+    pendingKata=null;awaitingKata=true;kataMode='change';
+    addMsg('bot','🔑 Ketik <b>kata kerja baru</b> di obrolan (misal: <i>jalankan</i>, <i>kirim</i>, <i>simpan</i>).');
+    return;
+  }
   if(MODE==='auto'&&isExecQuery(q)){sendRun(q);return;}
   $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
@@ -671,52 +663,60 @@ function streamRun(url, q, box, title, finishMeta, t, combo){
       .catch(function(err){ finishErr(err); });
   });
 }
+var pendingKata=null;      // query yang menunggu verifikasi kata kunci dari obrolan
+var awaitingKata=false;    // sedang menunggu word diketik user di obrolan
+var kataMode='';           // 'new' | 'verify' | 'change'
+// Word verifikasi WAJIB kata kerja eksplisit: daftar verba umum + pola morfologi.
+var KATA_KERJA=["buat","kerjakan","tulis","tuliskan","baca","bacakan","kirim","kirimkan","terima","terimakan","simpan","unduh","unggah","hapus","tambah","tambahkan","ubah","ubahkah","ubah","ganti","gantikan","hitung","hitungkan","kalkulasi","jumlah","jumlahkan","rangkum","rangkumkan","ringkas","ringkaskan","analisis","analisa","analisakan","cari","carikan","urutkan","filter","saring","saringkan","gabung","gabungkan","konversi","kover","konversikan","terjemahkan","translate","periksa","periksakan","validasi","validasikan","periksa","photo","cek","ceks","uji","ujikan","tes","proses","proseskan","generate","proteksi","enkripsi","deploy","build","kompilasi","instal","pasang","mulai","henti","stop","pause","lanjutkan","reset","klasifikasi","kelompokkan","pecah","bagi","bagikan","kurangi","kalikan","muat","render","tampilkan","gambar","gambarkan","susun","susunkan","sintesis","sintesiskan","rangkaian","rencanakan","jadwalkan","telusuri","jelajah","teliti","pilih","pilihkan","kunci","gembok","amankan","simulasikan","jalankan","eksekusi","terbitkan"];
+var VERB_POLA=/^(me|mem|men|meng|meny|ber|di|ter)/;
+var VERB_SUFIKS=/(kan|i)$/;
+function isVerbWord(w){
+  w=String(w||"").trim().toLowerCase();
+  if(w.length<3)return false;
+  if(KATA_KERJA.indexOf(w)>=0)return true;
+  if(VERB_POLA.test(w)&&w.length>=4)return true;
+  if(VERB_SUFIKS.test(w)&&w.length>=4)return true;
+  return false;
+}
 function sendRun(q){
   q=String(q||'').trim();
   if(!q)return;
   $('q').value='';autoGrow();hideHero();
-  verifyCapability(q);
-}
-function verifyCapability(q){
   var word=LS('verifyWord');
+  pendingKata=q;awaitingKata=true;
   if(!word){
-    setVerifyWord(function(){ runCapability(q); });
+    kataMode='new';
+    addMsg('bot','🔑 Belum ada kata kunci verifikasi. Ketik <b>kata kerja</b> pilihan Anda di obrolan (contoh: <i>jalankan</i>, <i>kirim</i>, <i>simpan</i>, <i>proses</i>) — wajib dipakai untuk semua kemampuan.');
+  }else{
+    kataMode='verify';
+    addMsg('bot','🔑 Kemampuan ini akan berjalan <b>nyata</b>. Ketik kata kerja verifikasi (<b>'+esc(word)+'</b>) di obrolan untuk menjalankannya.');
+  }
+}
+function confirmKata(q){
+  addMsg('user',esc(q));
+  var word=LS('verifyWord');
+  if(kataMode==='new'){
+    if(!isVerbWord(q)){addMsg('bot','⚠️ Bukan kata kerja. Word verifikasi wajib <b>kata kerja eksplisit</b> (contoh: <i>jalankan</i>, <i>kirim</i>, <i>simpan</i>, <i>proses</i>). Ketik lagi di obrolan.');return;}
+    LS('verifyWord',q);
+    addMsg('bot','🔑 Kata kerja <b>'+esc(q)+'</b> disimpan & wajib diketik tiap menjalankan kemampuan.');
+    awaitingKata=false;
+    if(pendingKata){var runq=pendingKata;pendingKata=null;runCapability(runq);}
     return;
   }
-  verifyModal('🔑 Verifikasi Kemampuan',
-    'Kemampuan ini akan berjalan <b>nyata</b> di cloud. Ketik kata kunci verifikasi milik Anda lalu klik Jalankan.',
-    '🚀 Jalankan Sekarang', function(v){return v.trim()===word;},
-    function(){ runCapability(q); },
-    function(){ setVerifyWord(function(){ runCapability(q); }); });
-}
-function setVerifyWord(onDone){
-  verifyModal('🔑 Atur Kata Kunci Verifikasi',
-    'Kata kunci adalah <b>pilihan Anda</b> dan tersimpan hanya di browser ini. Kata kunci itu wajib diketik setiap kali menjalankan kemampuan. Minimal 3 karakter.',
-    'Simpan', function(v){return v.trim().length>=3;},
-    function(w){ LS('verifyWord',w); onDone&&onDone(w); });
-}
-function verifyModal(title,desc,btnLabel,validate,onOk,chgFn){
-  var ov=document.createElement('div');ov.className='confirmOv';
-  ov.innerHTML='<div class="confirmBox">'+
-    '<h4>'+title+'</h4>'+
-    '<div class="ci">'+desc+
-    (chgFn?' <a href="javascript:void(0)" id="vmChg" style="color:var(--accent)">🔑 ganti kata kunci</a>':'')+'</div>'+
-    '<input type="text" id="vmInp" placeholder="Ketik kata kunci Anda…" autocomplete="off">'+
-    '<div class="runRow"><button class="runBtn" id="vmGo" type="button" disabled>'+btnLabel+'</button>'+
-    '<button class="cb" id="vmX" type="button">Batal</button></div>'+
-    '</div>';
-  document.body.appendChild(ov);
-  var inp=ov.querySelector('#vmInp'),go=ov.querySelector('#vmGo');
-  function valid(){return validate?validate(inp.value):inp.value.trim().length>=3;}
-  function chk(){go.disabled=!valid();}
-  inp.addEventListener('input',chk);
-  function rm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
-  function done(){ if(valid()){ var v=inp.value.trim(); rm(); onOk(v); } }
-  go.onclick=done;
-  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') done(); });
-  ov.querySelector('#vmX').onclick=rm;
-  if(chgFn) ov.querySelector('#vmChg').onclick=function(){ rm(); chgFn(); };
-  inp.focus();
+  if(kataMode==='change'){
+    if(!isVerbWord(q)){addMsg('bot','⚠️ Bukan kata kerja. Word verifikasi wajib <b>kata kerja eksplisit</b> (contoh: <i>jalankan</i>, <i>kirim</i>, <i>simpan</i>, <i>proses</i>). Ketik lagi di obrolan.');return;}
+    LS('verifyWord',q);
+    pendingKata=null;awaitingKata=false;kataMode='';
+    addMsg('bot','🔑 Kata kerja diganti menjadi <b>'+esc(q)+'</b> — wajib diketik tiap menjalankan kemampuan.');
+    return;
+  }
+  // verify
+  if(q.toLowerCase()===String(word||'').toLowerCase()){
+    awaitingKata=false;
+    if(pendingKata){var rq=pendingKata;pendingKata=null;runCapability(rq);}
+  }else{
+    addMsg('bot','⛔ Kata kunci tidak cocok. Ketik kata kerja yang benar, atau "ganti kata kunci" untuk menggantinya.');
+  }
 }
 function LS(k,v){
   try{
@@ -768,7 +768,6 @@ document.getElementById('qbar').addEventListener('submit',function(e){e.preventD
 var pz=$('pauseBtn');if(pz)pz.addEventListener('click',stopRun);
 var mb=$('micBtn');if(mb)mb.addEventListener('click',toggleMic);
 var vb=$('voiceChatBtn');if(vb)vb.addEventListener('click',toggleVoiceChat);
-var kb=$('keyBtn');if(kb)kb.addEventListener('click',function(){setVerifyWord(function(w){addMsg('bot','🔑 Kata kunci verifikasi diperbarui.');});});
 document.querySelectorAll('.mode-btn').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
