@@ -9,14 +9,23 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:radial-gradient(1200px 600px at 20% -10%,#0e2a4a 0%,var(--bg) 55%);color:var(--text);display:flex;flex-direction:column;height:100vh;height:100dvh}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+::selection{background:rgba(56,189,248,.28)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{transition:transform .12s ease,opacity .15s ease,background .15s ease,color .15s ease,border-color .15s ease}
+button:active:not(:disabled){transform:translateY(1px) scale(.98)}
 header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(17,28,48,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);flex-wrap:wrap}
 .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 header h1{font-size:15px;margin:0;line-height:1.1}
 header .sub{font-size:11px;color:var(--muted)}
-#status{margin-left:auto;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);padding:4px 10px;border-radius:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+#status{margin-left:auto;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);padding:4px 12px;border-radius:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56vw;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
 .mode-switch{display:flex;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px}
 .mode-btn{font-size:12px;border:none;background:transparent;color:var(--muted);border-radius:16px;padding:5px 12px;cursor:pointer}
-.mode-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-weight:600}
+.mode-btn:hover{color:var(--text);background:rgba(56,189,248,.08)}
+.mode-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-weight:600;box-shadow:0 2px 10px rgba(56,189,248,.35)}
 #capPanel{max-width:760px;margin:10px auto 0;padding:0 12px;width:100%;display:flex;flex-direction:column;gap:8px}
 .cap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .cap h4{margin:0;font-size:13.5px;color:var(--text)}
@@ -42,6 +51,13 @@ header .sub{font-size:11px;color:var(--muted)}
 #banner{display:none;margin:8px 12px 0;padding:10px 12px;border-radius:10px;background:#3a1522;border:1px solid #5b2233;color:var(--err);font-size:13px}
 #chat{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
 .wrap{max-width:760px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:12px}
+#hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 16px 8px;gap:6px;color:var(--muted)}
+#hero .heroLogo{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 10px 30px rgba(56,189,248,.35);margin-bottom:6px}
+#hero h2{font-size:clamp(20px,4vw,28px);margin:0;color:var(--text);letter-spacing:-.02em}
+#hero .heroSub{max-width:560px;margin:0 0 14px;font-size:14px;line-height:1.6}
+#hero .heroSub strong{color:var(--accent)}
+#heroChips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:640px}
+#heroChips .chip{border-radius:22px;padding:8px 14px}
 .msg{display:flex;gap:8px;max-width:100%}
 .msg .av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;margin-top:2px}
 .user .av{background:#0ea5e9}
@@ -84,22 +100,24 @@ header .sub{font-size:11px;color:var(--muted)}
 .fchip button:hover{color:var(--err)}
 #drop{display:none;position:fixed;inset:0;z-index:50;background:rgba(11,18,32,.7);backdrop-filter:blur(2px);align-items:center;justify-content:center;border:3px dashed var(--accent);color:var(--accent);font-size:16px;pointer-events:none}
 #drop.on{display:flex}
-footer{background:rgba(17,28,48,.9);border-top:1px solid var(--line);padding:8px 12px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
-#qbar{display:flex;gap:8px;max-width:760px;margin:0 auto;width:100%;align-items:flex-end}
-textarea#q{flex:1;resize:none;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;font-family:inherit;line-height:1.4;max-height:140px;min-height:46px}
-textarea#q:focus{outline:none;border-color:var(--accent)}
-#sendBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-size:18px;cursor:pointer}
-#pauseBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid #7f1d1d;background:#3a1522;color:var(--err);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-#micBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+footer{background:rgba(17,28,48,.9);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;box-shadow:0 -8px 24px rgba(0,0,0,.25)}
+#qbar{display:flex;gap:8px;max-width:760px;margin:0 auto;width:100%;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:6px;transition:border-color .15s ease,box-shadow .15s ease}
+#qbar:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.15)}
+textarea#q{flex:1;resize:none;padding:7px 6px 7px 10px;border-radius:10px;border:none;background:transparent;color:var(--text);font-size:15px;font-family:inherit;line-height:1.4;max-height:140px;min-height:34px}
+textarea#q:focus{outline:none}
+#sendBtn{flex-shrink:0;width:42px;height:42px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-size:18px;cursor:pointer;box-shadow:0 2px 10px rgba(56,189,248,.3)}
+#sendBtn:hover:not(:disabled){opacity:.92;box-shadow:0 3px 14px rgba(56,189,248,.45)}
+#pauseBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid #7f1d1d;background:#3a1522;color:var(--err);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#micBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #micBtn:hover{border-color:var(--accent);color:var(--accent)}
 #micBtn.rec{background:#3a1522;border-color:var(--err);color:var(--err);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-#voiceBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#voiceBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #voiceBtn:hover{border-color:var(--accent);color:var(--accent)}
 #voiceBtn.playing{background:#42321a;border-color:#f59e0b;color:#fbbf24;animation:pulse 1.2s infinite}
 #pauseBtn:hover{background:#4c1d2d}
 #sendBtn:disabled{opacity:.5}
-#attBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#attBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #attBtn:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
@@ -119,6 +137,19 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
 </header>
 <div id="banner"></div>
 <div id="capPanel" style="display:none"></div>
+<div id="hero">
+  <div class="heroLogo">&#9729;&#65039;</div>
+  <h2 id="heroTitle">Halo, mau bantu apa hari ini?</h2>
+  <p class="heroSub">Tanyakan apa saja soal <strong>Google Cloud</strong>, minta <strong>di-build-kan APK/proyek</strong>, atau minta <strong>dibuatkan kode</strong>. Semua skill GCP digabung otomatis lewat <em>fusion</em> di cloud.</p>
+  <div class="heroChips" id="heroChips">
+    <button class="chip">🚀 Buat APK aplikasi Android editor foto video</button>
+    <button class="chip">📦 Build &amp; compile project saya jadi APK + source lengkap</button>
+    <button class="chip">🔐 Cara deploy aplikasi ke Cloud Run</button>
+    <button class="chip">📊 Setup BigQuery untuk analitik</button>
+    <button class="chip">🛡 Rekomendasi firewall GCP</button>
+    <button class="chip">💬 Buat chatbot AI native app</button>
+  </div>
+</div>
 <div id="chat"><div class="wrap" id="chatWrap"></div></div>
 <div class="chips" id="chips">
   <button class="chip">Apa itu Google Cloud Storage?</button>
@@ -250,7 +281,7 @@ function send(){
   var q=$('q').value.trim();
   if(!q)return;
   if(MODE==='coder'||(MODE==='auto'&&isExecQuery(q))){sendAgent();return;}
-  $('q').value='';autoGrow();
+  $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('memproses di cloud&hellip;');
   var body={question:q,sessionId:SID,files:files.map(function(f){
@@ -288,9 +319,12 @@ function resetChat(){
   fetch('/api/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:SID})}).catch(function(){});
   files=[];renderFiles();
   $('chatWrap').innerHTML='';
-  welcome();
+  showHero();
   showBanner('');setStatus('sesi direset');
 }
+function hideHero(){var h=$('hero'),c=$('chat');if(h){h.style.display='none';}if(c){c.style.display='flex';}}
+function showHero(){var h=$('hero'),c=$('chat');if(h){h.style.display='';}if(c){c.style.display='none';}}
+function heroSubmit(text){$('q').value=text;autoGrow();hideHero();send();}
 var MODE='auto';
 var capLoaded=false;
 var recog=null,recogOn=false;
@@ -614,7 +648,7 @@ function sendRun(q){
   if(busy)return;
   q=String(q||'').trim();
   if(!q)return;
-  $('q').value='';autoGrow();
+  $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi — ikuti progres di bawah&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
@@ -632,7 +666,7 @@ function sendAgent(){
   if(busy)return;
   var q=$('q').value.trim();
   if(!q)return;
-  $('q').value='';autoGrow();
+  $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('⚡ mengeksekusi — ikuti progres di bawah&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>⚡ Langkah agen:</strong>';
@@ -698,7 +732,10 @@ clearBtn.style.marginLeft='auto';
 clearBtn.addEventListener('click',resetChat);
 document.getElementById('chips').appendChild(clearBtn);
 if(window.SpeechRecognition||window.webkitSpeechRecognition){initSpeech();}
-welcome();
+document.querySelectorAll('#heroChips .chip').forEach(function(c){
+  c.addEventListener('click',function(){heroSubmit(c.textContent);});
+});
+showHero();
 fetch('/api/info').then(function(r){return r.json();}).then(function(d){
   setStatus('✅ '+d.skills+' skill · '+(d.model||'AI'));$('status').classList.add('on');
 }).catch(function(){setStatus('offline','off');});
