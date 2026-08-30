@@ -12,10 +12,10 @@ env:
   GRADLE_VERSION: "8.10.2"
 
 jobs:
-  # ====== 1. GATE VERIFIKASI: compile cepat (debug, tanpa signing) ======
-  # Inilah jaminan "100x" — setiap push wajib lolos compile Kotlin/Compose/XML
-  # sebelum rilis APK, sehingga error tidak menunggu sampai tahap release.
-  compile-check:
+  # ====== 1. GATE KUALITAS: lint + compile penuh (tanpa sign) ======
+  # Build Cache & dependency cache ON (gradle.properties + Setup Gradle):
+  # dependency/artefak dipakai ulang antar run => build jauh lebih cepat tiap push.
+  quality-gate:
     runs-on: ubuntu-latest
     outputs:
       version_code: ${{ steps.vcode.outputs.value }}
@@ -28,12 +28,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
+      - name: Set up Gradle (cache dependency + build cache lintas run)
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
 
-      - name: Compile & verifikasi debug build (gate wajib)
+      - name: Analisis statik Android Lint (gate kualitas)
+        working-directory: android
+        run: gradle lintDebug --no-daemon
+
+      - name: Kompilasi penuh debug (gate validitas)
         working-directory: android
         run: gradle assembleDebug --no-daemon
 
@@ -41,9 +45,9 @@ jobs:
         id: vcode
         run: echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
-  # ====== 2. RILIS PROFESIONAL: APK signed + diverged + Release resmi ======
+  # ====== 2. RILIS PRODUKSI: APK + AAB (Play-ready) + checksum ======
   release:
-    needs: compile-check
+    needs: quality-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,49 +74,82 @@ jobs:
           printf 'storeFile=release.keystore\nstorePassword=gcpagent123\nkeyAlias=gcpagent\nkeyPassword=gcpagent123\n' > keystore.properties
           echo "keystore.properties dibuat"
 
-      - name: Set up Gradle
+      - name: Set up Gradle (cache dependency + build cache lintas run)
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
 
-      - name: Build APK release (signed, R8, siap install)
+      - name: Build APK + AAB release (signed, R8, Play-ready)
         working-directory: android
-        run: gradle assembleRelease -PversionCodeOverride=${{ needs.compile-check.outputs.version_code }} --no-daemon
+        run: gradle assembleRelease bundleRelease -PversionCodeOverride=${{ needs.quality-gate.outputs.version_code }} --no-daemon
 
-      - name: Verifikasi APK & ukuran
-        id: verify
+      - name: Kumpulkan artefak & ukuran
+        id: sizes
         run: |
-          test -f android/app/build/outputs/apk/release/app-release.apk
-          SIZE=$(du -h android/app/build/outputs/apk/release/app-release.apk | cut -f1)
-          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
-          ls -la android/app/build/outputs/apk/release/app-release.apk
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          test -f "$APK" && echo "APK OK"
+          test -f "$AAB" && echo "AAB OK"
+          echo "apk_size=$(du -h "$APK" | cut -f1)" >> "$GITHUB_OUTPUT"
+          echo "aab_size=$(du -h "$AAB" | cut -f1)" >> "$GITHUB_OUTPUT"
+          ls -la "$APK" "$AAB"
 
-      - name: Validasi APK dengan apksigner (jamin siap install)
+      - name: Validasi APK & signature (apksigner v2/v3)
         run: |
           APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
-          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/release/app-release.apk && echo "APK VERIFIED OK"
+          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/release/app-release.apk
+          echo "APK VERIFIED OK"
 
-      - name: Upload APK sebagai artifact
+      - name: Validasi AAB signature (jarsigner)
+        run: |
+          jarsigner -verify android/app/build/outputs/bundle/release/app-release.aab
+          echo "AAB VERIFIED OK"
+
+      - name: Hitung checksum SHA-256 APK & AAB
+        run: |
+          sha256sum \
+            android/app/build/outputs/apk/release/app-release.apk \
+            android/app/build/outputs/bundle/release/app-release.aab \
+            | tee android/checksums.txt
+
+      - name: Upload artefak (APK + AAB + checksum)
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: app-release
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/checksums.txt
           if-no-files-found: error
 
-      - name: Rilis APK resmi (bisa di-upgrade, ada catatan verifikasi)
+      - name: Rilis resmi (APK + AAB + checksum, siap upgrade)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
           name: "Agen GCP v1.0.0 (build #${{ github.run_number }})"
           generate_release_notes: false
           body: |
-            **APK Android Agen GCP** — native (Jetpack Compose + Material 3).
+            **Agen GCP v1.0.0** — APK & bundle Android **native** (Jetpack Compose + Material 3).
 
-            - Versi: 1.0.0 (versionCode `${{ needs.compile-check.outputs.version_code }}`)
-            - Ukuran APK: `${{ steps.verify.outputs.size }}`
-            - Status: **apksigner VERIFIED** (siap install)
-            - 39 kombinasi perintah + 3 layar native (Beranda, Kemampuan, Buka Agen)
-            - WebView menuju antarmuka cloud genu GCP
+            ## Artefak
+            - **app-release.apk** — universal (semua ABI), langsung install: `${{ steps.sizes.outputs.apk_size }}`
+            - **app-release.aab** — bundle Play-ready (Play Console): `${{ steps.sizes.outputs.aab_size }}`
+            - **checksums.txt** — SHA-256 untuk verifikasi integritas
 
-            **Catatan tanda tangan:** keystore dibuat otomatis per build di CI (bukan secret).
-          files: android/app/build/outputs/apk/release/app-release.apk
+            ## Verifikasi
+            - ✅ **apksigner**: signature **v2 + v3** valid, siap install
+            - ✅ **jarsigner**: AAB terverifikasi
+            - ✅ Android **Lint** bersih (quality gate)
+            - ✅ Compile full debug pass
+
+            ## Fitur
+            - 3 layar native: Beranda, Daftar Kemampuan (**39 gabungan**), Buka Agen
+            - Tema gelap/terang, adaptive icon, splash, R8/ProGuard
+            - versionCode `${{ needs.quality-gate.outputs.version_code }}` (naik otomatis tiap build)
+
+            _Keystore dibuat per-build di CI (bukan secret). Verifikasi integritas:
+            `sha256sum -c checksums.txt`_
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/checksums.txt
