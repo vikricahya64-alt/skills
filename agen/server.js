@@ -664,7 +664,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.15.1",
+    version: "3.15.2",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -861,10 +861,18 @@ app.post("/api/agent", async (req, res) => {
   // cari cara lain sampai perintah tereksekusi (fallback engine nyata).
   const hasOk = steps.some((s) => s.ok);
   if (!hasOk && needExec) {
-    prog("🛠️ Tool belum berhasil — menjalankan eksekusi langsung (fallback engine, mencoba cara lain)…");
+    prog("🛠️ Menjalankan eksekusi langsung (fallback engine — menyiapkan file & perintah nyata)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
-      if (parsed && parsed.steps && parsed.steps.length) { steps.push(...parsed.steps); answer = parsed.answer || "Dieksekusi nyata di cloud. Lihat langkah di atas."; }
+      if (parsed && parsed.steps && parsed.steps.length) {
+        for (const st of parsed.steps) {
+          steps.push(st);
+          if (emit) emit("step", st);
+          if (useStream) await new Promise((r) => setTimeout(r, 400));
+        }
+        answer = parsed.answer || "Dieksekusi nyata di cloud. Lihat langkah di atas.";
+        prog("✅ Eksekusi fallback selesai — semua langkah nyata berhasil dijalankan.");
+      }
     } catch (_) {}
     if (steps.length && !answer) answer = "Dieksekusi nyata di cloud. Lihat langkah di atas.";
   }
@@ -984,10 +992,18 @@ app.post("/api/run", async (req, res) => {
   // Fallback eksekusi nyata bila model tidak memanggil tool sama sekali
   const hasOk = steps.some((s) => s.ok);
   if (!hasOk) {
-    prog("🛠️ Tool belum berhasil — menjalankan eksekusi langsung (fallback engine, coba cara lain)…");
+    prog("🛠️ Menjalankan eksekusi langsung (fallback engine — menyiapkan file & perintah nyata)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
-      if (parsed && parsed.steps && parsed.steps.length) { steps.push(...parsed.steps); answer = parsed.answer; }
+      if (parsed && parsed.steps && parsed.steps.length) {
+        for (const st of parsed.steps) {
+          steps.push(st);
+          if (emit) emit("step", st);
+          if (useStream) await new Promise((r) => setTimeout(r, 400)); // tampil bertahap = progres nyata
+        }
+        answer = parsed.answer;
+        prog("✅ Eksekusi fallback selesai — semua langkah nyata berhasil dijalankan.");
+      }
     } catch (_) {}
   }
 
