@@ -85,9 +85,7 @@ jobs:
 
       - name: Build APK + AAB release (signed, R8, Play-ready)
         working-directory: android
-        run: gradle assembleRelease bundleRelease \
-          -PversionCodeOverride=${{ needs.quality-gate.outputs.version_code }} \
-          -PversionNameOverride=${{ needs.quality-gate.outputs.version_name }} --no-daemon
+        run: gradle assembleRelease bundleRelease -PversionCodeOverride=${{ needs.quality-gate.outputs.version_code }} -PversionNameOverride=${{ needs.quality-gate.outputs.version_name }} --no-daemon
 
       - name: Kumpulkan artefak & ukuran
         id: sizes
