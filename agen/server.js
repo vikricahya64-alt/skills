@@ -15,7 +15,11 @@ app.use((req, res, next) => {
   next();
 });
 
-const KEY = process.env.GEMINI_API_KEY;
+const KEYS = (process.env.GEMINI_API_KEY || "")
+  .split(/[,\s]+/)
+  .map(k => k.trim())
+  .filter(Boolean);
+const KEY = KEYS[0] || "";
 const PORT = process.env.PORT || 3000;
 const MAX_LEN = 8000;
 const MAX_FILE = 20 * 1024 * 1024; // 20 MB
@@ -254,15 +258,23 @@ async function getModelName() {
   return _resolvedModel;
 }
 
+let _keyIdx = 0;
+
+function currKey() {
+  if (!KEYS.length) return "";
+  if (_keyIdx >= KEYS.length) _keyIdx = 0;
+  return KEYS[_keyIdx];
+}
+
 async function getModel() {
-  const genAI = new GoogleGenerativeAI(KEY);
+  const genAI = new GoogleGenerativeAI(currKey());
   const modelName = await getModelName();
   return genAI.getGenerativeModel({ model: modelName });
 }
 
 // ---------- Routes ----------
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", skills: INDEX.length, hasKey: !!KEY, uptime: process.uptime() });
+  res.json({ status: "ok", skills: INDEX.length, hasKey: !!KEY, keys: KEYS.length, uptime: process.uptime() });
 });
 
 app.get("/api/skills", (req, res) => {
@@ -315,23 +327,36 @@ app.post("/ask", async (req, res) => {
       contentParts.push({ inlineData: { mimeType: f.image.mime, data: f.image.base64 } });
     }
   }
-  try {
-    const r = contentParts.length > 1
-      ? await model.generateContent(contentParts)
-      : await model.generateContent(prompt);
-    const answer = r.response.text();
-    sess.history.push({ q, a: answer.slice(0, 3000) });
-    pruneSession(sess);
-    res.json({
-      answer,
-      skills: top.map((x) => x.name),
-      files: sess.files.map(fileSummary),
-      sessionId,
-      model: _resolvedModel,
-    });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+  let answer = "";
+  let attempts = 0;
+  const maxAttempts = Math.max(1, KEYS.length);
+  while (attempts < maxAttempts) {
+    try {
+      const r = contentParts.length > 1
+        ? await model.generateContent(contentParts)
+        : await model.generateContent(prompt);
+      answer = r.response.text();
+      break;
+    } catch (e) {
+      attempts++;
+      const msg = String((e && e.message) || e);
+      const quota = /429|quota|Too Many|rate.limit|RESOURCE_EXHAUSTED/i.test(msg);
+      if (!quota || attempts >= maxAttempts) {
+        return res.status(429).json({ error: msg, retry: true });
+      }
+      _keyIdx = (_keyIdx + 1) % KEYS.length;
+      try { model = await getModel(); } catch (_) {}
+    }
   }
+  sess.history.push({ q, a: answer.slice(0, 3000) });
+  pruneSession(sess);
+  res.json({
+    answer,
+    skills: top.map((x) => x.name),
+    files: sess.files.map(fileSummary),
+    sessionId,
+    model: _resolvedModel,
+  });
 });
 
 app.get("/api/info", async (req, res) => {
@@ -341,6 +366,7 @@ app.get("/api/info", async (req, res) => {
     name: "gcp-agent",
     skills: INDEX.length,
     hasKey: !!KEY,
+    keys: KEYS.length,
     model: modelName || "menunggu resolusi",
     limitFiles: 5,
     limitFileMB: 20,
