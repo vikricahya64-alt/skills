@@ -2,6 +2,11 @@
   "generator": "This file is generated. Do not edit it by hand.",
   "skills": [
     {
+      "name": "accidental-data-loss-prevention",
+      "description": "**STOP AND VERIFY**: Before running any command or tool that results in irreversible data loss, you MUST obtain explicit user consent. When in doubt, ask. It is better to wait for confirmation than to accidentally delete production data or critical project assets. Use this for: - SQL: DROP TABLE/VIEW/SCHEMA/DATABASE, TRUNCATE, or broad DELETE (missing WHERE or using 1=1). - Cloud Storage: gsutil rm or gcloud storage rm targeting production data or critical buckets. - Infrastructure: gcloud projects delete, deleting Spanner/BigQuery/Dataproc resources, deleting secrets, or KMS key destruction.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/accidental-data-loss-prevention/SKILL.md"
+    },
+    {
       "name": "agent-platform-alert-configuration",
       "description": "Configures best-practice alerting policies for AI agents using OpenTelemetry (OTel) metrics, generating output as Terraform (.tf) configuration files. Use when analyzing, writing, or deploying alerting policies to monitor agent latency, error rates, token usage, and quality metrics. Don't use for standard infrastructure monitoring unrelated to AI agents, or when the agent is not instrumented with OpenTelemetry (for Reliability, Cost, Safety, Security alerts). NOTE: Reliability, Cost, Safety, and Security alerts use generic OTel metrics and work across runtimes (such as Cloud Run, Vertex AI). Quality alerts rely on Vertex AI Online Monitors and are strictly bound to Vertex AI deployments.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/agent-platform-alert-configuration/SKILL.md"
@@ -72,6 +77,86 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/alloydb-basics/SKILL.md"
     },
     {
+      "name": "alloydb-omni-access-control",
+      "description": "Use these skills when you need to manage user roles, inspect permissions, and verify security-related configuration parameters.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-access-control/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-container",
+      "description": "You're an expert in AlloyDB Omni running in a container. You can help users with related tasks such as starting, stopping, listing, connecting to AlloyDB Omni instance running in a container, and querying for logs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-container/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-data",
+      "description": "Use these skills when you need to explore the database structure, identify schema objects like views and triggers, and execute SQL queries to interact with your data.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-data/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-health",
+      "description": "Use these skills when you need to audit database health, identify storage bloat, find broken indexes, and verify tablespace or maintenance configurations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-health/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-kubernetes",
+      "description": "You're an expert in AlloyDB Omni Operator running in Kubernetes. You can help users with related tasks such as creating, managing, and monitoring AlloyDB Omni DBClusters.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-kubernetes/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-monitor",
+      "description": "Use these skills when you need to troubleshoot production issues by identifying locks, tracking long-running transactions, and getting a high-level view of server state.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-monitor/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-optimize",
+      "description": "Use these skills when you need to fine-tune the database engine settings, manage extensions, or optimize the columnar engine for better analytical performance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-optimize/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-performance",
+      "description": "Use these skills when you need to analyze query performance, generate execution plans, check table/column statistics, and monitor overall database activity.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-performance/SKILL.md"
+    },
+    {
+      "name": "alloydb-omni-replication",
+      "description": "Use these skills when you need to monitor the health of database replication, manage sync states between nodes, and audit publication tables for distributed setups.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-omni-replication/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-access-management",
+      "description": "Use these skills when you need to manage database users, inspect permissions and roles, and verify global configuration parameters related to security and access control.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-access-management/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-admin",
+      "description": "Use these skills when you need to provision new AlloyDB clusters and instances, monitor their creation status, and retrieve high-level configuration or health data for the environment.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-admin/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-data",
+      "description": "Use these skills when you need to explore the database schema, identify objects like views and triggers, and execute custom SQL queries to interact with your data.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-data/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-health",
+      "description": "Use these skills when you need to optimize storage, identify index issues, analyze table statistics, or manage autovacuum and tablespace configurations to maintain peak database health.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-health/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-monitor",
+      "description": "Use these skills when you need to troubleshoot slow performance, analyze query execution plans, identify resource-heavy processes, and monitor system-level PromQL metrics.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-monitor/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-optimize",
+      "description": "Use these skills when you need to discover and manage PostgreSQL extensions or fine-tune engine-level settings such as memory allocation and server configuration parameters.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-optimize/SKILL.md"
+    },
+    {
+      "name": "alloydb-postgres-replication",
+      "description": "Use these skills when you need to monitor replication health, manage sync states between nodes, and ensure the high availability and data distribution of your AlloyDB cluster.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-replication/SKILL.md"
+    },
+    {
       "name": "application-design-center-design-deploy",
       "description": "Processes GCP infrastructure design and deployment workflows within Application Design Center (ADC). Use when: - Designing GCP infrastructure with Terraform. - Validating local HCL. - Performing best-practice plan scans. - Importing templates to Application Design Center (ADC). - Deploying templates. - Troubleshooting deployment failures. Boundaries: - Only use for GCP-specific cloud infrastructure. - Only use for Terraform coding within the ADC context.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/application-design-center-design-deploy/SKILL.md"
@@ -80,6 +165,11 @@
       "name": "bigquery-ai-ml",
       "description": "Leverages BigQuery's built-in machine learning and GenAI capabilities for advanced data analytics. Use when you need to write SQL queries that perform time-series forecasting, predict values, detect outliers or anomalies, find key drivers, perform semantic search or vector search, classify text, calculate similarity, summarize content, translate language, evaluate models, filter by semantic conditions, or leverage generative AI capabilities in BigQuery. Do not use for general BigQuery dataset, table, or job management requests.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/bigquery-ai-ml/SKILL.md"
+    },
+    {
+      "name": "bigquery-analytics",
+      "description": "Use these skills when you need to handle advanced data intelligence and predictive tasks. Use when a user asks \"why\" data changed or needs future projections. Provides automated insight generation and time-series forecasting.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigquery-analytics/SKILL.md"
     },
     {
       "name": "bigquery-basics",
@@ -92,9 +182,44 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/bigquery-bigframes/SKILL.md"
     },
     {
+      "name": "bigquery-data",
+      "description": "Use these skills when you need to handle large-scale data exploration and dataset management. Use when users need to find data assets or run SQL at scale. Provides metadata discovery and query execution across the data warehouse.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigquery-data/SKILL.md"
+    },
+    {
+      "name": "bigquery-data-transfer-service",
+      "description": "Discovers and inspects BigQuery Data Transfer Service (DTS) configurations. Use this to identify existing ingestion pipelines and extract datasource or transfer config metadata for data pipelines. Use when a user asks for ingestion scenarios while building or managing data pipelines or when a user asks to \"ingest\" or \"add\" data that may already be managed by a DTS transfer.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigquery-data-transfer-service/SKILL.md"
+    },
+    {
+      "name": "bigquery-graph",
+      "description": "Provides guidelines and best practices for querying and defining property graphs and semantic graphs in BigQuery using GQL (Graph Query Language). Use when creating property graphs or querying graph topologies in BigQuery.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigquery-graph/SKILL.md"
+    },
+    {
+      "name": "bigquery-sql",
+      "description": "Provides BigQuery SQL query optimization techniques, execution best practices, and performance tuning rules for high-efficiency querying. Use when optimizing BigQuery SQL queries, reducing query costs, or designing performant SQL transformations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigquery-sql/SKILL.md"
+    },
+    {
+      "name": "bigtable",
+      "description": "Manage Google Bigtable instances/tables, design schemas, and query data using SQL or client libraries. Use for provisioning, schema updates, or code generation.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/bigtable/SKILL.md"
+    },
+    {
       "name": "bigtable-basics",
       "description": "Assists in provisioning instances/tables, designing performant schemas, and querying data in Bigtable. Use when designing Bigtable row keys, configuring column families, writing SQL queries or client library code (Java, Go, Python) for Bigtable, or diagnosing performance/hotspotting issues. Also use when provisioning Bigtable clusters using gcloud or cbt CLIs. Don't use for generic Cloud SQL administration.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/bigtable-basics/SKILL.md"
+    },
+    {
+      "name": "brand-guidelines",
+      "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-brand-guidelines/SKILL.md"
+    },
+    {
+      "name": "building-data-apps",
+      "description": "Build modern data apps, dashboards, and interactive reports using either React + Vite or Streamlit. Includes optional Gemini Data Analytics chat integration for an AI powered \"chat with your data\" experience.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/building-data-apps/SKILL.md"
     },
     {
       "name": "cloud-build-basics",
@@ -152,6 +277,131 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/cloud-sql-basics/SKILL.md"
     },
     {
+      "name": "cloud-sql-mysql-admin",
+      "description": "Use these skills when you need to provision new Cloud SQL for MySQL instances, create databases and users, clone existing environments, and monitor the progress of infrastructure operations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-mysql-admin/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-mysql-data",
+      "description": "Use these skills when you need to explore your database schema, execute SQL queries to interact with your data, and inspect how MySQL plans to execute your statements.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-mysql-data/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-mysql-lifecycle",
+      "description": "Use these skills when you need to manage the durability and safety of your data by creating backups, restoring from previous states, or cloning instances for recovery and testing.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-mysql-lifecycle/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-mysql-monitor",
+      "description": "Use these skills when you need to troubleshoot slow queries, analyze system-level PromQL metrics, and identify structural performance issues like table fragmentation or missing unique indexes.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-mysql-monitor/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-admin",
+      "description": "Use these skills when you need to provision new Cloud SQL instances, create databases and users, clone existing environments, and monitor the progress of long-running operations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-admin/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-data",
+      "description": "Use these skills when you need to explore the database structure, discover schema objects like views or stored procedures, and execute custom SQL queries to interact with your data.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-data/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-health",
+      "description": "Use these skills when you need to audit database health, identify storage bloat, find invalid indexes, analyze table statistics, and manage maintenance configurations like autovacuum.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-health/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-lifecycle",
+      "description": "Use these skills when you need to manage the lifecycle of your instances, including performing backups and restores, checking major version upgrade compatibility, and monitoring overall instance status.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-lifecycle/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-monitor",
+      "description": "Use these skills when you need to troubleshoot performance bottlenecks, analyze query execution plans, identify resource-heavy processes, and monitor system-level PromQL metrics.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-monitor/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-replication",
+      "description": "Use these skills when you need to monitor replication health, manage sync states between nodes, and audit database roles and security settings to ensure environment integrity.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-replication/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-vectorassist",
+      "description": "Use these skills to set up and optimize production-ready vector workloads by simply expressing your intent and performance requirements.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-vectorassist/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-postgres-view-config",
+      "description": "Use these skills when you need to discover and manage PostgreSQL extensions or fine-tune engine-level settings such as memory allocation and server configuration parameters.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-postgres-view-config/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-sqlserver-admin",
+      "description": "Use these skills when you need to provision new Cloud SQL for SQL Server instances, create databases and users, clone existing environments, and monitor the progress of long-running operations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-sqlserver-admin/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-sqlserver-data",
+      "description": "Use these skills when you need to explore the database schema, execute SQL queries to interact with your data, and monitor system-level performance metrics using PromQL queries.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-sqlserver-data/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-sqlserver-lifecycle",
+      "description": "Use these skills when you need to manage the lifecycle and durability of your data, including creating backups, restoring from existing backups, and cloning instances for testing or migration.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-sqlserver-lifecycle/SKILL.md"
+    },
+    {
+      "name": "cloud-sql-sqlserver-monitor",
+      "description": "Use these skills when you need to troubleshoot slow queries and analyze system-level PromQL metrics.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/cloud-sql-sqlserver-monitor/SKILL.md"
+    },
+    {
+      "name": "code-review",
+      "description": "\"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-code-review/SKILL.md"
+    },
+    {
+      "name": "context-engineering-bootstrap",
+      "description": "Guides the agent to bootstrap an initial ContextSet (templates, facets, and value searches) by deducing key information from the database schema and generating a ContextSet file.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-bootstrap/SKILL.md"
+    },
+    {
+      "name": "context-engineering-dataset-generation",
+      "description": "Generate or expand a golden evaluation dataset of SQL/Question (NLQ+SQL) pairs for evaluating NL-to-SQL translation accuracy on a target database.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-dataset-generation/SKILL.md"
+    },
+    {
+      "name": "context-engineering-evaluate",
+      "description": "Guides the agent to execute an evaluation of a ContextSet against a golden NLQ+SQL dataset using the Evalbench framework.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-evaluate/SKILL.md"
+    },
+    {
+      "name": "context-engineering-hillclimb",
+      "description": "Guides the agent to perform hill-climbing iterations to improve a ContextSet based on Evalbench evaluation results.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-hillclimb/SKILL.md"
+    },
+    {
+      "name": "context-engineering-init",
+      "description": "Orchestrates the initialization workflow for context engineering, and provides helper workflow for setting up database connections by creating or updating tools.yaml configurations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-init/SKILL.md"
+    },
+    {
+      "name": "context-engineering-workflow",
+      "description": "Context engineering for Gemini Data Analytics API's data agent developer platform tools. Generates, evaluates, and iteratively optimizes a ContextSet (Templates, Facets, Value Searches) to maximize Natural-Language-to-SQL translation accuracy. Use this skill to run the automated setup, NL-SQL pair evaluation dataset generation and expansion, bootstrapping, scoring, and optimization pipeline. For manual authoring standards and schema syntax rules, see the context-generation-guide skill.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-workflow/SKILL.md"
+    },
+    {
+      "name": "context-generation-guide",
+      "description": "Guidelines and best practices for generating context items (Templates, Facets, Value Searches). Use this skill whenever the user asks to create, author, or generate context for database enrichment, or asks for examples and instructions on how to write templates, facets, or value searches. It helps bridge the gap between LLMs and structured databases. For running the automated generation, evaluation, and tuning lifecycle, see the context-engineering-workflow skill.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-generation-guide/SKILL.md"
+    },
+    {
+      "name": "data-autocleaning",
+      "description": "Automated data quality and transformation capabilities for Dataform/dbt/BigQuery pipelines. Processes data sourced from BigQuery or Cloud Storage (GCS), applying best practices for data ingestion, movement, schema mapping, and comprehensive data cleaning.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/data-autocleaning/SKILL.md"
+    },
+    {
       "name": "data-manager-api-audience-ingestion",
       "description": "Guides developers through managing (adding, removing, and clearing) audience members for Google products using the Data Manager API and its associated client libraries. Use this skill when the user wants to upload audience members, remove specific users, or clear/replace an entire audience for Customer Match, mobile device ID audiences, or any other audience use case supported by the Data Manager API. Don't use for uploading events or conversions (use the data-manager-api-event-ingestion skill).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/data-manager-api-audience-ingestion/SKILL.md"
@@ -167,6 +417,11 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/data-manager-api-setup/SKILL.md"
     },
     {
+      "name": "dataform-bigquery",
+      "description": "Expertise in generating clean, correct, and efficient Dataform pipeline code for BigQuery ELT. Use this when creating or modifying Dataform pipelines, actions, or source declarations, when Dataform, SQLX, or BigQuery are mentioned in a transformation, when data needs to be ingested from GCS into BigQuery via Dataform, or when setting up a new Dataform project or configuring workflow_settings.yaml.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/dataform-bigquery/SKILL.md"
+    },
+    {
       "name": "datalineage-bigquery-asset-impact-analysis",
       "description": "Analyzes the downstream impact (blast radius) when a BigQuery table or view is broken, stale, or modified. Identifies all downstream tables, dashboards, and processes that will be affected. Use when: - Performing a blast radius or impact analysis for a BigQuery table or view. - Assessing the consequences of modifying, deleting, or pausing updates to a BigQuery asset. - Identifying downstream dependencies (tables, dashboards, processes) of a BigQuery asset. Don't use for: - General BigQuery querying or data analysis (use BigQuery-related tools instead). - Non-BigQuery assets (e.g., Cloud Storage files) unless they are part of the BigQuery lineage. - Creating or modifying lineage links directly.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/datalineage-bigquery-asset-impact-analysis/SKILL.md"
@@ -175,6 +430,16 @@
       "name": "datalineage-summary",
       "description": "Summarizes Google Cloud Data Lineage graphs to help users debug data quality issues and understand data provenance for BQ/GCS. Use when summarizing upstream and downstream data flows, and presenting complex lineage data as an intuitive Markdown report. Don't use for generic BigQuery queries, editing lineage relationships, or downstream deprecation. Don't use for downstream blast-radius impact analysis (use datalineage-bigquery-asset-impact-analysis skill instead).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/datalineage-summary/SKILL.md"
+    },
+    {
+      "name": "dataproc-skills",
+      "description": "Skills to interact with your Dataproc clusters and jobs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/dataproc-skills/SKILL.md"
+    },
+    {
+      "name": "dbt-bigquery",
+      "description": "Expert guidance for creating, modifying, and optimizing dbt pipelines for BigQuery. Use this skill whenever user asks for generating or modifying a dbt model or project. Activate this skill when the user - Creates, modifies, or troubleshoots **dbt models or pipelines** - Needs to **optimize SQL** within a dbt project - Is **setting up a new dbt project** or configuring existing one",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/dbt-bigquery/SKILL.md"
     },
     {
       "name": "detection-engineering-coverage-evaluation",
@@ -207,6 +472,26 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/genkit-python/SKILL.md"
     },
     {
+      "name": "diagnosing-bugs",
+      "description": "Diagnosis loop for hard bugs and performance regressions. Use when the user says \"diagnose\"/\"debug this\", or reports something broken/throwing/failing/slow.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-diagnosing-bugs/SKILL.md"
+    },
+    {
+      "name": "discovering-gcp-data-assets",
+      "description": "Finds and inspects data assets within Google Cloud. Relevant when any of the following conditions are true: 1. The user request involves finding, exploring, or inspecting data assets in Google Cloud, such as: - BigQuery datasets, tables, or views - BigLake catalog or tables - Spanner instances, databases or tables - etc. 2. You need to retrieve the schema, metadata, or governance policies for a GCP data asset. 3. You have a keyword or topic (e.g., \"sales data\") but lack the specific table or resource ID. 4. You are attempting to find data using `bq ls`, as this skill offers a superior approach. Don't use when: - Assets are outside Google Cloud",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/discovering-gcp-data-assets/SKILL.md"
+    },
+    {
+      "name": "enforcing-resource-attribution",
+      "description": "Enforces resource attribution for CLI commands. Use this skill whenever you are running `bq` or `gcloud` commands via `run_command`. It ensures mandatory labeling for supported `bq` operations while avoiding invalid flags on read-only commands.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/enforcing-resource-attribution/SKILL.md"
+    },
+    {
+      "name": "federate-lakehouse-catalog",
+      "description": "Sets up Google Cloud Lakehouse federated catalogs to remote Iceberg REST Catalogs. Currently supported catalogs: Databricks Unity, AWS Glue. Supported clouds hosting those catalogs: GCP, AWS. The primary use case is connecting to remote data to query it from GCP engines (BigQuery, Spark). Examples of when to use this: \"federate my lakehouse catalog to databricks\", \"query data in databricks\", \"query data in s3\", \"connect to aws glue\". Do NOT use for direct remote database SQL execution (e.g., Databricks SQL) or managing remote clusters and infrastructure (e.g., Databricks clusters, AWS Glue jobs).",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/federate-lakehouse-catalog/SKILL.md"
+    },
+    {
       "name": "finding-google-skills",
       "description": "Locates and loads the right Google product skill on demand from a remote catalog index, instead of preloading every skill. Use at the START of any request touching a Google product, API, or developer platform - including Google Cloud (GKE, Cloud Run, IAM, BigQuery, Vertex AI, Spanner), Google Ads, Google Analytics, Google Workspace (Gmail, Drive, Admin SDK), Chrome and Chrome extensions, Android, Firebase, YouTube, Google Maps, Gemini and the Gemini API, Google Play, and Flutter. Consult the index before answering from memory or searching the web. Don't use for non-Google products.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/developers/finding-google-skills/SKILL.md"
@@ -217,9 +502,64 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/firebase-basics/SKILL.md"
     },
     {
+      "name": "firestore-data",
+      "description": "Handles NoSQL document operations and collection hierarchy exploration. Use for CRUD tasks and data retrieval. Provides flexible document manipulation and structured querying.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/firestore-data/SKILL.md"
+    },
+    {
+      "name": "frontend-design",
+      "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-frontend-design/SKILL.md"
+    },
+    {
       "name": "gcloud",
       "description": "Provides safety-critical validation, guardrails, and data reduction for gcloud CLI operations across Google Cloud Platform (GCP) services and infrastructure. Use when planning, generating, constructing, proposing, describing, or executing any gcloud CLI commands - including when answering questions about gcloud syntax, or formatting flags. Don't use when writing Google Cloud client library code or raw REST/gRPC API requests.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/gcloud/SKILL.md"
+    },
+    {
+      "name": "gcloud-auth-verification",
+      "description": "Guidelines for identifying and resolving missing Google Cloud authentication and Application Default Credentials (ADC). Use this skill if `gcloud`, `bq`, `dataform`, or Python libraries return authentication errors.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcloud-auth-verification/SKILL.md"
+    },
+    {
+      "name": "gcp-composer-troubleshooting",
+      "description": "'Provides expert guidance for troubleshooting Cloud Composer (Apache Airflow) and Orchestration pipelines. Use this skill when the user asks to generate Root Cause Analysis (RCA), troubleshoot or fix a failed pipeline, DAG in Composer environment and generate RCA report.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-composer-troubleshooting/SKILL.md"
+    },
+    {
+      "name": "gcp-data-pipelines",
+      "description": "'Primary entry point for building, managing, and orchestrating data pipelines on Google Cloud. Guides users to the appropriate skill for dbt, Dataflow (Apache Beam), Dataform, Spark (Dataproc Serverless), BigQuery Data Transfer Service (DTS) or orchestration pipeline using Cloud Composer. Clarify requirements and resolve ambiguity for creating, updating and running data pipelines.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-data-pipelines/SKILL.md"
+    },
+    {
+      "name": "gcp-dataflow",
+      "description": "Guides writing, packaging, executing, and troubleshooting Apache Beam pipelines on Dataflow. Use when creating new pipelines, configuring Flex Templates, or analyzing performance of Dataflow jobs. Capabilities include Java/Python/Go setup, Cloud Build integration, and deep diagnostic analysis of job health and autoscaling.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-dataflow/SKILL.md"
+    },
+    {
+      "name": "gcp-managed-airflow-migrations",
+      "description": "Provides guidance for migrating Apache Airflow DAGs in Managed Service for Apache Airflow (MSAA; formerly Cloud Composer). Covers migration to Airflow 2.11.1 (MSAA Gen 2 and 3) and Airflow 3 (MSAA Gen 3), including environment inspection, GCS download/upload and scanning patterns for breaking changes.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-managed-airflow-migrations/SKILL.md"
+    },
+    {
+      "name": "gcp-pipeline-orchestration",
+      "description": "This skill helps the agent generate or update orchestration pipeline definitions for Google Cloud Composer to initialize orchestration pipeline or update the orchestration definition for orchestration of various data pipelines, like dbt pipelines, notebooks, Spark jobs, Dataform, Python scripts or inline BigQuery SQL queries. This skill also helps deploy and trigger orchestration pipelines.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-pipeline-orchestration/SKILL.md"
+    },
+    {
+      "name": "gcp-pipeline-resource-provisioning",
+      "description": "Automates declarative resource creation and provisioning for data pipelines, supporting BigQuery, Dataform, Dataproc, BigQuery Data Transfer Service (DTS), and other resources. It manages environment-specific configurations (dev, staging, prod) through a deployment.yaml file. Use when: - Modifying or creating deployment.yaml for deployment settings. - Resolving environment-specific variables (e.g., Project IDs, Regions) for deployment. - Provisioning supported infrastructure like BigQuery datasets/tables, Dataform resources, or DTS resources via deployment.yaml. Do not use when: - Resources already exist. - Managing resources not supported by `gcloud beta orchestration-pipelines resource-types list`. - Managing general cloud infrastructure (VMs, networks, Kubernetes, IAM policies), which are better suited for Terraform. - Infrastructure spans multiple cloud providers (AWS, Azure, etc.). - Already uses Terraform for the target resources.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-pipeline-resource-provisioning/SKILL.md"
+    },
+    {
+      "name": "gcp-spark",
+      "description": "Develops and executes Spark code on Dataproc Clusters and Serverless. Reads and writes data using BigLake Iceberg catalogs, BigQuery and Spanner. Debugs execution failures. Use when: - Writing Spark ETL pipelines on GCP. - Training or running inference with ML models with spark on GCP. - Managing Spark clusters, jobs, batches, and interactive sessions. Don't use when: - Writing generic Python scripts that don't use Spark. - Performing simple SQL queries that can be done directly in BigQuery.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcp-spark/SKILL.md"
+    },
+    {
+      "name": "gcs-security-assessment",
+      "description": "Assesses security posture, evaluates risks, and checks SAIF compliance for Google Cloud Storage buckets or projects. Use when the user requests security scans, vulnerability checks, or SAIF assessments. Don't use when: The user is asking about non-GCS resources (Compute Engine, GKE, etc.), investigating a live production outage, or asking general security questions not tied to a specific project or bucket.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcs-security-assessment/SKILL.md"
     },
     {
       "name": "gemini-agents-api",
@@ -527,6 +867,16 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/google-cloud-storage-basics/SKILL.md"
     },
     {
+      "name": "google-cloud-storage-bucket-architect",
+      "description": "Creates Google Cloud Storage (GCS) buckets — the de-facto, preferred way to create any new bucket. Analyzes the workload (sensitive data, media hosting, ingestion, web hosting, archiving, backup, logging, analytics, AI/ML, or general-purpose), validates project-level security settings, and designs a secure-by-default, cost-effective configuration (location, storage class, uniform bucket-level access, public access prevention, soft delete, lifecycle) before creating it. Use whenever a user wants to create, make, set up, provision, or spin up a bucket, or needs object storage for an app, service, pipeline, or dataset — even a \"simple\" or \"default\" bucket, or when bucket creation is one step in a larger workflow. Outputs or executes the creation via gcloud, the JSON/REST API, Terraform, or SDK client libraries (C++, Java, Python, Go). Don't use for anything other than creating new buckets — for uploads, downloads, access changes, or reconfiguring existing buckets, use google-cloud-storage-basics.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/google-cloud-storage-bucket-architect/SKILL.md"
+    },
+    {
+      "name": "google-cloud-storage-diagnostic",
+      "description": "Troubleshoots and diagnoses Google Cloud Storage (GCS) errors, permission denials, and access control issues. Use when a user encounters a 403 Permission Denied error on a Google Cloud bucket or object, or needs help diagnosing and resolving GCS IAM bindings, ACLs, UBLA, or service agent configurations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/google-cloud-storage-diagnostic/SKILL.md"
+    },
+    {
       "name": "google-cloud-storage-fuse",
       "description": "Mounts Cloud Storage buckets as a POSIX file system with Cloud Storage FUSE (gcsfuse). Use when interacting with gcsfuse: decide whether FUSE, native gs:// reads, or Filestore/Managed Lustre fits a workload, deploy tuned mounts on GKE, Compute Engine, or Cloud Run, enable and size file, stat, and list caches, tune mount flags or config-file settings, apply workload profiles, keep ML checkpointing safe (rename atomicity, hierarchical namespace/HNS, close-time finalization, concurrent writers), or diagnose slow training, low throughput, or bill spikes with gcsfuse metrics. Covers mount semantics, gcsfuse CLI and config files, GKE gcsfuse CSI driver (Workload Identity principal:// bindings, profile StorageClasses, sidecar sizing), and Cloud Run volume mounts. Don't use for bucket administration or data management without a mount (google-cloud-storage-basics) or fully POSIX-compliant shared file systems (Filestore, Managed Lustre).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/google-cloud-storage-fuse/SKILL.md"
@@ -607,6 +957,21 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/ima-sdk-client-side/SKILL.md"
     },
     {
+      "name": "knowledge-catalog-discovery",
+      "description": "Use these skills when you need to discover and explore data assets in the Knowledge Catalog. It allows you to search for entries, lookup specific metadata, and explore aspect types to understand your data platform's assets.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/knowledge-catalog-discovery/SKILL.md"
+    },
+    {
+      "name": "looker",
+      "description": "These skills are designed for data discovery and business intelligence.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/looker/SKILL.md"
+    },
+    {
+      "name": "looker-dev",
+      "description": "These skills are built for LookML developers, data engineers, and administrators who manage the backbone of Looker.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/looker-dev/SKILL.md"
+    },
+    {
       "name": "managed-airflow-dag-authoring",
       "description": "Provides guidance for authoring Apache Airflow DAGs in Managed Service for Apache Airflow (MSAA; formerly Cloud Composer). Covers environment context discovery, Airflow 2 vs 3 compatibility, authoring best practices, and local/remote validation processes. Use when creating or extending an Airflow DAG. Don't use when authoring Python code unrelated to Airflow DAGs.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/managed-airflow-dag-authoring/SKILL.md"
@@ -622,9 +987,49 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/managed-airflow-migrations/SKILL.md"
     },
     {
+      "name": "managing-python-dependencies",
+      "description": "Ensures proper Python dependency management, avoiding global `pip install` and adhering to project-specific tooling.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/managing-python-dependencies/SKILL.md"
+    },
+    {
+      "name": "mcp-builder",
+      "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-mcp-builder/SKILL.md"
+    },
+    {
+      "name": "ml-best-practices",
+      "description": "CRITICAL RULE: You MUST use this skill whenever the task involves any machine learning tasks or data analysis. Use this skill if the user's prompt or requirements mention any of the following: * Clustering * Classification * Regression * Time series forecasting * Statistical testing * Model comparison * ML * Data analysis",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/ml-best-practices/SKILL.md"
+    },
+    {
+      "name": "notebook-guidance",
+      "description": "|- This skill guides the use of Jupyter notebooks for data analysis, exploration, and visualization, particularly with BigQuery. It outlines best practices for notebook execution and validation (supporting both cell-by-cell execution and full notebook generation depending on tool availability), library installation, and structuring notebooks for clarity. It also covers specific rules for data cleaning, plotting, and integrating with BigQuery SQL and machine learning workflows. Relevant when any of the following conditions are true: 1. The user request involves a data analysis, data exploration, data visualization, or data insights task that requires multiple steps, queries, or visualizations to answer. 2. The user explicitly requests a notebook (.ipynb). 3. You are creating, editing, or executing cells in a Jupyter notebook. 4. You need to query BigQuery from within a notebook. DO NOT use the Python BigQuery client library; instead, you MUST use the `%%bqsql` magics explained in this skill.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/notebook-guidance/SKILL.md"
+    },
+    {
+      "name": "oracledb",
+      "description": "Use these skills to manage and monitor Oracle databases by executing SQL statements, exploring schema metadata, analyzing query performance, monitoring active sessions and resource consumption, and managing storage and object health.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/oracledb/SKILL.md"
+    },
+    {
+      "name": "prototype",
+      "description": "Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-prototype/SKILL.md"
+    },
+    {
+      "name": "research",
+      "description": "Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-research/SKILL.md"
+    },
+    {
       "name": "retrieving-developer-knowledge",
       "description": "Searches, retrieves, and synthesizes official Google developer documentation across Google Cloud, AI/Gemini, Android, Chrome, Web, Flutter, Go, Firebase, and other Google developer platforms. Integrates with the Developer Knowledge MCP server (search_documents, get_documents, answer_query) or the Developer Knowledge REST API fallback. Use when searching for gcloud CLI commands, API syntax, IAM permissions, official documentation, architectural comparisons, or product choice overviews. Don't use for local filesystem lookups or non-Google documentation.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/developers/retrieving-developer-knowledge/SKILL.md"
+    },
+    {
+      "name": "skill-creator",
+      "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-skill-creator/SKILL.md"
     },
     {
       "name": "spanner-basics",
@@ -632,9 +1037,49 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/spanner-basics/SKILL.md"
     },
     {
+      "name": "spanner-data",
+      "description": "Use these skills when you need to explore the database structure, discover schema objects like tables and graphs, and execute custom SQL queries to interact with your data.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/spanner-data/SKILL.md"
+    },
+    {
+      "name": "subagent-driven-development",
+      "description": "Use when executing implementation plans with independent tasks in the current session",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-subagents/SKILL.md"
+    },
+    {
+      "name": "systematic-debugging",
+      "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-systematic-debugging/SKILL.md"
+    },
+    {
+      "name": "tdd",
+      "description": "Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions \"red-green-refactor\", or wants integration tests.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-tdd/SKILL.md"
+    },
+    {
+      "name": "test-driven-development",
+      "description": "Use when implementing any feature or bugfix, before writing implementation code",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-tdd/SKILL.md"
+    },
+    {
+      "name": "verification-before-completion",
+      "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-verification/SKILL.md"
+    },
+    {
+      "name": "webapp-testing",
+      "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-webapp-testing/SKILL.md"
+    },
+    {
       "name": "workload-manager-basics",
       "description": "Use this skill to manage Google Cloud Workload Manager evaluations, rules, scanned resources, and validation results by using public client libraries and the REST API. Use when you need to inspect workload best-practice rules, create and run evaluations for Google Cloud general best practices, SAP, SQL Server, or custom organizational rules, review violations, export results to BigQuery, or automate Workload Manager through client libraries because no service-specific public CLI or MCP server is available. Don't use for general Google Compute Engine instance management, VPC configuration, or standard IAM auditing.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/workload-manager-basics/SKILL.md"
+    },
+    {
+      "name": "writing-plans",
+      "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-writing-plans/SKILL.md"
     }
   ]
 }

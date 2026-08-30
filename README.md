@@ -255,3 +255,14 @@ We welcome contributions to improve our skills. You can help by:
 
 You are free to copy, modify, and distribute these skills under the terms of the
 Apache 2.0 license. See the `LICENSE` file for details.
+
+## Struktur Skill (Setelah Restrukturisasi Ekosistem)
+
+- `skills/ads`, `skills/analytics`, `skills/cloud`, `skills/developers` — skill inti Google Cloud.
+- `skills/community/` — skill tingkat tinggi dari AI lain di repo publik (MIT/Apache-2.0):
+  - `obra/superpowers` (debugging, planning, TDD, subagents)
+  - `mattpocock/skills` (engineering, code review, research, prototype)
+  - `anthropics/skills` (webapp-testing, MCP builder, skill creator, design)
+- `skills/ecosystem/` — skill dari ekosistem plugin Gemini/Google (Apache-2.0): AlloyDB, BigQuery, Cloud SQL, Spanner, Looker, Firestore, dll.
+
+Total terindeks otomatis di `index.json` dan dimuat agen saat runtime.
