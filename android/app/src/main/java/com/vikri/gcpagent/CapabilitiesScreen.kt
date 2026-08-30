@@ -26,9 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.vikri.gcpagent.ui.AppViewModel
 
 @Composable
-fun CapabilitiesScreen(modifier: Modifier = Modifier) {
+fun CapabilitiesScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
+    val groupsWithCaps = viewModel.groupsWithCapabilities
+    val total = viewModel.totalCapabilities
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
@@ -38,14 +42,12 @@ fun CapabilitiesScreen(modifier: Modifier = Modifier) {
             Text("Daftar Kemampuan", style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(2.dp))
             Text(
-                "${CapabilityCatalog.all.size} kombinasi tersedia — grup dikelompokkan otomatis",
+                "$total kombinasi tersedia — grup dikelompokkan otomatis",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        for (groupName in CapabilityCatalog.groups) {
-            val items = CapabilityCatalog.byGroup(groupName)
-            if (items.isEmpty()) continue
+        for ((groupName, items) in groupsWithCaps) {
             item {
                 Text(
                     groupName,

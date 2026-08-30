@@ -11,12 +11,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vikri.gcpagent.ui.AppViewModel
 
 private data class Dest(
     val label: String,
@@ -24,8 +24,8 @@ private data class Dest(
 )
 
 @Composable
-fun AgenGCPApp() {
-    var selected by rememberSaveable { mutableIntStateOf(0) }
+fun AgenGCPApp(viewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)) {
+    val uiState by viewModel.uiState.collectAsState()
 
     val dests = listOf(
         Dest("Beranda", Icons.Filled.Home),
@@ -38,8 +38,8 @@ fun AgenGCPApp() {
             NavigationBar {
                 dests.forEachIndexed { i, d ->
                     NavigationBarItem(
-                        selected = selected == i,
-                        onClick = { selected = i },
+                        selected = uiState.selectedTab == i,
+                        onClick = { viewModel.selectTab(i) },
                         icon = { Icon(d.icon, contentDescription = d.label) },
                         label = { Text(d.label) }
                     )
@@ -48,10 +48,10 @@ fun AgenGCPApp() {
         }
     ) { innerPadding ->
         val mod = Modifier.padding(innerPadding)
-        when (selected) {
-            0 -> HomeScreen(mod)
-            1 -> CapabilitiesScreen(mod)
-            else -> WebScreen(mod)
+        when (uiState.selectedTab) {
+            0 -> HomeScreen(mod, viewModel)
+            1 -> CapabilitiesScreen(mod, viewModel)
+            else -> WebScreen(mod, viewModel)
         }
     }
 }

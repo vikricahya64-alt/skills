@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version_code: ${{ steps.vcode.outputs.value }}
+      version_name: ${{ steps.vcode.outputs.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,9 +42,11 @@ jobs:
         working-directory: android
         run: gradle assembleDebug --no-daemon
 
-      - name: Hitung versionCode otomatis (naik tiap build)
+      - name: Hitung versionCode & versionName otomatis (semver, naik tiap build)
         id: vcode
-        run: echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "name=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
   # ====== 2. RILIS PRODUKSI: APK + AAB (Play-ready) + checksum ======
   release:
@@ -51,6 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Pasang JDK 17
         uses: actions/setup-java@v5
@@ -58,21 +63,20 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Generate keystore signing (otomatis, gratis tanpa secret)
+      - name: Muat keystore signing dari secret (stabil, tanda tangan konsisten)
         run: |
-          cd android
-          keytool -genkeypair \
-            -v \
-            -keystore release.keystore \
-            -alias gcpagent \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass gcpagent123 \
-            -keypass gcpagent123 \
-            -dname "CN=GCP Agent, OU=Dev, O=GCP Agent, L=Jakarta, S=DKI Jakarta, C=ID" 2>/dev/null
-          printf 'storeFile=release.keystore\nstorePassword=gcpagent123\nkeyAlias=gcpagent\nkeyPassword=gcpagent123\n' > keystore.properties
-          echo "keystore.properties dibuat"
+          printf '%s' "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/keystore.p12
+          printf 'storeFile=keystore.p12\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "${{ secrets.KEYSTORE_PASSWORD }}" \
+            "${{ secrets.KEY_ALIAS }}" \
+            "${{ secrets.KEYSTORE_PASSWORD }}" > android/keystore.properties
+          echo "keystore.properties disiapkan (dari secret)"
+          keytool -importkeystore -noprompt \
+            -srckeystore android/keystore.p12 -srcstoretype PKCS12 \
+            -srcstorepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+            -destkeystore /tmp/verify.p12 -deststoretype PKCS12 \
+            -deststorepass verify123 2>/dev/null
+          echo "keystore terbaca: valid"
 
       - name: Set up Gradle (cache dependency + build cache lintas run)
         uses: gradle/actions/setup-gradle@v4
@@ -81,7 +85,9 @@ jobs:
 
       - name: Build APK + AAB release (signed, R8, Play-ready)
         working-directory: android
-        run: gradle assembleRelease bundleRelease -PversionCodeOverride=${{ needs.quality-gate.outputs.version_code }} --no-daemon
+        run: gradle assembleRelease bundleRelease \
+          -PversionCodeOverride=${{ needs.quality-gate.outputs.version_code }} \
+          -PversionNameOverride=${{ needs.quality-gate.outputs.version_name }} --no-daemon
 
       - name: Kumpulkan artefak & ukuran
         id: sizes
@@ -122,14 +128,25 @@ jobs:
             android/checksums.txt
           if-no-files-found: error
 
-      - name: Rilis resmi (APK + AAB + checksum, siap upgrade)
+      - name: Buat changelog otomatis dari commit
+        id: changelog
+        run: |
+          PREV=$(git tag --sort=-version:refname | grep -E '^v[0-9]' | head -1 || true)
+          if [ -n "$PREV" ]; then
+            git log --oneline --no-merges "$PREV"..HEAD | sed 's/^/- /'
+          else
+            git log --oneline --no-merges -20 | sed 's/^/- /'
+          fi | tee /tmp/changelog.txt
+          echo "ok"
+
+      - name: Rilis resmi (tag semver + APK + AAB + checksum + changelog)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: apk-${{ github.run_number }}
-          name: "Agen GCP v1.0.0 (build #${{ github.run_number }})"
+          tag_name: v${{ needs.quality-gate.outputs.version_name }}
+          name: "Agen GCP v${{ needs.quality-gate.outputs.version_name }}"
           generate_release_notes: false
           body: |
-            **Agen GCP v1.0.0** — APK & bundle Android **native** (Jetpack Compose + Material 3).
+            **Agen GCP v${{ needs.quality-gate.outputs.version_name }}** — APK & bundle Android **native** (Jetpack Compose + Material 3).
 
             ## Artefak
             - **app-release.apk** — universal (semua ABI), langsung install: `${{ steps.sizes.outputs.apk_size }}`
@@ -141,14 +158,17 @@ jobs:
             - ✅ **jarsigner**: AAB terverifikasi
             - ✅ Android **Lint** bersih (quality gate)
             - ✅ Compile full debug pass
+            - 🔒 **Signing stabil** dari GitHub secret (tanda tangan sama antar build)
 
             ## Fitur
             - 3 layar native: Beranda, Daftar Kemampuan (**39 gabungan**), Buka Agen
             - Tema gelap/terang, adaptive icon, splash, R8/ProGuard
-            - versionCode `${{ needs.quality-gate.outputs.version_code }}` (naik otomatis tiap build)
+            - versionCode `${{ needs.quality-gate.outputs.version_code }}` · semver `v${{ needs.quality-gate.outputs.version_name }}`
 
-            _Keystore dibuat per-build di CI (bukan secret). Verifikasi integritas:
-            `sha256sum -c checksums.txt`_
+            ## Changelog
+            $(cat /tmp/changelog.txt)
+
+            _Verifikasi integritas: `sha256sum -c checksums.txt`_
           files: |
             android/app/build/outputs/apk/release/app-release.apk
             android/app/build/outputs/bundle/release/app-release.aab

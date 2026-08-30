@@ -7,7 +7,8 @@ local.properties
 *.iml
 .kotlin/
 
-# Keystore signing (dibuat otomatis di workflow; jangan commit binary)
+# Keystore signing (disimpan aman di GitHub secret; jangan commit binary)
 keystore.properties
 *.keystore
 *.jks
+*.p12

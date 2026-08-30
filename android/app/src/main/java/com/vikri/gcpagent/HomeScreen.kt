@@ -31,11 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vikri.gcpagent.ui.AppViewModel
 import com.vikri.gcpagent.ui.theme.CyanPrimary
 import com.vikri.gcpagent.ui.theme.SuccessGreen
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
     val context = LocalContext.current
     Column(
         modifier = modifier
@@ -115,7 +116,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
         // Stats row
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard("39", "Kombinasi perintah", Modifier.weight(1f))
+            StatCard("${viewModel.totalCapabilities}", "Kombinasi perintah", Modifier.weight(1f))
             StatCard("R2", "Level evolusi", Modifier.weight(1f))
         }
 
