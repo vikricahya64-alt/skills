@@ -2,6 +2,16 @@
   "generator": "This file is generated. Do not edit it by hand.",
   "skills": [
     {
+      "name": "academy-guide",
+      "description": "Stop and check this skill before finishing any reply to a question about how to use Claude or a Claude product — it recommends matching courses, tutorials, and use cases from Claude Academy (academy.claude.com), Anthropic's learning hub. Trigger on: \"how do I\", \"how can I\", \"getting started with\", \"what can Claude do\", \"teach me\", \"learn to use\"; questions about artifacts, projects, skills, plugins, connectors, MCP; requests about rolling Claude out to a team, class, or organization; and any ask for training materials, onboarding content, or learning resources. Use it when the user is learning how to use a feature or product — not when they are mid-task and just want the task done. This skill composes with other skills: after consulting product documentation to answer how a Claude feature works, also check here for a matching course or tutorial — a docs-grounded answer and an Academy recommendation belong together. Only recommend on a strong match; never invent Academy content.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-academy-guide/SKILL.md"
+    },
+    {
+      "name": "accessibility-compliance",
+      "description": "Implement WCAG 2.2 compliant interfaces with mobile accessibility, inclusive design patterns, and assistive technology support. Use when auditing accessibility, implementing ARIA patterns, building for screen readers, or ensuring inclusive user experiences.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-accessibility-compliance/SKILL.md"
+    },
+    {
       "name": "accidental-data-loss-prevention",
       "description": "**STOP AND VERIFY**: Before running any command or tool that results in irreversible data loss, you MUST obtain explicit user consent. When in doubt, ask. It is better to wait for confirmation than to accidentally delete production data or critical project assets. Use this for: - SQL: DROP TABLE/VIEW/SCHEMA/DATABASE, TRUNCATE, or broad DELETE (missing WHERE or using 1=1). - Cloud Storage: gsutil rm or gcloud storage rm targeting production data or critical buckets. - Infrastructure: gcloud projects delete, deleting Spanner/BigQuery/Dataproc resources, deleting secrets, or KMS key destruction.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/accidental-data-loss-prevention/SKILL.md"
@@ -70,6 +80,21 @@
       "name": "agent-platform-tuning-management",
       "description": "Manages GenAI tuning jobs in Agent Platform. Use this to list, get, or cancel ongoing model tuning jobs. Don't use for fine-tuning models (use `agent-platform-tuning`), deploying models to endpoints (use `agent-platform-deploy`), or managing serving endpoints (use `agent-platform-endpoint-management`).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/agent-platform-tuning-management/SKILL.md"
+    },
+    {
+      "name": "ai-debt-detector",
+      "description": "Use after generating code, after accepting AI suggestions, or when reviewing AI-written modules. Also use when code works but feels brittle, when error handling seems thin, when orphaned resources or missing cleanup are suspected, or when the agent claims done but hidden debt may exist. Catches the specific failure patterns AI agents produce that humans would not.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-ai-debt-detector/SKILL.md"
+    },
+    {
+      "name": "airflow-dag-patterns",
+      "description": "Build production Apache Airflow DAGs with best practices for operators, sensors, testing, and deployment. Use when creating data pipelines, orchestrating workflows, or scheduling batch jobs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-airflow-dag-patterns/SKILL.md"
+    },
+    {
+      "name": "algorithmic-art",
+      "description": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-algorithmic-art/SKILL.md"
     },
     {
       "name": "alloydb-basics",
@@ -157,9 +182,84 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/alloydb-postgres-replication/SKILL.md"
     },
     {
+      "name": "angular-migration",
+      "description": "Migrate from AngularJS to Angular using hybrid mode, incremental component rewriting, and dependency injection updates. Use when upgrading AngularJS applications, planning framework migrations, or modernizing legacy Angular code.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-angular-migration/SKILL.md"
+    },
+    {
+      "name": "anti-reversing-techniques",
+      "description": "Understand anti-reversing, obfuscation, and protection techniques encountered during software analysis. Use this skill when analyzing malware evasion techniques, when implementing anti-debugging protections for CTF challenges, when reverse engineering packed binaries, or when building security research tools that need to detect virtualized environments.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-anti-reversing-techniques/SKILL.md"
+    },
+    {
+      "name": "api-design-principles",
+      "description": "Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers. Use when designing new APIs, reviewing API specifications, or establishing API design standards.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-api-design-principles/SKILL.md"
+    },
+    {
       "name": "application-design-center-design-deploy",
       "description": "Processes GCP infrastructure design and deployment workflows within Application Design Center (ADC). Use when: - Designing GCP infrastructure with Terraform. - Validating local HCL. - Performing best-practice plan scans. - Importing templates to Application Design Center (ADC). - Deploying templates. - Troubleshooting deployment failures. Boundaries: - Only use for GCP-specific cloud infrastructure. - Only use for Terraform coding within the ADC context.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/application-design-center-design-deploy/SKILL.md"
+    },
+    {
+      "name": "architecture-decision-records",
+      "description": "Write and maintain Architecture Decision Records (ADRs) following best practices for technical decision documentation. Use when documenting significant technical decisions, reviewing past architectural choices, or establishing decision processes.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-architecture-decision-records/SKILL.md"
+    },
+    {
+      "name": "architecture-patterns",
+      "description": "Implement proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. Use this skill when designing clean architecture for a new microservice, when refactoring a monolith to use bounded contexts, when implementing hexagonal or onion architecture patterns, or when debugging dependency cycles between application layers.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-architecture-patterns/SKILL.md"
+    },
+    {
+      "name": "ask-matt",
+      "description": "Ask which skill or flow fits your situation. A router over the skills in this repo.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-ask-matt/SKILL.md"
+    },
+    {
+      "name": "async-python-patterns",
+      "description": "Master Python asyncio, concurrent programming, and async/await patterns for high-performance applications. Use when building async APIs, concurrent systems, or I/O-bound applications requiring non-blocking operations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-async-python-patterns/SKILL.md"
+    },
+    {
+      "name": "attack-tree-construction",
+      "description": "Build comprehensive attack trees to visualize threat paths. Use when mapping attack scenarios, identifying defense gaps, or communicating security risks to stakeholders.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-attack-tree-construction/SKILL.md"
+    },
+    {
+      "name": "auth-implementation-patterns",
+      "description": "Master authentication and authorization patterns including JWT, OAuth2, session management, and RBAC to build secure, scalable access control systems. Use when implementing auth systems, securing APIs, or debugging security issues.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-auth-implementation-patterns/SKILL.md"
+    },
+    {
+      "name": "avoid-ai-writing",
+      "description": "Audit and rewrite prose so it stops reading as machine-generated. Use this skill when asked to remove AI-isms, clean up AI writing, edit a draft for AI tells, audit a README, changelog, release note, PR description, or blog post for machine-sounding prose, or make text sound less like AI. Supports a detect-only mode, a rewrite mode, and an edit-in-place mode, with optional voice and context profiles.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-avoid-ai-writing/SKILL.md"
+    },
+    {
+      "name": "backtesting-frameworks",
+      "description": "Build robust backtesting systems for trading strategies with proper handling of look-ahead bias, survivorship bias, and transaction costs. Use when developing trading algorithms, validating strategies, or building backtesting infrastructure.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-backtesting-frameworks/SKILL.md"
+    },
+    {
+      "name": "bash-defensive-patterns",
+      "description": "Master defensive Bash programming techniques for production-grade scripts. Use when writing robust shell scripts, CI/CD pipelines, or system utilities requiring fault tolerance and safety.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-bash-defensive-patterns/SKILL.md"
+    },
+    {
+      "name": "bats-testing-patterns",
+      "description": "Master Bash Automated Testing System (Bats) for comprehensive shell script testing. Use when writing tests for shell scripts, CI/CD pipelines, or requiring test-driven development of shell utilities.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-bats-testing-patterns/SKILL.md"
+    },
+    {
+      "name": "bazel-build-optimization",
+      "description": "Optimize Bazel builds for large-scale monorepos. Use when configuring Bazel, implementing remote execution, or optimizing build performance for enterprise codebases.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-bazel-build-optimization/SKILL.md"
+    },
+    {
+      "name": "before-you-build",
+      "description": "Pre-build product and feature risk review for founders, product managers, and AI-assisted builders. Use this skill when the user is about to build a landing page, MVP, SaaS product, internal tool, agent workflow, or major feature and needs to check demand, positioning, monetization, retention, trust, distribution, and adoption risk before implementation starts.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-before-you-build/SKILL.md"
     },
     {
       "name": "bigquery-ai-ml",
@@ -212,14 +312,64 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/bigtable-basics/SKILL.md"
     },
     {
+      "name": "billing-automation",
+      "description": "Build automated billing systems for recurring payments, invoicing, subscription lifecycle, and dunning management. Use when implementing subscription billing, automating invoicing, or managing recurring payment systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-billing-automation/SKILL.md"
+    },
+    {
+      "name": "binary-analysis-patterns",
+      "description": "Master binary analysis patterns including disassembly, decompilation, control flow analysis, and code pattern recognition. Use when analyzing executables, understanding compiled code, or performing static analysis on binaries.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-binary-analysis-patterns/SKILL.md"
+    },
+    {
+      "name": "block-no-verify-hook",
+      "description": "Configure a PreToolUse hook to prevent AI agents from skipping git pre-commit hooks with --no-verify and other bypass flags. Use when setting up Claude Code projects that enforce commit quality gates.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-block-no-verify-hook/SKILL.md"
+    },
+    {
+      "name": "brainstorming",
+      "description": "\"You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-brainstorming/SKILL.md"
+    },
+    {
       "name": "brand-guidelines",
       "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-brand-guidelines/SKILL.md"
     },
     {
+      "name": "brand-landingpage",
+      "description": "Brand-first landing page designer — runs a brand-identity interview (colors, typography, shape language), then generates and iterates on a polished landing page via Stitch with deployment-ready HTML. Use when the user asks to create, design, or build a landing page, homepage, or marketing page and has no established visual direction. Skip when they have a design mockup, need a dashboard or app UI, are working at component level, building a multi-page app, or restyling with known design tokens — use frontend-design instead.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-brand-landingpage/SKILL.md"
+    },
+    {
       "name": "building-data-apps",
       "description": "Build modern data apps, dashboards, and interactive reports using either React + Vite or Streamlit. Includes optional Gemini Data Analytics chat integration for an AI powered \"chat with your data\" experience.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/building-data-apps/SKILL.md"
+    },
+    {
+      "name": "canvas-design",
+      "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-canvas-design/SKILL.md"
+    },
+    {
+      "name": "changelog-automation",
+      "description": "Automate changelog generation from commits, PRs, and releases following Keep a Changelog format. Use when setting up release workflows, generating release notes, or standardizing commit conventions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-changelog-automation/SKILL.md"
+    },
+    {
+      "name": "checkpoint-promotion",
+      "description": "Gate fine-tuned checkpoints with drift budgets, paired comparison, and forgetting checks before promotion. Use after a training run produces a checkpoint, when deciding whether a tuned model ships, or when a promoted model needs re-gating against updated goldens.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-checkpoint-promotion/SKILL.md"
+    },
+    {
+      "name": "claude-api",
+      "description": "|- Reference for the Claude API / Anthropic SDK — model ids, pricing, params, streaming, tool use, MCP, agents, caching, token counting, model migration. TRIGGER — read BEFORE opening the target file; don't skip because it \"looks like a one-liner\" — whenever: the prompt names Claude/Anthropic in any form (Claude, Anthropic, Fable, Opus, Sonnet, Haiku, `anthropic`, `@anthropic-ai`, `claude-*`, `us.anthropic.*`, `[1m]`); the user asks about an LLM (pricing/model choice/limits/caching) — never answer from memory; OR the task is LLM-shaped with provider unstated (agent/MCP/tool-definition/multi-agent/RAG/LLM-judge/computer-use; generate/summarize/extract/classify/rewrite/converse over NL; debugging refusals/cutoffs/streaming/tool-calls/tokens). SKIP only when another provider is being worked on (overrides all triggers): OpenAI/GPT/Gemini/Llama/Mistral/Cohere/Ollama named in the query; OR `grep -rE 'openai|langchain_openai|google.generativeai|genai|mistralai|cohere|ollama'` over the project hits (run this grep FIRST if no provider named — don't Read the file).",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-claude-api/SKILL.md"
+    },
+    {
+      "name": "claude-handoff",
+      "description": "Hand the current conversation off to a fresh background agent that picks up the work immediately.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-claude-handoff/SKILL.md"
     },
     {
       "name": "cloud-build-basics",
@@ -362,6 +512,26 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-code-review/SKILL.md"
     },
     {
+      "name": "code-review-excellence",
+      "description": "Master effective code review practices to provide constructive feedback, catch bugs early, and foster knowledge sharing while maintaining team morale. Use when reviewing pull requests, establishing review standards, or mentoring developers.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-code-review-excellence/SKILL.md"
+    },
+    {
+      "name": "codebase-design",
+      "description": "Shared vocabulary for designing deep modules. Use when the user wants to design or improve a module's interface, find deepening opportunities, decide where a seam goes, make code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-codebase-design/SKILL.md"
+    },
+    {
+      "name": "competitive-landscape",
+      "description": "Analyze competition, identify differentiation opportunities, and develop winning market positioning strategies using Porter's Five Forces, Blue Ocean Strategy, and positioning maps. Use this skill when evaluating competitors, assessing market positioning, identifying sustainable competitive advantages, or preparing competitive strategy analysis for a startup or investor pitch.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-competitive-landscape/SKILL.md"
+    },
+    {
+      "name": "context-driven-development",
+      "description": "Creates and maintains project context artifacts (product.md, tech-stack.md, workflow.md, tracks.md) in a `conductor/` directory. Scaffolds new projects from scratch, extracts context from existing codebases, validates artifact consistency before implementation, and synchronizes documents as the project evolves. Use when setting up a project, creating or updating product docs, managing a tech stack file, defining development workflows, tracking work units, onboarding to an existing codebase, or running project scaffolding.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-context-driven-development/SKILL.md"
+    },
+    {
       "name": "context-engineering-bootstrap",
       "description": "Guides the agent to bootstrap an initial ContextSet (templates, facets, and value searches) by deducing key information from the database schema and generating a ContextSet file.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-engineering-bootstrap/SKILL.md"
@@ -397,6 +567,16 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/context-generation-guide/SKILL.md"
     },
     {
+      "name": "cost-optimization",
+      "description": "Optimize cloud costs across AWS, Azure, GCP, and OCI through resource rightsizing, tagging strategies, reserved instances, and spending analysis. Use when reducing cloud expenses, analyzing infrastructure costs, or implementing cost governance policies.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-cost-optimization/SKILL.md"
+    },
+    {
+      "name": "cqrs-implementation",
+      "description": "Implement Command Query Responsibility Segregation for scalable architectures. Use when separating read and write models, optimizing query performance, or building event-sourced systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-cqrs-implementation/SKILL.md"
+    },
+    {
       "name": "data-autocleaning",
       "description": "Automated data quality and transformation capabilities for Dataform/dbt/BigQuery pipelines. Processes data sourced from BigQuery or Cloud Storage (GCS), applying best practices for data ingestion, movement, schema mapping, and comprehensive data cleaning.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/data-autocleaning/SKILL.md"
@@ -415,6 +595,21 @@
       "name": "data-manager-api-setup",
       "description": "Guides developers through client library installation and authentication setup steps for the Data Manager API. Use this skill when a user is getting started with the Data Manager API and needs to setup their local environment, install the client library, or setup access to the API. Don't use for implementing audience or event ingestion logic (use the data-manager-api-audience-ingestion or data-manager-api-event-ingestion skills instead).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/data-manager-api-setup/SKILL.md"
+    },
+    {
+      "name": "data-quality-frameworks",
+      "description": "Implement data quality validation with Great Expectations, dbt tests, and data contracts. Use when building data quality pipelines, implementing validation rules, or establishing data contracts.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-data-quality-frameworks/SKILL.md"
+    },
+    {
+      "name": "data-storytelling",
+      "description": "Transform data into compelling narratives using visualization, context, and persuasive structure. Use when presenting analytics to stakeholders, creating data reports, or building executive presentations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-data-storytelling/SKILL.md"
+    },
+    {
+      "name": "database-migration",
+      "description": "Execute database migrations across ORMs and platforms with zero-downtime strategies, data transformation, and rollback procedures. Use when migrating databases, changing schemas, performing data transformations, or implementing zero-downtime deployment strategies.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-database-migration/SKILL.md"
     },
     {
       "name": "dataform-bigquery",
@@ -437,9 +632,44 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/dataproc-skills/SKILL.md"
     },
     {
+      "name": "dataset-curation",
+      "description": "Prepare, format, and validate datasets for supervised fine-tuning and preference training. Use when converting raw data into training format, applying chat templates, configuring sequence packing, generating synthetic training data, or writing a dataset card before a run.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-dataset-curation/SKILL.md"
+    },
+    {
       "name": "dbt-bigquery",
       "description": "Expert guidance for creating, modifying, and optimizing dbt pipelines for BigQuery. Use this skill whenever user asks for generating or modifying a dbt model or project. Activate this skill when the user - Creates, modifies, or troubleshoots **dbt models or pipelines** - Needs to **optimize SQL** within a dbt project - Is **setting up a new dbt project** or configuring existing one",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/dbt-bigquery/SKILL.md"
+    },
+    {
+      "name": "dbt-transformation-patterns",
+      "description": "Master dbt (data build tool) for analytics engineering with model organization, testing, documentation, and incremental strategies. Use when building data transformations, creating data models, or implementing analytics engineering best practices.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-dbt-transformation-patterns/SKILL.md"
+    },
+    {
+      "name": "debugging-strategies",
+      "description": "Master systematic debugging techniques, profiling tools, and root cause analysis to efficiently track down bugs across any codebase or technology stack. Use when investigating bugs, performance issues, or unexpected behavior.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-debugging-strategies/SKILL.md"
+    },
+    {
+      "name": "defi-protocol-templates",
+      "description": "Implement DeFi protocols with production-ready templates for staking, AMMs, governance, and flash loans. Use when building decentralized finance applications or smart contract protocols.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-defi-protocol-templates/SKILL.md"
+    },
+    {
+      "name": "dependency-upgrade",
+      "description": "Manage major dependency version upgrades with compatibility analysis, staged rollout, and comprehensive testing. Use when upgrading framework versions, updating major dependencies, or managing breaking changes in libraries.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-dependency-upgrade/SKILL.md"
+    },
+    {
+      "name": "deployment-pipeline-design",
+      "description": "Design multi-stage CI/CD pipelines with approval gates, security checks, and deployment orchestration. Use this skill when designing zero-downtime deployment pipelines, implementing canary rollout strategies, setting up multi-environment promotion workflows, or debugging failed deployment gates in CI/CD.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-deployment-pipeline-design/SKILL.md"
+    },
+    {
+      "name": "design-system-patterns",
+      "description": "Build scalable design systems with design tokens, theming infrastructure, and component architecture patterns. Use when creating design tokens, implementing theme switching, building component libraries, or establishing design system foundations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-design-system-patterns/SKILL.md"
     },
     {
       "name": "detection-engineering-coverage-evaluation",
@@ -477,9 +707,54 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-diagnosing-bugs/SKILL.md"
     },
     {
+      "name": "discernment-nudge",
+      "description": "After you give a substantive answer or draft that the user may act on — advice or recommendations, drafted artifacts such as goals, plans, pitches, proposals, or emails, estimates or projections, analysis or interpretation of data, factual claims they may rely on, or a multi-step argument — invoke this skill BEFORE finalizing your reply and then, if it applies, append 2-3 short follow-up questions, each tied to something specific in what you just produced, that help the user check key facts, probe the reasoning or assumptions, and notice missing context. Do this at most once per conversation. Skip it when the user asked a trivial how-to or simple lookup, wants a purely educational explanation, asked you only to format, convert, or assemble a file from content they provided, is writing code they will run, is doing creative writing or casual chat, or already asked you to double-check, cite, or review — the skill file explains these boundaries and the exact output format.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-discernment-nudge/SKILL.md"
+    },
+    {
       "name": "discovering-gcp-data-assets",
       "description": "Finds and inspects data assets within Google Cloud. Relevant when any of the following conditions are true: 1. The user request involves finding, exploring, or inspecting data assets in Google Cloud, such as: - BigQuery datasets, tables, or views - BigLake catalog or tables - Spanner instances, databases or tables - etc. 2. You need to retrieve the schema, metadata, or governance policies for a GCP data asset. 3. You have a keyword or topic (e.g., \"sales data\") but lack the specific table or resource ID. 4. You are attempting to find data using `bq ls`, as this skill offers a superior approach. Don't use when: - Assets are outside Google Cloud",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/discovering-gcp-data-assets/SKILL.md"
+    },
+    {
+      "name": "dispatching-parallel-agents",
+      "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-dispatching-parallel-agents/SKILL.md"
+    },
+    {
+      "name": "distributed-tracing",
+      "description": "Implement distributed tracing with Jaeger and Tempo to track requests across microservices and identify performance bottlenecks. Use when debugging microservices, analyzing request flows, or implementing observability for distributed systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-distributed-tracing/SKILL.md"
+    },
+    {
+      "name": "doc-coauthoring",
+      "description": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-doc-coauthoring/SKILL.md"
+    },
+    {
+      "name": "domain-modeling",
+      "description": "Build and sharpen a project's domain model. Use when discussing codebase terminology, writing or editing a CONTEXT.md, or recording or editing an ADR.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-domain-modeling/SKILL.md"
+    },
+    {
+      "name": "dotnet-backend-patterns",
+      "description": "Master C#/.NET backend development patterns for building robust APIs, MCP servers, and enterprise applications. Covers async/await, dependency injection, Entity Framework Core, Dapper, configuration, caching, and testing with xUnit. Use when developing .NET backends, reviewing C# code, or designing API architectures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-dotnet-backend-patterns/SKILL.md"
+    },
+    {
+      "name": "e2e-testing-patterns",
+      "description": "Master end-to-end testing with Playwright and Cypress to build reliable test suites that catch bugs, improve confidence, and enable fast deployment. Use when implementing E2E tests, debugging flaky tests, or establishing testing standards.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-e2e-testing-patterns/SKILL.md"
+    },
+    {
+      "name": "embedding-strategies",
+      "description": "Select and optimize embedding models for semantic search and RAG applications. Use when choosing embedding models, implementing chunking strategies, or optimizing embedding quality for specific domains.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-embedding-strategies/SKILL.md"
+    },
+    {
+      "name": "employment-contract-templates",
+      "description": "Create employment contracts, offer letters, and HR policy documents following legal best practices. Use when drafting employment agreements, creating HR policies, or standardizing employment documentation.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-employment-contract-templates/SKILL.md"
     },
     {
       "name": "enforcing-resource-attribution",
@@ -487,14 +762,59 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/enforcing-resource-attribution/SKILL.md"
     },
     {
+      "name": "error-handling-patterns",
+      "description": "Master error handling patterns across languages including exceptions, Result types, error propagation, and graceful degradation to build resilient applications. Use when implementing error handling, designing APIs, or improving application reliability.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-error-handling-patterns/SKILL.md"
+    },
+    {
+      "name": "eval-harness-first",
+      "description": "Build the evaluation harness that gates every fine-tuning run — golden sets, per-failure-mode graders, judge calibration, and base-model baselines. Use when starting a fine-tuning effort, when converting traces into an eval set, or when calibrating a judge against human labels.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-eval-harness-first/SKILL.md"
+    },
+    {
+      "name": "evaluation-methodology",
+      "description": "\"PluginEval quality methodology — dimensions, rubrics, statistical methods, and scoring formulas. Use this skill when understanding how plugin quality is measured, when interpreting a low score on a specific dimension, when deciding how to improve a skill's triggering accuracy or orchestration fitness, when calibrating scoring thresholds for your marketplace, or when explaining quality badges to external partners like Neon.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-evaluation-methodology/SKILL.md"
+    },
+    {
+      "name": "event-store-design",
+      "description": "Design and implement event stores for event-sourced systems. Use when building event sourcing infrastructure, choosing event store technologies, or implementing event persistence patterns.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-event-store-design/SKILL.md"
+    },
+    {
+      "name": "executing-plans",
+      "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-executing-plans/SKILL.md"
+    },
+    {
+      "name": "fastapi-templates",
+      "description": "Create production-ready FastAPI projects with async patterns, dependency injection, and comprehensive error handling. Use when building new FastAPI applications or setting up backend API projects.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-fastapi-templates/SKILL.md"
+    },
+    {
       "name": "federate-lakehouse-catalog",
       "description": "Sets up Google Cloud Lakehouse federated catalogs to remote Iceberg REST Catalogs. Currently supported catalogs: Databricks Unity, AWS Glue. Supported clouds hosting those catalogs: GCP, AWS. The primary use case is connecting to remote data to query it from GCP engines (BigQuery, Spark). Examples of when to use this: \"federate my lakehouse catalog to databricks\", \"query data in databricks\", \"query data in s3\", \"connect to aws glue\". Do NOT use for direct remote database SQL execution (e.g., Databricks SQL) or managing remote clusters and infrastructure (e.g., Databricks clusters, AWS Glue jobs).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/federate-lakehouse-catalog/SKILL.md"
     },
     {
+      "name": "file-conversion",
+      "description": "Convert files between formats — PDF to Word, HEIC to JPG, MP4 to MP3, CSV to JSON, EPUB to MOBI, and 999 total routes across images, video, audio, documents, data, fonts, ebooks, and archives. Free via changethisfile.com, no API key or signup. Use when the user needs a file converted to a different format.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-file-conversion/SKILL.md"
+    },
+    {
       "name": "finding-google-skills",
       "description": "Locates and loads the right Google product skill on demand from a remote catalog index, instead of preloading every skill. Use at the START of any request touching a Google product, API, or developer platform - including Google Cloud (GKE, Cloud Run, IAM, BigQuery, Vertex AI, Spanner), Google Ads, Google Analytics, Google Workspace (Gmail, Drive, Admin SDK), Chrome and Chrome extensions, Android, Firebase, YouTube, Google Maps, Gemini and the Gemini API, Google Play, and Flutter. Consult the index before answering from memory or searching the web. Don't use for non-Google products.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/developers/finding-google-skills/SKILL.md"
+    },
+    {
+      "name": "finetuning-method-selection",
+      "description": "Decide whether to fine-tune at all, and route to the right method (SFT, DPO/ORPO/KTO, GRPO/RLVR, continued pretraining) and base model. Use when starting any fine-tuning effort, when unsure whether RAG or prompting would suffice, or when choosing between preference-optimization and reinforcement methods.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-finetuning-method-selection/SKILL.md"
+    },
+    {
+      "name": "finishing-a-development-branch",
+      "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-finishing-a-development-branch/SKILL.md"
     },
     {
       "name": "firebase-basics",
@@ -562,6 +882,11 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/gcs-security-assessment/SKILL.md"
     },
     {
+      "name": "gdpr-data-handling",
+      "description": "Implement GDPR-compliant data handling with consent management, data subject rights, and privacy by design. Use when building systems that process EU personal data, implementing privacy controls, or conducting GDPR compliance reviews.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-gdpr-data-handling/SKILL.md"
+    },
+    {
       "name": "gemini-agents-api",
       "description": "Manages custom Agent resources on Gemini Enterprise Agent Platform. Use when the user wants to programmatically create, configure, list, update, or delete stateful, server-managed Agent resources (including mounting files, skills, and tools) before executing conversations.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/gemini-agents-api/SKILL.md"
@@ -580,6 +905,31 @@
       "name": "gemini-live-api",
       "description": "Generates a Gemini LiveAPI client service class in the user's chosen programming language. Use when the user wants to build, scaffold, or integrate a client that connects to the Gemini Enterprise LiveAPI websocket endpoint, handles session setup/resumption, bearer token refresh, and sending/receiving `ClientMessage`/`ServerMessage` protos. Don't use for general (non-live, non-bidirectional) Gemini API usage such as one-shot `generateContent`, embeddings, image/video generation, or fine-tuning — use the `gemini-api` skill for those.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/gemini-live-api/SKILL.md"
+    },
+    {
+      "name": "git-advanced-workflows",
+      "description": "Master advanced Git workflows including rebasing, cherry-picking, bisect, worktrees, and reflog to maintain clean history and recover from any situation. Use when managing complex Git histories, collaborating on feature branches, or troubleshooting repository issues.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-git-advanced-workflows/SKILL.md"
+    },
+    {
+      "name": "git-guardrails-claude-code",
+      "description": "Set up Claude Code hooks to block dangerous git commands (push, reset --hard, clean, branch -D, etc.) before they execute. Use when user wants to prevent destructive git operations, add git safety hooks, or block git push/reset in Claude Code.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-git-guardrails-claude-code/SKILL.md"
+    },
+    {
+      "name": "github-actions-templates",
+      "description": "Create production-ready GitHub Actions workflows for automated testing, building, and deploying applications. Use when setting up CI/CD with GitHub Actions, automating development workflows, or creating reusable workflow templates.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-github-actions-templates/SKILL.md"
+    },
+    {
+      "name": "gitlab-ci-patterns",
+      "description": "Build GitLab CI/CD pipelines with multi-stage workflows, caching, and distributed runners for scalable automation. Use when implementing GitLab CI/CD, optimizing pipeline performance, or setting up automated testing and deployment.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-gitlab-ci-patterns/SKILL.md"
+    },
+    {
+      "name": "gitops-workflow",
+      "description": "Implement GitOps workflows with ArgoCD and Flux for automated, declarative Kubernetes deployments with continuous reconciliation. Use when implementing GitOps practices, automating Kubernetes deployments, or setting up declarative infrastructure management.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-gitops-workflow/SKILL.md"
     },
     {
       "name": "gke-ai-troubleshooting-handle-disruption-gpu-tpu",
@@ -735,6 +1085,16 @@
       "name": "gke-workload-troubleshooting",
       "description": "Diagnoses GKE workload failures (CrashLoopBackOff, OOMKilled, ImagePullBackOff, Pending, etc.) via logs and events. Use when pods fail to start or crash repeatedly. Don't use for GKE cluster infrastructure provisioning, node pool creation, or non-Kubernetes Google Cloud services.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/gke-workload-troubleshooting/SKILL.md"
+    },
+    {
+      "name": "go-concurrency-patterns",
+      "description": "Master Go concurrency with goroutines, channels, sync primitives, and context. Use when building concurrent Go applications, implementing worker pools, or debugging race conditions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-go-concurrency-patterns/SKILL.md"
+    },
+    {
+      "name": "godot-gdscript-patterns",
+      "description": "Master Godot 4 GDScript patterns including signals, scenes, state machines, and optimization. Use when building Godot games, implementing game systems, or learning GDScript best practices.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-godot-gdscript-patterns/SKILL.md"
     },
     {
       "name": "google-ads-api-account-diagnostics",
@@ -937,6 +1297,61 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/google-mobile-ads-rewarded/SKILL.md"
     },
     {
+      "name": "grafana-dashboards",
+      "description": "Create and manage production Grafana dashboards for real-time visualization of system and application metrics. Use when building monitoring dashboards, visualizing metrics, or creating operational observability interfaces.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-grafana-dashboards/SKILL.md"
+    },
+    {
+      "name": "grill-me",
+      "description": "A relentless interview to sharpen a plan or design.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-grill-me/SKILL.md"
+    },
+    {
+      "name": "grill-with-docs",
+      "description": "A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-grill-with-docs/SKILL.md"
+    },
+    {
+      "name": "grilling",
+      "description": "Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-grilling/SKILL.md"
+    },
+    {
+      "name": "grpo-rlvr-training",
+      "description": "Train reasoning and verifiable-task behavior with GRPO and reinforcement learning from verifiable rewards (RLVR). Use when task success is algorithmically checkable (math, code, tool calls, structured output), when designing GRPO reward functions, or when a GRPO run diverges or reward-hacks.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-grpo-rlvr-training/SKILL.md"
+    },
+    {
+      "name": "hads",
+      "description": "Use when writing technical documentation that needs to be readable by both humans and AI models, converting existing docs to HADS format, validating a HADS document, or optimizing documentation for token-efficient AI consumption.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-hads/SKILL.md"
+    },
+    {
+      "name": "handoff",
+      "description": "Compact the current conversation into a handoff document for another agent to pick up.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-handoff/SKILL.md"
+    },
+    {
+      "name": "helm-chart-scaffolding",
+      "description": "Design, organize, and manage Helm charts for templating and packaging Kubernetes applications with reusable configurations. Use when creating Helm charts, packaging Kubernetes applications, or implementing templated deployments.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-helm-chart-scaffolding/SKILL.md"
+    },
+    {
+      "name": "hermes-tweet",
+      "description": "Install and operate Hermes Tweet, a Hermes Agent plugin for X/Twitter research, timeline reading, tweet analysis, and approval-gated private or state-changing operations. Use this skill when installing Hermes Tweet, researching X/Twitter accounts, monitoring launch signals, investigating mentions, auditing giveaways, or preparing gated X operations. Use proactively when a Hermes Agent workflow needs current X/Twitter context. Requires XQUIK_API_KEY for read and action tools.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-hermes-tweet/SKILL.md"
+    },
+    {
+      "name": "hybrid-cloud-networking",
+      "description": "Configure secure, high-performance connectivity between on-premises infrastructure and cloud platforms using VPN and dedicated connections. Use when building hybrid cloud architectures, connecting data centers to cloud, or implementing secure cross-premises networking.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-hybrid-cloud-networking/SKILL.md"
+    },
+    {
+      "name": "hybrid-search-implementation",
+      "description": "Combine vector and keyword search for improved retrieval. Use when implementing RAG systems, building search engines, or when neither approach alone provides sufficient recall.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-hybrid-search-implementation/SKILL.md"
+    },
+    {
       "name": "iam-helper-for-policy-simulator",
       "description": "Safely simulates and applies Google Cloud IAM v1 (Allow) policy changes. Uses the Policy Simulator to replay historical access logs against proposed policies to prevent breaking active workloads before applying the changes. Use when simulating or applying IAM v1 allow policies across Projects, Folders, or Organizations. Don't use for analyzing IAM v2 deny policies, VPC Service Controls, or performing general policy troubleshooting.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/iam-helper-for-policy-simulator/SKILL.md"
@@ -957,9 +1372,79 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ads/ima-sdk-client-side/SKILL.md"
     },
     {
+      "name": "implement",
+      "description": "\"Implement a piece of work based on a spec or set of tickets.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-implement/SKILL.md"
+    },
+    {
+      "name": "implement-spec",
+      "description": "\"Implement a specification in code.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-implement-spec/SKILL.md"
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "description": "Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-improve-codebase-architecture/SKILL.md"
+    },
+    {
+      "name": "incident-runbook-templates",
+      "description": "Create structured incident response runbooks with step-by-step procedures, escalation paths, and recovery actions. Use this skill when building a service outage runbook for a payment processing system; creating database incident procedures covering connection pool exhaustion, replication lag, and disk space alerts; onboarding new on-call engineers who need step-by-step recovery guides written for a 3 AM brain; or standardizing escalation matrices across multiple engineering teams.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-incident-runbook-templates/SKILL.md"
+    },
+    {
+      "name": "interaction-design",
+      "description": "Design and implement microinteractions, motion design, transitions, and user feedback patterns. Use when adding polish to UI interactions, implementing loading states, or creating delightful user experiences.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-interaction-design/SKILL.md"
+    },
+    {
+      "name": "internal-comms",
+      "description": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.).",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-internal-comms/SKILL.md"
+    },
+    {
+      "name": "istio-traffic-management",
+      "description": "Configure Istio traffic management including routing, load balancing, circuit breakers, and canary deployments. Use when implementing service mesh traffic policies, progressive delivery, or resilience patterns.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-istio-traffic-management/SKILL.md"
+    },
+    {
+      "name": "javascript-testing-patterns",
+      "description": "Implement comprehensive testing strategies using Jest, Vitest, and Testing Library for unit tests, integration tests, and end-to-end testing with mocking, fixtures, and test-driven development. Use when writing JavaScript/TypeScript tests, setting up test infrastructure, or implementing TDD/BDD workflows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-javascript-testing-patterns/SKILL.md"
+    },
+    {
+      "name": "k8s-manifest-generator",
+      "description": "Create production-ready Kubernetes manifests for Deployments, Services, ConfigMaps, and Secrets following best practices and security standards. Use when generating Kubernetes YAML manifests, creating K8s resources, or implementing production-grade Kubernetes configurations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-k8s-manifest-generator/SKILL.md"
+    },
+    {
+      "name": "k8s-security-policies",
+      "description": "Implement Kubernetes security policies including NetworkPolicy, PodSecurityPolicy, and RBAC for production-grade security. Use when securing Kubernetes clusters, implementing network isolation, or enforcing pod security standards.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-k8s-security-policies/SKILL.md"
+    },
+    {
       "name": "knowledge-catalog-discovery",
       "description": "Use these skills when you need to discover and explore data assets in the Knowledge Catalog. It allows you to search for entries, lookup specific metadata, and explore aspect types to understand your data platform's assets.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/knowledge-catalog-discovery/SKILL.md"
+    },
+    {
+      "name": "kpi-dashboard-design",
+      "description": "Design effective KPI dashboards with metrics selection, visualization best practices, and real-time monitoring patterns. Use this skill when building an executive SaaS metrics dashboard tracking MRR, churn, and LTV/CAC ratios; designing an operations center with live service health and request throughput; creating a cohort retention analysis view for a product team; or debugging a dashboard where metrics contradict each other due to inconsistent calculation methodology.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-kpi-dashboard-design/SKILL.md"
+    },
+    {
+      "name": "langchain-architecture",
+      "description": "Design LLM applications using LangChain 1.x and LangGraph for agents, memory, and tool integration. Use when building LangChain applications, implementing AI agents, or creating complex LLM workflows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-langchain-architecture/SKILL.md"
+    },
+    {
+      "name": "linkerd-patterns",
+      "description": "Implement Linkerd service mesh patterns for lightweight, security-focused service mesh deployments. Use when setting up Linkerd, configuring traffic policies, or implementing zero-trust networking with minimal overhead.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-linkerd-patterns/SKILL.md"
+    },
+    {
+      "name": "llm-evaluation",
+      "description": "Implement comprehensive evaluation strategies for LLM applications using automated metrics, human feedback, and benchmarking. Use when testing LLM performance, measuring AI application quality, or establishing evaluation frameworks.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-llm-evaluation/SKILL.md"
     },
     {
       "name": "looker",
@@ -970,6 +1455,16 @@
       "name": "looker-dev",
       "description": "These skills are built for LookML developers, data engineers, and administrators who manage the backbone of Looker.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/looker-dev/SKILL.md"
+    },
+    {
+      "name": "loop-me",
+      "description": "Grill me about specs for the workflows I want to build, within this workspace.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-loop-me/SKILL.md"
+    },
+    {
+      "name": "lora-qlora-recipes",
+      "description": "Configure LoRA and QLoRA supervised fine-tuning with current best-practice hyperparameters. Use when writing or reviewing a LoRA/QLoRA training configuration, choosing rank/alpha/target modules, or deciding between LoRA, QLoRA, and full fine-tuning.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-lora-qlora-recipes/SKILL.md"
     },
     {
       "name": "managed-airflow-dag-authoring",
@@ -992,9 +1487,34 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/managing-python-dependencies/SKILL.md"
     },
     {
+      "name": "market-sizing-analysis",
+      "description": "Calculate TAM/SAM/SOM for market opportunities using top-down, bottom-up, and value theory methodologies. Use this skill when sizing markets, estimating addressable revenue, validating market opportunity for a new venture, or building investor-ready market analysis for a startup pitch or business plan.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-market-sizing-analysis/SKILL.md"
+    },
+    {
       "name": "mcp-builder",
       "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK).",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-mcp-builder/SKILL.md"
+    },
+    {
+      "name": "memory-forensics",
+      "description": "Master memory forensics techniques including memory acquisition, process analysis, and artifact extraction using Volatility and related tools. Use when analyzing memory dumps, investigating incidents, or performing malware analysis from RAM captures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-memory-forensics/SKILL.md"
+    },
+    {
+      "name": "memory-safety-patterns",
+      "description": "Implement memory-safe programming with RAII, ownership, smart pointers, and resource management across Rust, C++, and C. Use when writing safe systems code, managing resources, or preventing memory bugs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-memory-safety-patterns/SKILL.md"
+    },
+    {
+      "name": "microservices-patterns",
+      "description": "Design microservices architectures with service boundaries, event-driven communication, and resilience patterns. Use when building distributed systems, decomposing monoliths, or implementing microservices.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-microservices-patterns/SKILL.md"
+    },
+    {
+      "name": "migrate-to-shoehorn",
+      "description": "Migrate test files from `as` type assertions to @total-typescript/shoehorn. Use when user mentions shoehorn, wants to replace `as` in tests, or needs partial test data.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-migrate-to-shoehorn/SKILL.md"
     },
     {
       "name": "ml-best-practices",
@@ -1002,9 +1522,79 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/ml-best-practices/SKILL.md"
     },
     {
+      "name": "ml-pipeline-workflow",
+      "description": "Build end-to-end MLOps pipelines from data preparation through model training, validation, and production deployment. Use when creating ML pipelines, implementing MLOps practices, or automating model training and deployment workflows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-ml-pipeline-workflow/SKILL.md"
+    },
+    {
+      "name": "mobile-android-design",
+      "description": "Master Material Design 3 and Jetpack Compose patterns for building native Android apps. Use when designing Android interfaces, implementing Compose UI, or following Google's Material Design guidelines.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-mobile-android-design/SKILL.md"
+    },
+    {
+      "name": "mobile-ios-design",
+      "description": "Master iOS Human Interface Guidelines and SwiftUI patterns for building native iOS apps. Use when designing iOS interfaces, implementing SwiftUI views, or ensuring apps follow Apple's design principles.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-mobile-ios-design/SKILL.md"
+    },
+    {
+      "name": "modern-javascript-patterns",
+      "description": "Master ES6+ features including async/await, destructuring, spread operators, arrow functions, promises, modules, iterators, generators, and functional programming patterns for writing clean, efficient JavaScript code. Use when refactoring legacy code, implementing modern patterns, or optimizing JavaScript applications.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-modern-javascript-patterns/SKILL.md"
+    },
+    {
+      "name": "monorepo-management",
+      "description": "Master monorepo management with Turborepo, Nx, and pnpm workspaces to build efficient, scalable multi-package repositories with optimized builds and dependency management. Use when setting up monorepos, optimizing builds, or managing shared dependencies.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-monorepo-management/SKILL.md"
+    },
+    {
+      "name": "mtls-configuration",
+      "description": "Configure mutual TLS (mTLS) for zero-trust service-to-service communication. Use when implementing zero-trust networking, certificate management, or securing internal service communication.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-mtls-configuration/SKILL.md"
+    },
+    {
+      "name": "multi-cloud-architecture",
+      "description": "Design multi-cloud architectures using a decision framework to select and integrate services across AWS, Azure, GCP, and OCI. Use when building multi-cloud systems, avoiding vendor lock-in, or leveraging best-of-breed services from multiple providers.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-multi-cloud-architecture/SKILL.md"
+    },
+    {
+      "name": "multi-reviewer-patterns",
+      "description": "Coordinate parallel code reviews across multiple quality dimensions with finding deduplication, severity calibration, and consolidated reporting. Use this skill when organizing multi-reviewer code reviews, calibrating finding severity, or consolidating review results.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-multi-reviewer-patterns/SKILL.md"
+    },
+    {
+      "name": "nextjs-app-router-patterns",
+      "description": "Master Next.js 14+ App Router with Server Components, streaming, parallel routes, and advanced data fetching. Use when building Next.js applications, implementing SSR/SSG, or optimizing React Server Components.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-nextjs-app-router-patterns/SKILL.md"
+    },
+    {
+      "name": "nft-standards",
+      "description": "Implement NFT standards (ERC-721, ERC-1155) with proper metadata handling, minting strategies, and marketplace integration. Use when creating NFT contracts, building NFT marketplaces, or implementing digital asset systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-nft-standards/SKILL.md"
+    },
+    {
+      "name": "nodejs-backend-patterns",
+      "description": "Build production-ready Node.js backend services with Express/Fastify, implementing middleware patterns, error handling, authentication, database integration, and API design best practices. Use when creating Node.js servers, REST APIs, GraphQL backends, or microservices architectures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-nodejs-backend-patterns/SKILL.md"
+    },
+    {
       "name": "notebook-guidance",
       "description": "|- This skill guides the use of Jupyter notebooks for data analysis, exploration, and visualization, particularly with BigQuery. It outlines best practices for notebook execution and validation (supporting both cell-by-cell execution and full notebook generation depending on tool availability), library installation, and structuring notebooks for clarity. It also covers specific rules for data cleaning, plotting, and integrating with BigQuery SQL and machine learning workflows. Relevant when any of the following conditions are true: 1. The user request involves a data analysis, data exploration, data visualization, or data insights task that requires multiple steps, queries, or visualizations to answer. 2. The user explicitly requests a notebook (.ipynb). 3. You are creating, editing, or executing cells in a Jupyter notebook. 4. You need to query BigQuery from within a notebook. DO NOT use the Python BigQuery client library; instead, you MUST use the `%%bqsql` magics explained in this skill.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/notebook-guidance/SKILL.md"
+    },
+    {
+      "name": "nx-workspace-patterns",
+      "description": "Configure and optimize Nx monorepo workspaces. Use when setting up Nx, configuring project boundaries, optimizing build caching, or implementing affected commands.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-nx-workspace-patterns/SKILL.md"
+    },
+    {
+      "name": "on-call-handoff-patterns",
+      "description": "Master on-call shift handoffs with context transfer, escalation procedures, and documentation. Use this skill when transitioning on-call responsibilities between engineers and ensuring the incoming responder has full situational awareness, when writing a shift summary that captures active incidents, ongoing investigations, and recent changes, when handing off mid-incident so a fresh engineer can take over the incident commander role without losing context, when onboarding a new engineer to the on-call rotation for the first time, or when auditing and improving the quality of existing handoff processes across teams.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-on-call-handoff-patterns/SKILL.md"
+    },
+    {
+      "name": "openapi-spec-generation",
+      "description": "Generate and maintain OpenAPI 3.1 specifications from code, design-first specs, and validation patterns. Use when creating API documentation, generating SDKs, or ensuring API contract compliance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-openapi-spec-generation/SKILL.md"
     },
     {
       "name": "oracledb",
@@ -1012,9 +1602,209 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/oracledb/SKILL.md"
     },
     {
+      "name": "parallel-debugging",
+      "description": "Debug complex issues using competing hypotheses with parallel investigation, evidence collection, and root cause arbitration. Use this skill when debugging bugs with multiple potential causes, performing root cause analysis, or organizing parallel investigation workflows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-parallel-debugging/SKILL.md"
+    },
+    {
+      "name": "parallel-feature-development",
+      "description": "Coordinate parallel feature development with file ownership strategies, conflict avoidance rules, and integration patterns for multi-agent implementation. Use this skill when decomposing a large feature into independent work streams, when two or more agents need to implement different layers of the same system simultaneously, when establishing file ownership to prevent merge conflicts in a shared codebase, when designing interface contracts so parallel implementers can build against each other's APIs before they are ready, or when deciding whether to use vertical slices versus horizontal layers for a full-stack feature.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-parallel-feature-development/SKILL.md"
+    },
+    {
+      "name": "paypal-integration",
+      "description": "Integrate PayPal payment processing with support for express checkout, subscriptions, and refund management. Use when implementing PayPal payments, processing online transactions, or building e-commerce checkout flows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-paypal-integration/SKILL.md"
+    },
+    {
+      "name": "pci-compliance",
+      "description": "Implement PCI DSS compliance requirements for secure handling of payment card data and payment systems. Use when securing payment processing, achieving PCI compliance, or implementing payment card security measures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pci-compliance/SKILL.md"
+    },
+    {
+      "name": "postgresql-table-design",
+      "description": "Use this skill when designing or reviewing a PostgreSQL-specific schema. Covers best-practices, data types, indexing, constraints, performance patterns, and advanced features",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-postgresql-table-design/SKILL.md"
+    },
+    {
+      "name": "postmortem-writing",
+      "description": "Write effective blameless postmortems with root cause analysis, timelines, and action items. Use when conducting incident reviews, writing postmortem documents, or improving incident response processes.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-postmortem-writing/SKILL.md"
+    },
+    {
+      "name": "pptx-deck-context",
+      "description": "\"Use when preparing the narrative, sources, and design context for a new editable PPTX deck.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pptx-deck-context/SKILL.md"
+    },
+    {
+      "name": "pptx-quality-gates",
+      "description": "\"Use when validating or repairing an editable PPTX deck for geometry, accessibility, native editability, source lineage, and OOXML package integrity.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pptx-quality-gates/SKILL.md"
+    },
+    {
+      "name": "pptx-reference-deck-analysis",
+      "description": "\"Use when analyzing a reference PPTX for read-only structure, theme, typography, layout rhythm, diagnostics, derived template catalogs, or safe OOXML package inspection.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pptx-reference-deck-analysis/SKILL.md"
+    },
+    {
+      "name": "pptx-slide-specification",
+      "description": "\"Use when authoring or repairing a coordinate-explicit JSON specification for an editable PPTX deck.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pptx-slide-specification/SKILL.md"
+    },
+    {
+      "name": "pptx-visual-assets",
+      "description": "\"Use when selecting and placing approved supporting icons, images, SVGs, diagrams, or infographics in an editable PPTX deck.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-pptx-visual-assets/SKILL.md"
+    },
+    {
+      "name": "preference-optimization",
+      "description": "Align a fine-tuned model with preference data using DPO, ORPO, KTO, or SimPO. Use when preference pairs or thumbs-up/down feedback exist, when choosing between preference-optimization methods, or when a DPO run needs hyperparameters or debugging.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-preference-optimization/SKILL.md"
+    },
+    {
+      "name": "projection-patterns",
+      "description": "Build read models and projections from event streams. Use when implementing CQRS read sides, building materialized views, or optimizing query performance in event-sourced systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-projection-patterns/SKILL.md"
+    },
+    {
+      "name": "prometheus-configuration",
+      "description": "Set up Prometheus for comprehensive metric collection, storage, and monitoring of infrastructure and applications. Use when implementing metrics collection, setting up monitoring infrastructure, or configuring alerting systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-prometheus-configuration/SKILL.md"
+    },
+    {
+      "name": "prompt-engineering-patterns",
+      "description": "This skill should be used when the user asks to \"optimize a prompt\", \"improve prompt performance\", \"design a prompt template\", \"write better prompts\", \"debug prompt issues\", \"use chain-of-thought\", \"structured prompting\", \"few-shot prompting\", or wants to apply advanced prompt engineering patterns for production LLM applications.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-prompt-engineering-patterns/SKILL.md"
+    },
+    {
+      "name": "protect-mcp-setup",
+      "description": "Configure Cedar policy enforcement and Ed25519 signed receipts for Claude Code tool calls. Use when setting up projects that need cryptographic audit trails, policy-gated tool execution, or compliance-ready evidence of agent actions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-protect-mcp-setup/SKILL.md"
+    },
+    {
+      "name": "protocol-reverse-engineering",
+      "description": "Master network protocol reverse engineering including packet analysis, protocol dissection, and custom protocol documentation. Use when analyzing network traffic, understanding proprietary protocols, or debugging network communication.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-protocol-reverse-engineering/SKILL.md"
+    },
+    {
       "name": "prototype",
       "description": "Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-prototype/SKILL.md"
+    },
+    {
+      "name": "python-anti-patterns",
+      "description": "Use this skill when reviewing Python code for common anti-patterns to avoid. Use as a checklist when reviewing code, before finalizing implementations, or when debugging issues that might stem from known bad practices.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-anti-patterns/SKILL.md"
+    },
+    {
+      "name": "python-background-jobs",
+      "description": "Python background job patterns including task queues, workers, and event-driven architecture. Use when implementing async task processing, job queues, long-running operations, or decoupling work from request/response cycles.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-background-jobs/SKILL.md"
+    },
+    {
+      "name": "python-code-style",
+      "description": "Python code style, linting, formatting, naming conventions, and documentation standards. Use when writing new code, reviewing style, configuring linters, writing docstrings, or establishing project standards.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-code-style/SKILL.md"
+    },
+    {
+      "name": "python-configuration",
+      "description": "Python configuration management via environment variables and typed settings. Use when externalizing config, setting up pydantic-settings, managing secrets, or implementing environment-specific behavior.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-configuration/SKILL.md"
+    },
+    {
+      "name": "python-design-patterns",
+      "description": "Python design patterns including KISS, Separation of Concerns, Single Responsibility, and composition over inheritance. Use this skill when designing a new service or component from scratch and choosing how to layer responsibilities, when refactoring a God class or monolithic function that has grown too large, when deciding whether to add a new abstraction or live with duplication, when evaluating a pull request for structural issues like tight coupling or leaking internal types, when choosing between inheritance and composition for a new class hierarchy, or when a codebase is becoming hard to test because of entangled I/O and business logic.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-design-patterns/SKILL.md"
+    },
+    {
+      "name": "python-error-handling",
+      "description": "Python error handling patterns including input validation, exception hierarchies, and partial failure handling. Use when implementing validation logic, designing exception strategies, handling batch processing failures, or building robust APIs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-error-handling/SKILL.md"
+    },
+    {
+      "name": "python-observability",
+      "description": "Python observability patterns including structured logging, metrics, and distributed tracing. Use when adding logging, implementing metrics collection, setting up tracing, or debugging production systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-observability/SKILL.md"
+    },
+    {
+      "name": "python-packaging",
+      "description": "Create distributable Python packages with proper project structure, setup.py/pyproject.toml, and publishing to PyPI. Use when packaging Python libraries, creating CLI tools, or distributing Python code.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-packaging/SKILL.md"
+    },
+    {
+      "name": "python-performance-optimization",
+      "description": "Profile and optimize Python code using cProfile, memory profilers, and performance best practices. Use when debugging slow Python code, optimizing bottlenecks, or improving application performance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-performance-optimization/SKILL.md"
+    },
+    {
+      "name": "python-project-structure",
+      "description": "Python project organization, module architecture, and public API design. Use when setting up new projects, organizing modules, defining public interfaces with __all__, or planning directory layouts.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-project-structure/SKILL.md"
+    },
+    {
+      "name": "python-resilience",
+      "description": "Python resilience patterns including automatic retries, exponential backoff, timeouts, and fault-tolerant decorators. Use when adding retry logic, implementing timeouts, building fault-tolerant services, or handling transient failures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-resilience/SKILL.md"
+    },
+    {
+      "name": "python-resource-management",
+      "description": "Python resource management with context managers, cleanup patterns, and streaming. Use when managing connections, file handles, implementing cleanup logic, or building streaming responses with accumulated state.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-resource-management/SKILL.md"
+    },
+    {
+      "name": "python-testing-patterns",
+      "description": "Implement comprehensive testing strategies with pytest, fixtures, mocking, and test-driven development. Use when writing Python tests, setting up test suites, or implementing testing best practices.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-testing-patterns/SKILL.md"
+    },
+    {
+      "name": "python-type-safety",
+      "description": "Python type safety with type hints, generics, protocols, and strict type checking. Use when adding type annotations, implementing generic classes, defining structural interfaces, or configuring mypy/pyright.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-python-type-safety/SKILL.md"
+    },
+    {
+      "name": "quantized-export",
+      "description": "Export a promoted fine-tuned model in the right deployment format — merged safetensors, LoRA-only, GGUF with imatrix, or FP8. Use after a checkpoint passes promotion, when choosing a quantization format for a target device, or when an exported model fails its smoke test.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-quantized-export/SKILL.md"
+    },
+    {
+      "name": "rag-implementation",
+      "description": "Build Retrieval-Augmented Generation (RAG) systems for LLM applications with vector databases and semantic search. Use when implementing knowledge-grounded AI, building document Q&A systems, or integrating LLMs with external knowledge bases.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-rag-implementation/SKILL.md"
+    },
+    {
+      "name": "react-modernization",
+      "description": "Upgrade React applications to latest versions, migrate from class components to hooks, and adopt concurrent features. Use when modernizing React codebases, migrating to React Hooks, or upgrading to latest React versions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-react-modernization/SKILL.md"
+    },
+    {
+      "name": "react-native-architecture",
+      "description": "Build production React Native apps with Expo, navigation, native modules, offline sync, and cross-platform patterns. Use when developing mobile apps, implementing native integrations, or architecting React Native projects.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-react-native-architecture/SKILL.md"
+    },
+    {
+      "name": "react-native-design",
+      "description": "Master React Native styling, navigation, and Reanimated animations for cross-platform mobile development. Use when building React Native apps, implementing navigation patterns, or creating performant animations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-react-native-design/SKILL.md"
+    },
+    {
+      "name": "react-state-management",
+      "description": "Master modern React state management with Redux Toolkit, Zustand, Jotai, and React Query. Use when setting up global state, managing server state, or choosing between state management solutions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-react-state-management/SKILL.md"
+    },
+    {
+      "name": "receiving-code-review",
+      "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-receiving-code-review/SKILL.md"
+    },
+    {
+      "name": "recsys-pipeline-architect",
+      "description": "Design composable recommendation, ranking, and feed pipelines using the six-stage Source→Hydrator→Filter→Scorer→Selector→SideEffect framework popularized by xAI's open-sourced X For You algorithm. Use when building any system that picks \"the top K items for a (user, context)\" — content feeds, search ranking, RAG rerankers, task prioritizers, notification triage, ad selection.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-recsys-pipeline-architect/SKILL.md"
+    },
+    {
+      "name": "requesting-code-review",
+      "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-requesting-code-review/SKILL.md"
     },
     {
       "name": "research",
@@ -1022,14 +1812,139 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-research/SKILL.md"
     },
     {
+      "name": "resolving-merge-conflicts",
+      "description": "\"Use when you need to resolve an in-progress git merge/rebase conflict.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-resolving-merge-conflicts/SKILL.md"
+    },
+    {
+      "name": "responsive-design",
+      "description": "Implement modern responsive layouts using container queries, fluid typography, CSS Grid, and mobile-first breakpoint strategies. Use when building adaptive interfaces, implementing fluid layouts, or creating component-level responsive behavior.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-responsive-design/SKILL.md"
+    },
+    {
       "name": "retrieving-developer-knowledge",
       "description": "Searches, retrieves, and synthesizes official Google developer documentation across Google Cloud, AI/Gemini, Android, Chrome, Web, Flutter, Go, Firebase, and other Google developer platforms. Integrates with the Developer Knowledge MCP server (search_documents, get_documents, answer_query) or the Developer Knowledge REST API fallback. Use when searching for gcloud CLI commands, API syntax, IAM permissions, official documentation, architectural comparisons, or product choice overviews. Don't use for local filesystem lookups or non-Google documentation.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/developers/retrieving-developer-knowledge/SKILL.md"
     },
     {
+      "name": "retro",
+      "description": "\"Conduct a retrospective on a coding session.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-retro/SKILL.md"
+    },
+    {
+      "name": "review-agent-setup",
+      "description": "Configure human-in-the-loop gating for AI agent review actions in Claude Code. Use when setting up a project where an agent may post PR reviews, comments, merges, or edit CI configuration, and you want a cryptographically auditable approval trail with Cedar-enforced gates.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-review-agent-setup/SKILL.md"
+    },
+    {
+      "name": "risk-metrics-calculation",
+      "description": "Calculate portfolio risk metrics including VaR, CVaR, Sharpe, Sortino, and drawdown analysis. Use when measuring portfolio risk, implementing risk limits, or building risk monitoring systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-risk-metrics-calculation/SKILL.md"
+    },
+    {
+      "name": "rust-async-patterns",
+      "description": "Master Rust async programming with Tokio, async traits, error handling, and concurrent patterns. Use when building async Rust applications, implementing concurrent systems, or debugging async code.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-rust-async-patterns/SKILL.md"
+    },
+    {
+      "name": "saga-orchestration",
+      "description": "Implement saga patterns for distributed transactions and cross-aggregate workflows. Use this skill when implementing distributed transactions across microservices where 2PC is unavailable, designing compensating actions for failed order workflows that span inventory, payment, and shipping services, building event-driven saga coordinators for travel booking systems that must roll back hotel, flight, and car rental reservations atomically, or debugging stuck saga states in production where compensation steps never complete.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-saga-orchestration/SKILL.md"
+    },
+    {
+      "name": "sast-configuration",
+      "description": "Configure Static Application Security Testing (SAST) tools for automated vulnerability detection in application code. Use when setting up security scanning, implementing DevSecOps practices, or automating code vulnerability detection.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-sast-configuration/SKILL.md"
+    },
+    {
+      "name": "scaffold-exercises",
+      "description": "Create exercise directory structures with sections, problems, solutions, and explainers that pass linting. Use when user wants to scaffold exercises, create exercise stubs, or set up a new course section.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-scaffold-exercises/SKILL.md"
+    },
+    {
+      "name": "scan",
+      "description": "Scans the codebase to generate project-doc.md and AGENTS.md. Use when bootstrapping a new agent-driven repo, refreshing project documentation after architectural changes, or running a delta scan to detect drift. Runs a full scan on first use and a smart delta scan on subsequent runs. Uses understand-anything + context-mode when available, falls back to native tools otherwise. Only updates AGENTS.md on detected architectural changes with human confirmation.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-scan/SKILL.md"
+    },
+    {
+      "name": "screen-reader-testing",
+      "description": "Test web applications with screen readers including VoiceOver, NVDA, and JAWS. Use when validating screen reader compatibility, debugging accessibility issues, or ensuring assistive technology support.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-screen-reader-testing/SKILL.md"
+    },
+    {
+      "name": "secrets-management",
+      "description": "Implement secure secrets management for CI/CD pipelines using Vault, AWS Secrets Manager, or native platform solutions. Use when handling sensitive credentials, rotating secrets, or securing CI/CD environments.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-secrets-management/SKILL.md"
+    },
+    {
+      "name": "security-requirement-extraction",
+      "description": "Derive security requirements from threat models and business context. Use when translating threats into actionable requirements, creating security user stories, or building security test cases.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-security-requirement-extraction/SKILL.md"
+    },
+    {
+      "name": "service-mesh-observability",
+      "description": "Implement comprehensive observability for service meshes including distributed tracing, metrics, and visualization. Use when setting up mesh monitoring, debugging latency issues, or implementing SLOs for service communication.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-service-mesh-observability/SKILL.md"
+    },
+    {
+      "name": "session-guard",
+      "description": "Use when working on complex multi-step tasks, when a session is getting long (40+ tool calls), when the agent starts ignoring rules it followed earlier, when conventions drift, when output quality seems to degrade, or after any context compaction event. Prevents long-session corruption AND context compaction amnesia through behavioral self-enforcement.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-session-guard/SKILL.md"
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "description": "\"Configure this repo for the engineering skills: set up its issue tracker, triage label vocabulary, and domain doc layout. Run once before first use of the other engineering skills.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-setup-matt-pocock-skills/SKILL.md"
+    },
+    {
+      "name": "setup-pre-commit",
+      "description": "Set up Husky pre-commit hooks with lint-staged (Prettier), type checking, and tests in the current repo. Use when user wants to add pre-commit hooks, set up Husky, configure lint-staged, or add commit-time formatting/typechecking/testing.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-setup-pre-commit/SKILL.md"
+    },
+    {
+      "name": "setup-ts-deep-modules",
+      "description": "Wire dependency-cruiser into a TypeScript repo so each package is a deep module, with implementation hidden in subfolders and reachable only through its entry-point files. User-invoked.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-setup-ts-deep-modules/SKILL.md"
+    },
+    {
+      "name": "shellcheck-configuration",
+      "description": "Master ShellCheck static analysis configuration and usage for shell script quality. Use when setting up linting infrastructure, fixing code issues, or ensuring script portability.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-shellcheck-configuration/SKILL.md"
+    },
+    {
+      "name": "signed-audit-trails-recipe",
+      "description": "Step-by-step cookbook for setting up cryptographically signed audit trails on Claude Code tool calls. Use when explaining, evaluating, or demonstrating the pattern before committing to the protect-mcp runtime hooks. Covers Cedar policy, Ed25519 receipts, offline verification, tamper detection, CI/CD integration, and SLSA composition.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-signed-audit-trails-recipe/SKILL.md"
+    },
+    {
+      "name": "similarity-search-patterns",
+      "description": "Implement efficient similarity search with vector databases. Use when building semantic search, implementing nearest neighbor queries, or optimizing retrieval performance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-similarity-search-patterns/SKILL.md"
+    },
+    {
       "name": "skill-creator",
       "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-skill-creator/SKILL.md"
+    },
+    {
+      "name": "slack-gif-creator",
+      "description": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-slack-gif-creator/SKILL.md"
+    },
+    {
+      "name": "slo-implementation",
+      "description": "Define and implement Service Level Indicators (SLIs) and Service Level Objectives (SLOs) with error budgets and alerting. Use when establishing reliability targets, implementing SRE practices, or measuring service performance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-slo-implementation/SKILL.md"
+    },
+    {
+      "name": "social-publishing",
+      "description": "Schedule and publish social media posts across 13 platforms (X, LinkedIn, Instagram, Facebook Pages, TikTok, Discord, Telegram, YouTube, Reddit, WordPress, Pinterest) via the SocialClaw API. Use when the user wants to publish, schedule, or manage social media content programmatically. Requires SOCIALCLAW_API_KEY.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-social-publishing/SKILL.md"
+    },
+    {
+      "name": "solidity-security",
+      "description": "Master smart contract security best practices to prevent common vulnerabilities and implement secure Solidity patterns. Use when writing smart contracts, auditing existing contracts, or implementing security measures for blockchain applications.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-solidity-security/SKILL.md"
     },
     {
       "name": "spanner-basics",
@@ -1042,6 +1957,51 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/ecosystem/spanner-data/SKILL.md"
     },
     {
+      "name": "spark-environment-setup",
+      "description": "Set up a working ML training/inference environment on NVIDIA DGX Spark (GB10, aarch64, CUDA 13). Use when installing PyTorch/Unsloth/TRL/vLLM on DGX Spark, hitting libcudart or wheel-ABI errors on aarch64, or choosing between NGC containers and bare pip installs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-spark-environment-setup/SKILL.md"
+    },
+    {
+      "name": "spark-memory-thermal-ops",
+      "description": "Manage unified memory and thermals during long-running ML jobs on NVIDIA DGX Spark. Use when planning memory headroom for a training run on GB10, when a job OOMs on unified memory, or when monitoring temperature and power during multi-hour training.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-spark-memory-thermal-ops/SKILL.md"
+    },
+    {
+      "name": "spark-optimization",
+      "description": "Optimize Apache Spark jobs with partitioning, caching, shuffle optimization, and memory tuning. Use when improving Spark performance, debugging slow jobs, or scaling data processing pipelines.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-spark-optimization/SKILL.md"
+    },
+    {
+      "name": "spark-training-gotchas",
+      "description": "Preflight and diagnose the ten known failure modes for ML training on NVIDIA DGX Spark. Use when a training run on DGX Spark fails to start, OOMs below the 128GB limit, slows down mid-run, or before any multi-hour training job on GB10.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-spark-training-gotchas/SKILL.md"
+    },
+    {
+      "name": "sql-optimization-patterns",
+      "description": "Master SQL query optimization, indexing strategies, and EXPLAIN analysis to dramatically improve database performance and eliminate slow queries. Use when debugging slow queries, designing database schemas, or optimizing application performance.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-sql-optimization-patterns/SKILL.md"
+    },
+    {
+      "name": "startup-financial-modeling",
+      "description": "Build comprehensive 3-5 year financial models with revenue projections, cost structures, cash flow analysis, and scenario planning for early-stage startups. Use this skill when creating financial projections, calculating burn rate or runway, modeling fundraising scenarios, or preparing investor-ready financials for a seed or Series A raise.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-startup-financial-modeling/SKILL.md"
+    },
+    {
+      "name": "startup-metrics-framework",
+      "description": "Track, calculate, and optimize key performance metrics for SaaS, marketplace, consumer, and B2B startups from seed through Series A, including unit economics, growth efficiency, and cash management. Use this skill when defining a metrics framework, calculating CAC/LTV/burn multiple, benchmarking business health, or preparing metrics dashboards for investors or board reporting.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-startup-metrics-framework/SKILL.md"
+    },
+    {
+      "name": "stride-analysis-patterns",
+      "description": "Apply STRIDE methodology to systematically identify threats. Use when analyzing system security, conducting threat modeling sessions, or creating security documentation.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-stride-analysis-patterns/SKILL.md"
+    },
+    {
+      "name": "stripe-integration",
+      "description": "Implement Stripe payment processing for robust, PCI-compliant payment flows including checkout, subscriptions, and webhooks. Use when integrating Stripe payments, building subscription systems, or implementing secure checkout flows.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-stripe-integration/SKILL.md"
+    },
+    {
       "name": "subagent-driven-development",
       "description": "Use when executing implementation plans with independent tasks in the current session",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-subagents/SKILL.md"
@@ -1052,9 +2012,54 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-systematic-debugging/SKILL.md"
     },
     {
+      "name": "tailwind-design-system",
+      "description": "Build scalable design systems with Tailwind CSS v4, design tokens, component libraries, and responsive patterns. Use when creating component libraries, implementing design systems, or standardizing UI patterns.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-tailwind-design-system/SKILL.md"
+    },
+    {
+      "name": "task-coordination-strategies",
+      "description": "Decompose complex tasks, design dependency graphs, and coordinate multi-agent work with proper task descriptions and workload balancing. Use this skill when breaking down work for agent teams, managing task dependencies, or monitoring team progress.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-task-coordination-strategies/SKILL.md"
+    },
+    {
       "name": "tdd",
       "description": "Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions \"red-green-refactor\", or wants integration tests.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-tdd/SKILL.md"
+    },
+    {
+      "name": "teach",
+      "description": "Teach the user a new skill or concept, within this workspace.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-teach/SKILL.md"
+    },
+    {
+      "name": "team-communication-protocols",
+      "description": "Structured messaging protocols for agent team communication including message type selection, plan approval, shutdown procedures, and anti-patterns to avoid. Use this skill when establishing communication norms for a newly spawned team, when deciding whether to send a direct message or a broadcast, when a team-lead needs to review and approve an implementer's plan before work begins, when orchestrating a graceful team shutdown after all tasks are complete, or when debugging why teammates are not coordinating correctly at integration points.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-team-communication-protocols/SKILL.md"
+    },
+    {
+      "name": "team-composition-analysis",
+      "description": "Design optimal team structures, hiring plans, compensation strategies, and equity allocation for early-stage startups from pre-seed through Series A. Use this skill when planning headcount, determining which roles to hire next, setting compensation or equity ranges, designing org structure, or building a hiring budget aligned to funding milestones.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-team-composition-analysis/SKILL.md"
+    },
+    {
+      "name": "team-composition-patterns",
+      "description": "Design optimal agent team compositions with sizing heuristics, preset configurations, and agent type selection. Use this skill when deciding how many agents to spawn for a task, when choosing between a review team versus a feature team versus a debug team, when selecting the correct subagent_type for each role to ensure agents have the tools they need, when configuring display modes (tmux, iTerm2, in-process) for a CI or local environment, or when building a custom team composition for a non-standard workflow such as a migration or security audit.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-team-composition-patterns/SKILL.md"
+    },
+    {
+      "name": "template-skill",
+      "description": "Replace with description of the skill and when Claude should use it.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-template-skill/SKILL.md"
+    },
+    {
+      "name": "temporal-python-testing",
+      "description": "Test Temporal workflows with pytest, time-skipping, and mocking strategies. Covers unit testing, integration testing, replay testing, and local development setup. Use when implementing Temporal workflow tests or debugging test failures.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-temporal-python-testing/SKILL.md"
+    },
+    {
+      "name": "terraform-module-library",
+      "description": "Build reusable Terraform modules for AWS, Azure, GCP, and OCI infrastructure following infrastructure-as-code best practices. Use when creating infrastructure modules, standardizing cloud provisioning, or implementing reusable IaC components.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-terraform-module-library/SKILL.md"
     },
     {
       "name": "test-driven-development",
@@ -1062,9 +2067,129 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-tdd/SKILL.md"
     },
     {
+      "name": "theme-factory",
+      "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-theme-factory/SKILL.md"
+    },
+    {
+      "name": "threat-mitigation-mapping",
+      "description": "Map identified threats to appropriate security controls and mitigations. Use when prioritizing security investments, creating remediation plans, or validating control effectiveness.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-threat-mitigation-mapping/SKILL.md"
+    },
+    {
+      "name": "to-questionnaire",
+      "description": "Turn a decision you can't fully answer into a questionnaire for someone else to fill in.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-to-questionnaire/SKILL.md"
+    },
+    {
+      "name": "to-spec",
+      "description": "\"Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-to-spec/SKILL.md"
+    },
+    {
+      "name": "to-tickets",
+      "description": "Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker (edges as text in one file per ticket locally, or native blocking links on a real tracker).",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-to-tickets/SKILL.md"
+    },
+    {
+      "name": "trace-to-training-data",
+      "description": "Convert evaluation traces and production logs into SFT examples and preference pairs. Use when graded traces or failure examples exist and need to become training data, when applying rejection sampling to model outputs, or when building DPO pairs from passing and failing runs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-trace-to-training-data/SKILL.md"
+    },
+    {
+      "name": "track-management",
+      "description": "Use this skill when creating, managing, or working with Conductor tracks - the logical work units for features, bugs, and refactors. Applies to spec.md, plan.md, and track lifecycle operations.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-track-management/SKILL.md"
+    },
+    {
+      "name": "triage",
+      "description": "Move issues and external PRs through a state machine of triage roles, categorise, verify, grill if needed, and write agent-ready briefs.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-triage/SKILL.md"
+    },
+    {
+      "name": "turborepo-caching",
+      "description": "Configure Turborepo for efficient monorepo builds with local and remote caching. Use when setting up Turborepo, optimizing build pipelines, or implementing distributed caching.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-turborepo-caching/SKILL.md"
+    },
+    {
+      "name": "typescript-advanced-types",
+      "description": "Master TypeScript's advanced type system including generics, conditional types, mapped types, template literals, and utility types for building type-safe applications. Use when implementing complex type logic, creating reusable type utilities, or ensuring compile-time type safety in TypeScript projects.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-typescript-advanced-types/SKILL.md"
+    },
+    {
+      "name": "unity-ecs-patterns",
+      "description": "Master Unity ECS (Entity Component System) with DOTS, Jobs, and Burst for high-performance game development. Use when building data-oriented games, optimizing performance, or working with large entity counts.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-unity-ecs-patterns/SKILL.md"
+    },
+    {
+      "name": "using-git-worktrees",
+      "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-using-git-worktrees/SKILL.md"
+    },
+    {
+      "name": "using-superpowers",
+      "description": "Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-using-superpowers/SKILL.md"
+    },
+    {
+      "name": "uv-package-manager",
+      "description": "Master the uv package manager for fast Python dependency management, virtual environments, and modern Python project workflows. Use when setting up Python projects, managing dependencies, or optimizing Python development workflows with uv.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-uv-package-manager/SKILL.md"
+    },
+    {
+      "name": "vector-index-tuning",
+      "description": "Optimize vector index performance for latency, recall, and memory. Use when tuning HNSW parameters, selecting quantization strategies, or scaling vector search infrastructure.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-vector-index-tuning/SKILL.md"
+    },
+    {
       "name": "verification-before-completion",
       "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-verification/SKILL.md"
+    },
+    {
+      "name": "vision-sft",
+      "description": "Fine-tune vision-language models (VLMs) with supervised learning on image+text data. Use when adapting a VLM to a visual domain or task, configuring frozen-vision-tower LoRA, or debugging a VLM fine-tune that trains without learning.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-vision-sft/SKILL.md"
+    },
+    {
+      "name": "visual-design-foundations",
+      "description": "Apply typography, color theory, spacing systems, and iconography principles to create cohesive visual designs. Use when establishing design tokens, building style guides, or improving visual hierarchy and consistency.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-visual-design-foundations/SKILL.md"
+    },
+    {
+      "name": "visual-edit-precision",
+      "description": "Use when making UI/frontend changes guided by visual context, when the user selects elements visually, draws annotations, or provides screenshots alongside change requests. Also use when editing components where spatial context (element identity, DOM references, layout data) supplements text instructions.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-visual-edit-precision/SKILL.md"
+    },
+    {
+      "name": "wait-what",
+      "description": "\"Stop. That last message did not land: re-pitch it.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-wait-what/SKILL.md"
+    },
+    {
+      "name": "wayfinder",
+      "description": "Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-wayfinder/SKILL.md"
+    },
+    {
+      "name": "wcag-audit-patterns",
+      "description": "Conduct WCAG 2.2 accessibility audits with automated testing, manual verification, and remediation guidance. Use when auditing websites for accessibility, fixing WCAG violations, or implementing accessible design patterns.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-wcag-audit-patterns/SKILL.md"
+    },
+    {
+      "name": "web-artifacts-builder",
+      "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-web-artifacts-builder/SKILL.md"
+    },
+    {
+      "name": "web-component-design",
+      "description": "Master React, Vue, and Svelte component patterns including CSS-in-JS, composition strategies, and reusable component architecture. Use when building UI component libraries, designing component APIs, or implementing frontend design systems.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-web-component-design/SKILL.md"
+    },
+    {
+      "name": "web3-testing",
+      "description": "Test smart contracts comprehensively using Hardhat and Foundry with unit tests, integration tests, and mainnet forking. Use when testing Solidity contracts, setting up blockchain test suites, or validating DeFi protocols.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-web3-testing/SKILL.md"
     },
     {
       "name": "webapp-testing",
@@ -1072,14 +2197,54 @@
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/anthropic-webapp-testing/SKILL.md"
     },
     {
+      "name": "wizard",
+      "description": "Generate an interactive bash wizard that walks a human through steps only they can perform. Use when provisioning infrastructure, setting up credentials or CI secrets, walking an unfamiliar third-party dashboard, or running a one-off migration or cutover. Don't invoke this for steps the agent can perform itself.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-wizard/SKILL.md"
+    },
+    {
+      "name": "workflow-orchestration-patterns",
+      "description": "Design durable workflows with Temporal for distributed systems. Covers workflow vs activity separation, saga patterns, state management, and determinism constraints. Use when building long-running processes, distributed transactions, or microservice orchestration.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-workflow-orchestration-patterns/SKILL.md"
+    },
+    {
+      "name": "workflow-patterns",
+      "description": "Use this skill when implementing tasks according to Conductor's TDD workflow, handling phase checkpoints, managing git commits for tasks, or understanding the verification protocol.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/wshobson-workflow-patterns/SKILL.md"
+    },
+    {
       "name": "workload-manager-basics",
       "description": "Use this skill to manage Google Cloud Workload Manager evaluations, rules, scanned resources, and validation results by using public client libraries and the REST API. Use when you need to inspect workload best-practice rules, create and run evaluations for Google Cloud general best practices, SAP, SQL Server, or custom organizational rules, review violations, export results to BigQuery, or automate Workload Manager through client libraries because no service-specific public CLI or MCP server is available. Don't use for general Google Compute Engine instance management, VPC configuration, or standard IAM auditing.",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/cloud/workload-manager-basics/SKILL.md"
     },
     {
+      "name": "writing-beats",
+      "description": "Writing, exploit; assemble raw material into a journey of beats, grounding each term before a beat leans on it.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-writing-beats/SKILL.md"
+    },
+    {
+      "name": "writing-for-agents",
+      "description": "Writing documents for agents. Use when creating or editing skills, or modifying AGENTS.md or CLAUDE.md.",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-writing-for-agents/SKILL.md"
+    },
+    {
+      "name": "writing-fragments",
+      "description": "\"Writing, explore: mine raw fragments, no structure yet.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-writing-fragments/SKILL.md"
+    },
+    {
       "name": "writing-plans",
       "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
       "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-writing-plans/SKILL.md"
+    },
+    {
+      "name": "writing-shape",
+      "description": "\"Writing, exploit: shape raw material into an article, paragraph by paragraph.\"",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/mattpocock-writing-shape/SKILL.md"
+    },
+    {
+      "name": "writing-skills",
+      "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/skills/community/superpowers-writing-skills/SKILL.md"
     }
   ]
 }
