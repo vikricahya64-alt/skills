@@ -67,6 +67,8 @@ header .sub{font-size:11px;color:var(--muted)}
 .actionBar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .act{font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:3px 9px;cursor:pointer;transition:.15s}
 .act:hover{border-color:var(--accent);color:var(--accent)}
+.dlbtn{font-size:12px;background:var(--accent);border:none;color:#fff;border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:8px;font-weight:600;transition:.15s}
+.dlbtn:hover{opacity:.88}
 .quickRow{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px;max-width:760px;margin:0 auto;width:100%}
 .quick{font-size:11.5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:16px;padding:5px 11px;cursor:pointer}
 .quick:hover{border-color:var(--accent);color:var(--accent)}
@@ -148,6 +150,7 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
 <script>
 var SID = 's-' + Math.random().toString(36).slice(2);
 var files = [];
+var lastZipB64 = '';
 var busy = false;
 function $(id){return document.getElementById(id);}
 function esc(s){var d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
@@ -454,6 +457,33 @@ function downloadText(text,fname){
     document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
   }catch(_){}
 }
+function saveZipBlob(blob){
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='project-'+SID.replace(/[^a-zA-Z0-9_-]/g,'')+'.zip';
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+  setStatus('selesai');
+}
+function downloadProjectZip(){
+  try{
+    setStatus('📦 menyiapkan unduhan project…');
+    // Jalur andal: base64 project dikirim langsung bersama jawaban (tahan lintas cold-start serverless)
+    if(lastZipB64){
+      var bin=atob(lastZipB64);
+      var bytes=new Uint8Array(bin.length);
+      for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      saveZipBlob(new Blob([bytes],{type:'application/zip'}));
+      return;
+    }
+    // Fallback: minta server membuat ZIP dari workspace sesi
+    fetch('/api/download?session='+encodeURIComponent(SID))
+      .then(function(r){
+        if(!r.ok)return r.json().then(function(d){throw new Error(d&&d.error||'gagal mengunduh');});
+        return r.blob();
+      })
+      .then(function(blob){ saveZipBlob(blob); })
+      .catch(function(err){ showBanner('Download gagal: '+((err&&err.message)||'unknown')); setStatus('error','off'); });
+  }catch(_){}
+}
 function addActionBtns(bub,lastQ){
   var bar=document.createElement('div');bar.className='actionBar';
   var acts=[
@@ -514,10 +544,16 @@ function streamRun(url, q, box, title, finishMeta, t){
         var st2=document.createElement('div');st2.className='step ok';st2.innerHTML='<span class="tl">KEMAMPUAN</span> '+esc(d.skill.name);box.appendChild(st2);
       }
       lastAnswerText=(d&&d.answer)||'';
+      lastZipB64=(d&&d.projectZip)||'';
       var ans=document.createElement('div');ans.style.marginTop='8px';
       ans.innerHTML=md(lastAnswerText||'(tidak ada hasil akhir)');
       box.appendChild(ans);
       addActionBtns(box, lastAnswerText);
+      if(d&&d.canDownload){
+        var dbtn=document.createElement('button');dbtn.className='dlbtn';dbtn.textContent='📦 Unduh Project (ZIP)';
+        dbtn.onclick=function(){ downloadProjectZip(); };
+        box.appendChild(dbtn);
+      }
       $('chat').scrollTop=$('chat').scrollHeight;
       setStatus('selesai');
       resolvePromise(d||{});

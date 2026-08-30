@@ -1,5 +1,6 @@
 const express = require("express");
 const multer = require("multer");
+const ZIP = require("./zip.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const path = require("path");
@@ -799,6 +800,7 @@ app.post("/api/agent", async (req, res) => {
     "LINGKUNGAN: Linux serverless GRATIS; tool nyata tersedia: bash, run (node), npm (install package), sql, write, read, fetch, kb. Python TIDAK terpasang - jangan coba python3/pip. " +
     "ANDA WAJIB MENEKSEKUSI NYATA, bukan hanya menulis langkah-langkah: panggil tool, lihat hasil, verifikasi output. " +
     "JIka sebuah tool GAGAL, coba cara lain SEKARANG (run/node, bash, sql fallback, npm) sampai perintah benar-benar tereksekusi, lalu tutup [SELESAI] dengan hasil nyata. " +
+    "Jika tugas meminta membuat APLIKASI / PROJECT / SCRIPT / WEBSITE / APK (mis. aplikasi Android, web app, bot, dll), Anda WAJIB menulis SETIAP file project ke workspace memakai tool write (args path & content), satu file per panggilan write, dengan struktur folder lengkap (mis. aplikasi android: settings.gradle, build.gradle, app/build.gradle, app/src/main/AndroidManifest.xml, app/src/main/java/.../MainActivity.kt, dan resource). JANGAN hanya menampilkan kode di jawaban — tulis file nyata ke workspace agar bisa diunduh. " +
     "Setiap kemampuan di bawah adalah KOMPETENSI EKSPLISIT — gunakan pengetahuan spesifik tiap kemampuan saat mengeksekusi, bukan pendekatan generik. " +
     "Identifikasi kemampuan mana yang paling relevan dengan tugas user, lalu terapkan insight dan skill-nya secara langsung. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
@@ -819,7 +821,7 @@ app.post("/api/agent", async (req, res) => {
   let answer = "";
   const steps = [];
   const doneCalls = new Set();
-  const MAX_IT = 4;
+  const MAX_IT = 9;
   let final = false;
   let noToolStreak = 0;
 
@@ -896,13 +898,21 @@ app.post("/api/agent", async (req, res) => {
     if (steps.length && !answer) answer = "Dieksekusi nyata di cloud. Lihat langkah di atas.";
   }
 
+  // Siapkan artefak project (ZIP) bila ada file di workspace sesi ini.
+  let projectZip = null;
+  try {
+    const wdir = CODEX.wsDir(sessionId);
+    const wfiles = ZIP.collectFiles(wdir);
+    if (wfiles.length) projectZip = ZIP.buildZip(wfiles).toString("base64");
+  } catch (_) {}
+
   if (useStream) {
     prog("✅ Selesai — menyusun jawaban akhir…");
-    emit("done", { answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
+    emit("done", { answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId, canDownload: true, projectZip });
     res.end();
     return;
   }
-  res.json({ answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
+  res.json({ answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId, canDownload: true, projectZip });
 });
 
 
@@ -1350,6 +1360,21 @@ async function fallbackExec(task, sessionId) {
   return { steps, answer: "Dieksekusi nyata: artefak disimpan ke hasil-agen.md dan environment diverifikasi (Node " + (gver.ok ? gver.result.trim().split("\n")[0] : "n/a") + "). Lihat langkah tool di atas." };
 
 }
+
+// ===== UNDUH PROJECT (ZIP): bungkus semua file workspace sesi jadi satu arsip =====
+app.get("/api/download", (req, res) => {
+  const sessionId = String((req.query && req.query.session) || "default").slice(0, 64);
+  let dir;
+  try { dir = CODEX.wsDir(sessionId); } catch (_) {}
+  if (!dir) return res.status(400).json({ error: "Sesi tidak ditemukan." });
+  const files = ZIP.collectFiles(dir);
+  if (!files.length) return res.status(404).json({ error: "Tidak ada file project pada sesi ini. Jalankan dulu mode coder untuk membuat file." });
+  const zipBuf = ZIP.buildZip(files);
+  const fname = "project-" + sessionId.replace(/[^a-zA-Z0-9_-]/g, "") + ".zip";
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader("Content-Disposition", "attachment; filename=\"" + fname + "\"");
+  res.send(zipBuf);
+});
 
 app.get("/", (req, res) => { res.send(HTML); });
 
