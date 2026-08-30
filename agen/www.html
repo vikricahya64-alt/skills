@@ -88,6 +88,18 @@ header .sub{font-size:11px;color:var(--muted)}
 .act:hover{border-color:var(--accent);color:var(--accent)}
 .dlbtn{font-size:12px;background:var(--accent);border:none;color:#fff;border-radius:10px;padding:6px 12px;cursor:pointer;margin-top:8px;font-weight:600;transition:.15s}
 .dlbtn:hover{opacity:.88}
+.confirmOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:999}
+.confirmBox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;max-width:420px;width:calc(100% - 40px);box-shadow:0 10px 40px rgba(0,0,0,.5);text-align:center}
+.confirmBox h4{margin:0 0 8px;color:#fbbf24}
+.confirmBox .ci{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.confirmBox .cfw{display:inline-block;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.45);color:#fbbf24;font-weight:800;border-radius:8px;padding:1px 8px;letter-spacing:2px}
+.confirmBox input{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:14px;text-align:center;letter-spacing:1px;margin-bottom:12px;outline:none}
+.confirmBox input:focus{border-color:var(--accent)}
+.confirmBox .runRow{display:flex;gap:8px;justify-content:center}
+.confirmBox .runBtn{background:var(--accent);border:none;color:#fff;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px;transition:.15s}
+.confirmBox .runBtn:disabled{opacity:.4;cursor:not-allowed}
+.confirmBox .cb{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:13px}
+.confirmBox .cb:hover{border-color:#f87171;color:#f87171}
 .quickRow{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px;max-width:760px;margin:0 auto;width:100%}
 .quick{font-size:11.5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:16px;padding:5px 11px;cursor:pointer}
 .quick:hover{border-color:var(--accent);color:var(--accent)}
@@ -122,6 +134,8 @@ textarea#q:focus{outline:none}
 #sendBtn:disabled{opacity:.5}
 #attBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #attBtn:hover{border-color:var(--accent);color:var(--accent)}
+#keyBtn{flex-shrink:0;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#keyBtn:hover{border-color:#fbbf24;color:#fbbf24}
 </style>
 </head>
 <body>
@@ -174,6 +188,7 @@ textarea#q:focus{outline:none}
   <form id="qbar">
     <button type="button" id="micBtn" title="Input suara (convert suara ke teks)">🎤</button>
     <button type="button" id="attBtn" title="Lampirkan file/gambar">&#128206;</button>
+    <button type="button" id="keyBtn" title="Atur kata kunci verifikasi">🔑</button>
     <textarea id="q" rows="1" placeholder="Tanya apa saja soal Google Cloud&hellip; (Enter kirim, Shift+Enter baris baru)"></textarea>
     <button type="button" id="pauseBtn" title="Jeda / hentikan proses" style="display:none">⏸</button>
     <button type="submit" id="sendBtn" title="Kirim">&#10148;</button>
@@ -432,7 +447,7 @@ function renderCaps(){
     items.forEach(function(it){
       var info=(pk.packs||{})[it.id];
       var card=document.createElement('div');card.className='cap';
-      var runBtns=(it.commands&&it.commands.length)?'<div class="runRow">'+it.commands.map(function(c){return '<button class="runBtn" type="button">▶ '+esc(c)+'</button>';}).join('')+'</div>':'';
+      var runBtns=(it.commands&&it.commands.length)?'<div class="runRow">'+it.commands.map(function(c){return '<button class="runBtn" type="button" data-combo="'+esc(it.id)+'">▶ '+esc(c)+'</button>';}).join('')+'</div>':'';
       card.innerHTML='<h4>'+it.emoji+' '+esc(it.name)+' <span style="font-size:10px;color:var(--muted)">'+it.type+'</span></h4>'+
         '<div class="ci">'+esc(it.insight||'')+'</div>'+
         (info?'<div class="ci">🧩 '+info.skillCount+' skill · '+info.codes+' kode · '+info.logic+' logika</div>':'')+
@@ -448,7 +463,7 @@ function renderCaps(){
         }).catch(function(){body.innerHTML='<div class="ci">gagal memuat</div>';});
       };
       card.querySelectorAll('.runBtn').forEach(function(btn){
-        btn.onclick=function(){var cmd=this.textContent.replace(/^▶\s*/,'');$('q').value=cmd;autoGrow();sendRun(cmd);};
+        btn.onclick=function(){var cmd=this.textContent.replace(/^▶\s*/,'');confirmRun(cmd,this.getAttribute('data-combo'),(it.emoji||'')+' '+(it.name||''));};
       });
       pan.appendChild(card);
     });
@@ -557,7 +572,8 @@ function parseSSE(buf){
   if(cur) out.push(cur);
   return out.map(function(e){ var txt=e.data.join("\n"); try{return {event:e.event,data:JSON.parse(txt)};}catch(_){return {event:e.event,data:txt};} });
 }
-function streamRun(url, q, box, title, finishMeta, t){
+function streamRun(url, q, box, title, finishMeta, t, combo){
+  var bodyExtra=combo?{combo:combo}:{};
   return new Promise(function(resolvePromise, rejectPromise){
     var statusEl=document.createElement('div');
     statusEl.className='step prog';
@@ -633,7 +649,7 @@ function streamRun(url, q, box, title, finishMeta, t){
       if(ev.event==='done'){ finishOk(ev.data); return; }
     }
     fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({task:q,sessionId:SID,stream:true}),signal:abortSignal()})
+        body:JSON.stringify(Object.assign({task:q,sessionId:SID,stream:true},bodyExtra)),signal:abortSignal()})
       .then(function(r){
         if(!r.ok||!r.body){
           return r.json().then(function(d){ finishErr(new Error(d&&d.error||'server error')); }, function(){ finishErr(new Error('server error')); });
@@ -658,6 +674,81 @@ function streamRun(url, q, box, title, finishMeta, t){
       })
       .catch(function(err){ finishErr(err); });
   });
+}
+function confirmRun(cmd,comboId,comboName){
+  if(busy){ addMsg('bot','⏳ <strong>Masih ada kemampuan yang sedang berjalan.</strong> Tunggu sampai selesai sebelum menjalankan kemampuan lain.'); showBanner('Eksekusi diblokir: tunggu kemampuan berjalan selesai.'); return; }
+  var word=LS('verifyWord');
+  if(!word){
+    verifyModal('🔑 Atur Kata Kunci Verifikasi','Simpan & Jalankan',function(w){
+      LS('verifyWord',w);execCombo(cmd,comboId);
+    });
+    return;
+  }
+  var ov=document.createElement('div');ov.className='confirmOv';
+  ov.innerHTML='<div class="confirmBox">'+
+    '<h4>⚠️ Konfirmasi sebelum eksekusi</h4>'+
+    '<div class="ci">'+(comboName?'🏷️ <b>'+esc(comboName)+'</b><br>':'')+'Kemampuan ini akan berjalan <b>nyata</b> di lingkungan. '+
+    'Ketik kata kunci verifikasi milik Anda lalu klik Jalankan. '+
+    '<a href="javascript:void(0)" id="cfChg" style="color:var(--accent)">🔑 ganti kata kunci</a></div>'+
+    '<input type="text" id="cfWord" placeholder="Ketik kata kunci Anda…" autocomplete="off">'+
+    '<div class="runRow"><button class="runBtn" id="cfGo" type="button" disabled>🚀 Jalankan Sekarang</button>'+
+    '<button class="cb" id="cfX" type="button">Batal</button></div>'+
+    '</div>';
+  document.body.appendChild(ov);
+  var inp=ov.querySelector('#cfWord'),go=ov.querySelector('#cfGo');
+  function matches(){return inp.value.trim()===word;}
+  function chk(){go.disabled=!matches();}
+  inp.addEventListener('input',chk);
+  function killConfirm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
+  function goRun(){ if(matches()){ killConfirm(); execCombo(cmd,comboId); } }
+  go.onclick=goRun;
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') goRun(); });
+  ov.querySelector('#cfX').onclick=killConfirm;
+  ov.querySelector('#cfChg').onclick=function(){ killConfirm(); verifyModal('🔑 Ganti Kata Kunci Verifikasi','Simpan',function(w){ LS('verifyWord',w); addMsg('bot','🔑 Kata kunci verifikasi diperbarui.'); }); };
+  inp.focus();
+}
+function LS(k,v){
+  try{
+    if(v!==undefined){ localStorage.setItem(k,String(v)); return null; }
+    var x=localStorage.getItem(k); return x==null?'':x;
+  }catch(e){ return v!==undefined?null:''; }
+}
+function verifyModal(title,btnLabel,onOk){
+  var ov=document.createElement('div');ov.className='confirmOv';
+  ov.innerHTML='<div class="confirmBox">'+
+    '<h4>'+title+'</h4>'+
+    '<div class="ci">Kata kunci adalah <b>pilihan Anda</b> dan tersimpan hanya di browser ini. Kata kunci itu wajib diketik untuk menjalankan kemampuan dari panel. Minimal 3 karakter.</div>'+
+    '<input type="text" id="kvInp" placeholder="Tentukan kata kunci Anda…" autocomplete="off">'+
+    '<div class="runRow"><button class="runBtn" id="kvGo" type="button" disabled>'+btnLabel+'</button>'+
+    '<button class="cb" id="kvX" type="button">Batal</button></div>'+
+    '</div>';
+  document.body.appendChild(ov);
+  var inp=ov.querySelector('#kvInp'),go=ov.querySelector('#kvGo');
+  function valid(){return inp.value.trim().length>=3;}
+  function chk(){go.disabled=!valid();}
+  inp.addEventListener('input',chk);
+  function rm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
+  function done(){ if(valid()){ var w=inp.value.trim(); rm(); onOk(w); } }
+  go.onclick=done;
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') done(); });
+  ov.querySelector('#kvX').onclick=rm;
+  inp.focus();
+}
+function execCombo(q,combo){
+  if(busy)return;
+  q=String(q||'').trim();
+  if(!q)return;
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi — ikuti progres di bawah&hellip;');
+  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
+  $('chatWrap').appendChild(box);
+  streamRun('/api/run',q,box,'▶ misi',true,t,combo)
+    .catch(function(err){
+      t.remove();
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc((err&&err.message)||'server error'));
+      showBanner('Single-command error. Coba lagi.');
+      setStatus('error','off');
+    })
+    .finally(function(){busy=false;$('sendBtn').disabled=false;hidePause();abortCtrl=null;});
 }
 function sendRun(q){
   if(busy)return;
@@ -706,6 +797,7 @@ document.getElementById('qbar').addEventListener('submit',function(e){e.preventD
 var pz=$('pauseBtn');if(pz)pz.addEventListener('click',stopRun);
 var mb=$('micBtn');if(mb)mb.addEventListener('click',toggleMic);
 var vb=$('voiceChatBtn');if(vb)vb.addEventListener('click',toggleVoiceChat);
+var kb=$('keyBtn');if(kb)kb.addEventListener('click',function(){verifyModal('🔑 Atur Kata Kunci Verifikasi','Simpan',function(w){LS('verifyWord',w);addMsg('bot','🔑 Kata kunci verifikasi diperbarui: '+esc(w));});});
 document.querySelectorAll('.mode-btn').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });

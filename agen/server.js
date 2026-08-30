@@ -938,7 +938,12 @@ app.post("/api/run", async (req, res) => {
   if (!task) return res.status(400).json({ error: "Perintah kosong" });
   if (task.length > 4000) return res.status(400).json({ error: "Perintah terlalu panjang (maks 4000)." });
 
-  const cap = RUN.matchSkill(task);
+  let cap = RUN.matchSkill(task);
+  const forceId = String((req.body && req.body.combo) || "").trim();
+  if (forceId) {
+    const fc = EVO.COMBOS.find((x) => x.id === forceId);
+    if (fc) cap = fc;
+  }
   const mission = cap ? RUN.buildMission(task, cap, sessionId) : RUN.buildGeneric(task);
 
   const useStream = !!(req.body && req.body.stream === true);
