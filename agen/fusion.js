@@ -18,6 +18,7 @@ const DOMAINS = [
   { d: "ops-tools", kw: ["mcp", "tool", "plugin", "integration", "cli", "command", "workflow", "automation", "documentation"] },
   { d: "automation", kw: ["automation", "otomasi", "workflow otomatis", "scheduler", "cron", "script", "batch", "rpa", "pipeline", "task otomatis", "repeatable", "register", "scheduled"] },
   { d: "lang", kw: ["translate", "terjemahan", "translation", "language", "bahasa", "multilingual", "i18n", "localization", "lokalisasi", "subtitle", "dubbing", "adaptation"] },
+  { d: "rendering", kw: ["render", "markdown", "html", "pdf", "slides", "presentasi", "template", "layout", "visual", "gambar", "image", "video", "dokumen", "document", "convert", "format", "export", "design", "ui"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -116,6 +117,7 @@ function attachSkills(tax, items) {
     "ops-tools": "combo-mcp-tool-builder",
     automation: "combo-automation-workflow",
     lang: "combo-translation-lang",
+    rendering: "combo-rendering-everything",
     misc: "combo-generalist-master",
   };
   for (const [domain, capId] of Object.entries(DOMAIN_CAP)) {

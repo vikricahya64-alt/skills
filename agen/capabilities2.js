@@ -201,6 +201,14 @@ const COMBOS = [
     insight: "Terjemahan & lokalisasi berkualitas tinggi: pertahankan nada, konteks, dan istilah teknis; ubah konten lintas bahasa dengan akurasi budaya; hasilkan versi id/EN lengkap dari knowledge base.",
   },
   {
+    id: "combo-rendering-everything",
+    name: "Rendering All Formats",
+    emoji: "🎨",
+    keywords: ["render", "rendering", "markdown", "html", "pdf", "dokumen", "document", "presentasi", "slides", "visual", "gambar", "video", "konversi format", "format", "template", "layout", "poster", "laporan", "infografis", "export"],
+    skills: ["frontend-slides", "fal-ai-media", "ui-ux-pro-max", "graphify", "documentation-lookup", "file-conversion", "article-writing", "content-engine", "frontend-design", "web-component-design", "brand-voice", "investor-materials", "competitive-report-structure", "deep-research", "exa-search", "nextjs-turbopack"],
+    insight: "Render semua format jadi hasil nyata: markdown/dokumen jadi HTML/PDF, kode jadi visual/UI, data jadi laporan, presentasi & media AI (gambar/video) — semua dihasilkan dari logika & kode asli skill.",
+  },
+  {
     id: "combo-generalist-master",
     name: "Generalist & Operator Fusion",
     emoji: "🧰",
