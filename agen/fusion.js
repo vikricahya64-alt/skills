@@ -16,6 +16,8 @@ const DOMAINS = [
   { d: "content", kw: ["content", "marketing", "brand", "seo", "writing", "blog", "social", "copywriting", "research", "email", "outreach", "sales", "product", "design docs"] },
   { d: "web3", kw: ["web3", "blockchain", "solidity", "ethereum", "smart contract", "wallet", "defi", "nft", "crypto"] },
   { d: "ops-tools", kw: ["mcp", "tool", "plugin", "integration", "cli", "command", "workflow", "automation", "documentation"] },
+  { d: "automation", kw: ["automation", "otomasi", "workflow otomatis", "scheduler", "cron", "script", "batch", "rpa", "pipeline", "task otomatis", "repeatable", "register", "scheduled"] },
+  { d: "lang", kw: ["translate", "terjemahan", "translation", "language", "bahasa", "multilingual", "i18n", "localization", "lokalisasi", "subtitle", "dubbing", "adaptation"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -112,6 +114,8 @@ function attachSkills(tax, items) {
     content: "combo-growth-content",
     web3: "combo-web3-secure",
     "ops-tools": "combo-mcp-tool-builder",
+    automation: "combo-automation-workflow",
+    lang: "combo-translation-lang",
     misc: "combo-generalist-master",
   };
   for (const [domain, capId] of Object.entries(DOMAIN_CAP)) {

@@ -185,6 +185,22 @@ const COMBOS = [
     insight: "Bangun aplikasi data lokal-lengkap: database SQLite nyata, API CRUD, dan skrip Node yang berjalan — fondasi aplikasi web/mobile dengan backend data sungguhan.",
   },
   {
+    id: "combo-automation-workflow",
+    name: "Automation & Workflow Fusion",
+    emoji: "⚙️",
+    keywords: ["automation", "otomasi", "workflow", "script", "cron", "scheduler", "jadwal", "rpa", "batch", "pipeline otomatis", "otomatis", "run", "jalankan", "repetitif", "file otomatis"],
+    skills: ["dmux-workflows", "workflow-orchestration-patterns", "task-coordination-strategies", "agent-sort", "e2e-testing", "everything-claude-code", "mcp-server-patterns", "bun-runtime", "agent-platform-alert-configuration"],
+    insight: "Otomasi menyeluruh yang benar-benar berjalan: skrip & scheduler, workflow berulang, pipeline CI/CD, orkestrasi agen/task, dan verifikasi otomatis — dieksekusi nyata di cloud, bukan sekadar dijelaskan.",
+  },
+  {
+    id: "combo-translation-lang",
+    name: "Translation & Multilingual Fusion",
+    emoji: "🌍",
+    keywords: ["translate", "terjemahan", "translation", "bahasa", "language", "multilingual", "i18n", "lokalisa", "localization", "indo", "english", "dubbing", "subtitle", "lintas bahasa"],
+    skills: ["article-writing", "brand-voice", "content-engine", "crosspost", "deep-research", "market-research", "exa-search", "documentation-lookup", "google-cloud-solution-agentic-ai-bidirectional-streaming"],
+    insight: "Terjemahan & lokalisasi berkualitas tinggi: pertahankan nada, konteks, dan istilah teknis; ubah konten lintas bahasa dengan akurasi budaya; hasilkan versi id/EN lengkap dari knowledge base.",
+  },
+  {
     id: "combo-generalist-master",
     name: "Generalist & Operator Fusion",
     emoji: "🧰",
