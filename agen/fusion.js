@@ -169,8 +169,8 @@ function buildPacks(enriched, cards) {
       emoji: e.emoji,
       insight: e.insight,
       skillCount: (e.allSkills || []).length,
-      codes: codes.slice(0, 40),
-      logic: logic.slice(0, 60),
+      codes: codes.slice(0, 100),
+      logic: logic.slice(0, 150),
     };
   }
   return packs;

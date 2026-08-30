@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.6.0",
+    version: "3.6.1",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -557,9 +557,12 @@ app.post("/api/agent", async (req, res) => {
   const kbPack = KB.fusionPack(kbTop, 3500);
 
   const SYSTEM = "Kamu agen eksekusi (seperti Codex) dengan akses penuh ke workspace. " +
-    "Jawab/kerjakan tugas user. Gunakan tool bila perlu langkah nyata (jalankan kode, baca/tulis file, cek web, cari KB). " +
+    "Jawab/kerjakan tugas user. JIKA tugas meminta eksekusi (buat file, jalankan, hitung, sql, chart, csv, web, otomasi) ANDA WAJIB memanggil tool. " +
+    "JANGAN menulis jawaban seolah-olah tool sudah berjalan padahal belum. " +
+    "Format panggilan tool PERSIS satu baris, tanpa komentar, tanpa tanda kutip miring:\n" +
+    "{\"tool\":\"chart\",\"args\":{\"data\":[{\"label\":\"Jan\",\"value\":120}],\"title\":\"Penjualan\",\"file\":\"chart.html\"}}\n" +
+    "Contoh lain: {\"tool\":\"bash\",\"args\":{\"command\":\"node -e 'console.log(6*7)'\"}}\n" +
     "LINGKUNGAN: Linux serverless; Node.js tersedia (jalankan JS via node -e). Python TIDAK terpasang - jangan coba python3/python/pip. " +
-    "Untuk kalkulasi atau skrip, tulis file .js lalu jalankan: node namafile.js. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
     capTxt + (kbPack ? "\n\nFUSI KODE & LOGIKA dari knowledge base (gunakan persis):\n" + kbPack : "") +
     "\n\n" + kbHints;
@@ -574,6 +577,8 @@ app.post("/api/agent", async (req, res) => {
   const doneCalls = new Set();
   const MAX_IT = 8;
   let final = false;
+  let noToolStreak = 0;
+  const needExec = /(buat|tulis|jalankan|execute|hitung|sql|database|csv|json|scrap|fetch|deploy|install|test|run|bash|kode|chart|grafik|otomasi|analisis|file|node|render|convert)/i.test(task);
 
   // Deteksi panggilan tool pada output model (beberapa baris JSON {tool,args})
   function extractCalls(text) {
@@ -616,8 +621,15 @@ app.post("/api/agent", async (req, res) => {
       final = true;
       break;
     }
-    // tidak ada tool & tidak finish -> jadikan ini langkah pemikiran, minta lanjut
-    messages.push({ role: "user", parts: [{ text: "Lanjutkan menyelesaikan tugas lalu tutup dengan [SELESAI]..." }] });
+    // tidak ada tool & tidak finish -> kick: paksa tool bila tugas butuh eksekusi
+    noToolStreak++;
+    let kick = "Lanjutkan menyelesaikan tugas lalu tutup dengan [SELESAI]...";
+    if (needExec && noToolStreak <= 3) {
+      kick = "PERINGATAN: Anda BELUM memanggil tool, padahal tugas ini butuh eksekusi nyata. " +
+        "Keluarkan baris JSON tool call SEKARANG (mis. {\"tool\":\"chart\",\"args\":{...}} atau {\"tool\":\"bash\",\"args\":{\"command\":\"...\"}}). " +
+        "Daftar tool: " + CODEX.TOOL_LIST.map((t) => t.name).join(", ") + ". Jangan menjawab seolah-olah tool sudah dijalankan.";
+    }
+    messages.push({ role: "user", parts: [{ text: kick }] });
     try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
     catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal: " + (e.message||e) }); break; }
   }
