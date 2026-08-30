@@ -233,28 +233,31 @@ async function getModelName() {
   if (_resolvedModel) return _resolvedModel;
   const want = (process.env.GEMINI_MODEL || "").trim();
   if (want) { _resolvedModel = want; return _resolvedModel; }
-  if (!KEY) { _resolvedModel = "gemini-3.6-flash"; return _resolvedModel; }
+  if (!KEY) { _resolvedModel = "gemini-3.1-flash-lite"; return _resolvedModel; }
   try {
     const resp = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models?key=" + KEY + "&pageSize=200"
     );
     if (resp.ok) {
       const data = await resp.json();
-      const models = (data.models || [])
+      const all = (data.models || [])
         .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
-        .map(m => String(m.name || "").replace("models/", ""))
-        .filter(n => /^gemini-[\d.]+-flash(-[a-z0-9]+)?$/i.test(n) && !/preview|tts|audio|vision|image|embedding/i.test(n));
-      models.sort((a, b) => {
-        const va = parseFloat((a.match(/[\d.]+/) || [])[0] || 0);
-        const vb = parseFloat((b.match(/[\d.]+/) || [])[0] || 0);
-        return vb - va || a.localeCompare(b);
-      });
-      const prefer = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.0-flash"];
-      for (const p of prefer) { if (models.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
-      if (models.length) { _resolvedModel = models[0]; return _resolvedModel; }
+        .map(m => String(m.name || "").replace("models/", ""));
+      const isFlash = n => /^gemini-[\d.]+-flash/i.test(n) && !/tts|audio|image|embedding|embed/i.test(n);
+      const isLite = n => /^gemini-[\d.]+-flash-lite/i.test(n);
+      // Urutkan: lite (kuota gratis jauh lebih besar) -> flash penuh
+      const lite = all.filter(isLite).filter(n => !/preview/i.test(n));
+      const full = all.filter(isFlash).filter(n => !isLite(n));
+      const liteAll = all.filter(isLite);
+      const preferLite = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
+      const preferFull = ["gemini-3.6-flash", "gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash"];
+      for (const p of preferLite) { if (liteAll.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
+      if (lite.length) { _resolvedModel = lite[0]; return _resolvedModel; }
+      for (const p of preferFull) { if (full.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
+      if (full.length) { _resolvedModel = full[0]; return _resolvedModel; }
     }
   } catch (_) {}
-  _resolvedModel = "gemini-3.6-flash";
+  _resolvedModel = "gemini-3.1-flash-lite";
   return _resolvedModel;
 }
 
@@ -345,6 +348,11 @@ app.post("/ask", async (req, res) => {
         return res.status(429).json({ error: msg, retry: true });
       }
       _keyIdx = (_keyIdx + 1) % KEYS.length;
+      if (_resolvedModel && !/_?lite/.test(_resolvedModel) && attempts === 1) {
+        // Turun ke model lite (kuota jauh lebih besar) setelah flash penuh 429
+        const tryLite = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
+        for (const lm of tryLite) { if (lm !== _resolvedModel) { _resolvedModel = lm; break; } }
+      }
       try { model = await getModel(); } catch (_) {}
     }
   }
