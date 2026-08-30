@@ -69,21 +69,24 @@ jobs:
       - name: Jalankan app di emulator Android (smoke test nyata)
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          target: google_apis
+          # API 28 default (AOSP) jauh lebih ringan & cepat boot-nya di CI tanpa
+          # akselerasi hardware, lebih andal untuk smoke test.
+          api-level: 28
+          target: default
           arch: x86_64
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           # Catatan: action menjalankan tiap baris script sebagai `sh -c` tersendiri,
           # jadi `cd` antarbaris tidak bertahan. Setiap baris dibuat mandiri.
+          # Verifikasi install via `pm path` + retry; launch + focus check juga retry.
           script: |
             cd android && gradle assembleDebug --no-daemon
-            adb install -r android/app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -n com.vikri.gcpagent/.MainActivity
-            sleep 10
+            for i in 1 2 3 4 5; do adb shell pm path com.vikri.gcpagent >/dev/null 2>&1 && break; adb install -r android/app/build/outputs/apk/debug/app-debug.apk; sleep 5; done
+            adb shell pm path com.vikri.gcpagent || (echo "APP NOT INSTALLED"; exit 1)
+            for i in $(seq 1 10); do adb shell am start -n com.vikri.gcpagent/.MainActivity >/dev/null 2>&1; sleep 6; adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | grep -iq gcpagent && { echo "APP LAUNCHED OK"; break; }; done
+            adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | grep -iq gcpagent && echo "APP LAUNCHED OK" || (echo "APP NOT IN FOREGROUND"; exit 1)
             echo "=== Current focus ==="
             adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" || true
-            adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" | grep -iq gcpagent && echo "APP LAUNCHED OK" || (echo "APP NOT IN FOREGROUND"; exit 1)
             echo "=== Crash check (logcat) ==="
             adb logcat -d | grep -iE "FATAL EXCEPTION|AndroidRuntime.*FATAL" | head -20 || true
 
