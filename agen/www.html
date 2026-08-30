@@ -255,7 +255,7 @@ function send(){
     if(f.kind==='Gambar'){o.base64=f.base64;}else{o.text=f.text||'';}
     return o;
   })};
-  fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtrl.signal})
+  fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortSignal()})
     .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
     .then(function(res){
       t.remove();
@@ -342,6 +342,11 @@ function toggleMic(){
   try{recog.start();setMic(true);}catch(_){}
 }
 var abortCtrl=null;
+function abortSignal(){
+  // Pastikan abortCtrl selalu berupa AbortController yang valid (tidak null/aborted).
+  if(!abortCtrl||abortCtrl.signal.aborted){abortCtrl=new AbortController();}
+  return abortCtrl.signal;
+}
 function showPause(){var b=$('pauseBtn');if(b)b.style.display='flex';}
 function hidePause(){var b=$('pauseBtn');if(b)b.style.display='none';}
 function stopRun(){
@@ -543,7 +548,7 @@ function streamRun(url, q, box, title, finishMeta, t){
       if(ev.event==='done'){ finishOk(ev.data); return; }
     }
     fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({task:q,sessionId:SID,stream:true}),signal:abortCtrl.signal})
+        body:JSON.stringify({task:q,sessionId:SID,stream:true}),signal:abortSignal()})
       .then(function(r){
         if(!r.ok||!r.body){
           return r.json().then(function(d){ finishErr(new Error(d&&d.error||'server error')); }, function(){ finishErr(new Error('server error')); });
