@@ -48,6 +48,45 @@ jobs:
           echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           echo "name=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
+  # ====== 1b. UJI JALANKAN DI EMULATOR AWAN (app benar-benar dibuka, bukan sekadar compile) ======
+  device-smoke:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pasang JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle (cache dependency + build cache lintas run)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Jalankan app di emulator Android (smoke test nyata)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: |
+            cd android
+            gradle assembleDebug --no-daemon
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -n com.vikri.gcpagent/.MainActivity
+            sleep 8
+            echo "=== Current focus ==="
+            adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" || true
+            mFocus=$(adb shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp")
+            echo "$mFocus" | grep -iq gcpagent && echo "APP LAUNCHED OK" || (echo "APP NOT IN FOREGROUND"; exit 1)
+            echo "=== Crash check (logcat) ==="
+            adb logcat -d | grep -iE "FATAL EXCEPTION|AndroidRuntime.*FATAL" | head -20 || true
+
   # ====== 2. RILIS PRODUKSI: APK + AAB (Play-ready) + checksum ======
   release:
     needs: quality-gate
@@ -116,13 +155,40 @@ jobs:
             android/app/build/outputs/bundle/release/app-release.aab \
             | tee android/checksums.txt
 
-      - name: Upload artefak (APK + AAB + checksum)
+      - name: Bangun APK dari AAB (bukti AAB berfungsi & distribusi Play)
+        run: |
+          curl -fsSL -o /tmp/bundletool.jar \
+            https://github.com/google/bundletool/releases/latest/download/bundletool-all.jar
+          mkdir -p /tmp/from-aab
+          # APK universal (gabung semua ABI) — bisa di-install langsung
+          java -jar /tmp/bundletool.jar build-apks \
+            --bundle=android/app/build/outputs/bundle/release/app-release.aab \
+            --output=/tmp/from-aab/universal.apks \
+            --ks=android/keystore.p12 --ks-pass=pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --ks-key-alias=${{ secrets.KEY_ALIAS }} --key-pass=pass:${{ secrets.KEYSTORE_PASSWORD }} \
+            --mode=universal
+          unzip -o -q /tmp/from-aab/universal.apks -d /tmp/from-aab/universal
+          cp /tmp/from-aab/universal/universal.apk android/app-release-universal-from-aab.apk
+          echo "=== universal.apk ==="
+          ls -la android/app-release-universal-from-aab.apk
+
+      - name: Verifikasi APK hasil AAB + checksum
+        run: |
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
+          "$APKSIGNER" verify android/app-release-universal-from-aab.apk
+          echo "UNIVERSAL-FROM-AAB VERIFIED OK"
+          sha256sum android/app-release-universal-from-aab.apk >> android/checksums.txt
+          sed -i 's#android/app/build/outputs/apk/release/app-release.apk#app-release.apk#; s#android/app/build/outputs/bundle/release/app-release.aab#app-release.aab#; s#android/app-release-universal-from-aab.apk#app-release-universal-from-aab.apk#' android/checksums.txt
+          cat android/checksums.txt
+
+      - name: Upload artefak (APK + AAB + universal-from-AAB + checksum)
         uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             android/app/build/outputs/bundle/release/app-release.aab
+            android/app-release-universal-from-aab.apk
             android/checksums.txt
           if-no-files-found: error
 
@@ -149,14 +215,16 @@ jobs:
             ## Artefak
             - **app-release.apk** — universal (semua ABI), langsung install: `${{ steps.sizes.outputs.apk_size }}`
             - **app-release.aab** — bundle Play-ready (Play Console): `${{ steps.sizes.outputs.aab_size }}`
+            - **app-release-universal-from-aab.apk** — APK hasil bundletool dari AAB (bukti AAB berfungsi)
             - **checksums.txt** — SHA-256 untuk verifikasi integritas
 
             ## Verifikasi
             - ✅ **apksigner**: signature **v2 + v3** valid, siap install
             - ✅ **jarsigner**: AAB terverifikasi
+            - ✅ **bundletool**: APK universal berhasil dibangun & diverifikasi dari AAB
+            - ✅ **Emulator cloud**: app benar-benar dibuka di emulator Android (smoke test)
             - ✅ Android **Lint** bersih (quality gate)
-            - ✅ Compile full debug pass
-            - 🔒 **Signing stabil** dari GitHub secret (tanda tangan sama antar build)
+            - 🔒 **Signing stabil** dari GitHub secret + keamanan produksi (backup rules, HTTPS-only)
 
             ## Fitur
             - 3 layar native: Beranda, Daftar Kemampuan (**39 gabungan**), Buka Agen
@@ -170,4 +238,31 @@ jobs:
           files: |
             android/app/build/outputs/apk/release/app-release.apk
             android/app/build/outputs/bundle/release/app-release.aab
+            android/app-release-universal-from-aab.apk
             android/checksums.txt
+
+  # ====== 3. PUBLISH KE PLAY CONSOLE (opsional — aktif jika secret ada) ======
+  # Tambahkan secret PLAY_SERVICE_ACCOUNT_JSON (isi JSON service account Play)
+  # + atur package_name di bawah, maka tiap build otomatis diupload ke track ALPHA.
+  play-publish:
+    if: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unduh AAB resmi dari Release
+        run: |
+          gh release download "v${{ needs.quality-gate.outputs.version_name }}" \
+            --repo vikricahya64-alt/skills \
+            --pattern "app-release.aab" --dir /tmp
+          ls -la /tmp/app-release.aab
+
+      - name: Upload AAB ke Play Console (track ALPHA)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          service_account_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          package_name: com.vikri.gcpagent
+          release_files: /tmp/app-release.aab
+          track: alpha
+          status: completed

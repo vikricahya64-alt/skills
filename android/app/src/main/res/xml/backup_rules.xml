@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ & 11- backup/data extraction: preserva preferensi & WebView.
+     Tidak mencadangkan data sensitif (autentikasi/tersimpan) agar aman. -->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <include domain="database" path="." />
+    <include domain="file" path="." />
+    <exclude domain="sharedpref" path="auth.xml" />
+    <exclude domain="database" path="session.db" />
+</full-backup-content>
