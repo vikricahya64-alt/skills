@@ -13,7 +13,7 @@ const REPO = path.resolve(__dirname, "..");
 const SKILLS_DIR = path.join(REPO, "skills");
 
 const genAI = new GoogleGenerativeAI(KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+const model = genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || "gemini-2.5-flash" });
 
 function findSkills(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {

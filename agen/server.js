@@ -196,11 +196,36 @@ function buildPrompt(q, sess, top) {
   return parts.join("\n\n");
 }
 
-function getModel() {
+let _resolvedModel = null;
+
+async function getModelName() {
+  if (_resolvedModel) return _resolvedModel;
+  const want = (process.env.GEMINI_MODEL || "").trim();
+  if (want) { _resolvedModel = want; return _resolvedModel; }
+  if (!KEY) { _resolvedModel = "gemini-2.5-flash"; return _resolvedModel; }
+  try {
+    const resp = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models?key=" + KEY + "&pageSize=200"
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      const models = (data.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
+        .map(m => (m.displayName || m.name || "").replace("models/", ""))
+        .filter(n => /flash/i.test(n));
+      const prefer = ["gemini-2.5-flash", "gemini-2.0-flash"];
+      for (const p of prefer) { if (models.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
+      if (models.length) { _resolvedModel = models[models.length - 1]; return _resolvedModel; }
+    }
+  } catch (_) {}
+  _resolvedModel = "gemini-2.5-flash";
+  return _resolvedModel;
+}
+
+async function getModel() {
   const genAI = new GoogleGenerativeAI(KEY);
-  return genAI.getGenerativeModel({
-    model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
-  });
+  const modelName = await getModelName();
+  return genAI.getGenerativeModel({ model: modelName });
 }
 
 // ---------- Routes ----------
@@ -246,7 +271,7 @@ app.post("/ask", async (req, res) => {
 
   const top = pickSkills(q);
   let model;
-  try { model = getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
+  try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
   const prompt = buildPrompt(q, sess, top);
   try {
