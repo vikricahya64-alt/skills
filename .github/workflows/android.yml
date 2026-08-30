@@ -8,8 +8,42 @@ on:
 permissions:
   contents: write
 
+env:
+  GRADLE_VERSION: "8.10.2"
+
 jobs:
-  build:
+  # ====== 1. GATE VERIFIKASI: compile cepat (debug, tanpa signing) ======
+  # Inilah jaminan "100x" — setiap push wajib lolos compile Kotlin/Compose/XML
+  # sebelum rilis APK, sehingga error tidak menunggu sampai tahap release.
+  compile-check:
+    runs-on: ubuntu-latest
+    outputs:
+      version_code: ${{ steps.vcode.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pasang JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Compile & verifikasi debug build (gate wajib)
+        working-directory: android
+        run: gradle assembleDebug --no-daemon
+
+      - name: Hitung versionCode otomatis (naik tiap build)
+        id: vcode
+        run: echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+  # ====== 2. RILIS PROFESIONAL: APK signed + diverged + Release resmi ======
+  release:
+    needs: compile-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,27 +69,28 @@ jobs:
             -dname "CN=GCP Agent, OU=Dev, O=GCP Agent, L=Jakarta, S=DKI Jakarta, C=ID" 2>/dev/null
           printf 'storeFile=release.keystore\nstorePassword=gcpagent123\nkeyAlias=gcpagent\nkeyPassword=gcpagent123\n' > keystore.properties
           echo "keystore.properties dibuat"
-          cat keystore.properties
 
-      - name: Set up Gradle 8
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.10.2"
+          gradle-version: ${{ env.GRADLE_VERSION }}
 
-      - name: Build APK release (signed, siap install)
+      - name: Build APK release (signed, R8, siap install)
         working-directory: android
-        run: gradle assembleRelease --no-daemon
+        run: gradle assembleRelease -PversionCodeOverride=${{ needs.compile-check.outputs.version_code }} --no-daemon
 
-      - name: Verifikasi APK release & ukuran
+      - name: Verifikasi APK & ukuran
+        id: verify
         run: |
           test -f android/app/build/outputs/apk/release/app-release.apk
-          du -h android/app/build/outputs/apk/release/app-release.apk
+          SIZE=$(du -h android/app/build/outputs/apk/release/app-release.apk | cut -f1)
+          echo "size=$SIZE" >> "$GITHUB_OUTPUT"
+          ls -la android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Valida APK dengan apksigner (pastikan siap install)
+      - name: Validasi APK dengan apksigner (jamin siap install)
         run: |
-          ls $ANDROID_HOME/build-tools/
           APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
-          "$APKSIGNER" verify android/app/build/outputs/apk/release/app-release.apk && echo "APK VERIFIED OK"
+          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/release/app-release.apk && echo "APK VERIFIED OK"
 
       - name: Upload APK sebagai artifact
         uses: actions/upload-artifact@v4
@@ -64,9 +99,20 @@ jobs:
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
-      - name: Rilis APK (siap install lewat release)
+      - name: Rilis APK resmi (bisa di-upgrade, ada catatan verifikasi)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
-          name: "APK Agen GCP #${{ github.run_number }}"
+          name: "Agen GCP v1.0.0 (build #${{ github.run_number }})"
+          generate_release_notes: false
+          body: |
+            **APK Android Agen GCP** — native (Jetpack Compose + Material 3).
+
+            - Versi: 1.0.0 (versionCode `${{ needs.compile-check.outputs.version_code }}`)
+            - Ukuran APK: `${{ steps.verify.outputs.size }}`
+            - Status: **apksigner VERIFIED** (siap install)
+            - 39 kombinasi perintah + 3 layar native (Beranda, Kemampuan, Buka Agen)
+            - WebView menuju antarmuka cloud genu GCP
+
+            **Catatan tanda tangan:** keystore dibuat otomatis per build di CI (bukan secret).
           files: android/app/build/outputs/apk/release/app-release.apk

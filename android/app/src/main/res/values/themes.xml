@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:colorPrimary">@color/accent</item>
-        <item name="android:colorPrimaryDark">@color/ic_launcher_background</item>
-        <item name="android:windowBackground">@color/ic_launcher_background</item>
+
+    <style name="Theme.AgenGCP.Startup" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
-    <style name="SplashTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/ic_launcher_background</item>
+
+    <style name="Theme.AgenGCP" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#0B1220</item>
+        <item name="android:navigationBarColor">#0B1220</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
+
 </resources>

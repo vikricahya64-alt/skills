@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Agen GCP</string>
+    <string name="home_title">Agen GCP</string>
+    <string name="home_subtitle">Asisten Cloud &amp; DevOps berbasis AI</string>
+    <string name="home_open">Buka Agen</string>
+    <string name="home_open_desc">Luncurkan antarmuka web interaktif</string>
+    <string name="home_cap">Daftar Kemampuan</string>
+    <string name="home_cap_desc">39 kombinasi perintah &amp; output nyata</string>
+    <string name="home_about_title">Tentang</string>
+    <string name="home_about_desc">Agen GCP terhubung ke platform cloud untuk menjalankan otomatisasi build, kombo, dan pengiriman artefak.</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_capabilities">Kemampuan</string>
+    <string name="nav_web">Buka Agen</string>
+    <string name="cap_title">Daftar Kemampuan</string>
+    <string name="cap_subtitle">39 kombinasi perintah tersedia</string>
+    <string name="web_title">Agen GCP</string>
+    <string name="cap_group_build">Build &amp; Delivery</string>
+    <string name="cap_group_data">Data &amp; Analitik</string>
+    <string name="cap_group_sys">Sistem &amp; Otomasi</string>
 </resources>
