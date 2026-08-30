@@ -29,6 +29,27 @@ const PORT = process.env.PORT || 3000;
 const MAX_LEN = 8000;
 const MAX_FILE = 20 * 1024 * 1024; // 20 MB
 const MAX_HISTORY = 20;
+const CACHE_TTL = 90 * 1000; // cache jawaban chat cepat (ms)
+
+// Kata kunci yang memicu MODE CODER (loop eksekusi tool). Di luar itu = mode chat cepat.
+const NEED_EXEC_RE = /(buat|buatkan|bikin|tulis|tuliskan|jalankan|kerjakan|selesaikan|eksekusi|execute|hitung|sql|database|db|csv|scrap|fetch|deploy|install|test|run|bash|node|kode|chart|grafik|visualisasi|render|convert|konversi|otomasi|automation|simulasi|ekstrak|parse|generate)/i;
+
+// Cache in-memory untuk pertanyaan umum yang sama (TTL 90 detik).
+const respCache = new Map();
+function cacheGet(q) {
+  const key = crypto.createHash("sha1").update(String(q)).digest("hex");
+  const hit = respCache.get(key);
+  if (hit && Date.now() - hit.t < CACHE_TTL) return hit.a;
+  if (hit) respCache.delete(key);
+  return null;
+}
+function cacheSet(q, a) {
+  const now = Date.now();
+  if (respCache.size > 300) {
+    for (const [k, v] of respCache) if (now - v.t > CACHE_TTL) respCache.delete(k);
+  }
+  respCache.set(crypto.createHash("sha1").update(String(q)).digest("hex"), { t: now, a });
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -272,6 +293,30 @@ function buildPrompt(q, sess, top, evo) {
   return parts.join("\n\n");
 }
 
+// Prompt RINGKAS untuk mode chat cepat (tanpa kbPack berat, tanpa riwayat besar).
+function buildLightPrompt(q, sess, top, evo) {
+  const lines = [];
+  lines.push(
+    "Kamu agen AI gcp-agent hasil evolusi 1042 skill. Jawab bahasa Indonesia, padat, akurat, tanpa basa-basi. " +
+    "Beri langkah konkret bila perlu. Jujur jika tidak yakin."
+  );
+  if (evo && (evo.primes || []).length) {
+    lines.push("PRIME: " + evo.primes.map((p) => p.name).join(", "));
+  }
+  if (evo && (evo.combos || []).length) {
+    lines.push("Kemampuan: " + evo.combos.map((c) => c.name).join(", "));
+  }
+  if (top.length) {
+    lines.push("Skill relevan: " + top.map((s) => s.name).join(", "));
+  }
+  if (sess && sess.files && sess.files.length) {
+    lines.push("File unggahan: " + sess.files.map((f) => f.name).join(", "));
+  }
+  lines.push("Pertanyaan: " + q);
+  lines.push("Jawab langsung dan singkat.");
+  return lines.join("\n");
+}
+
 let _resolvedModel = null;
 
 async function getModelName() {
@@ -432,6 +477,25 @@ app.post("/ask", async (req, res) => {
 
   const top = pickSkills(q);
   const evo = pickCap(q);
+
+  // Cache jawaban untuk pertanyaan yang sama dalam waktu singkat (tanpa file).
+  if (!inlineFiles.length && !sess.files.length) {
+    const cached = cacheGet(q);
+    if (cached) {
+      sess.history.push({ q, a: cached.slice(0, 3000) });
+      pruneSession(sess);
+      return res.json({
+        answer: cached,
+        skills: top.map((x) => x.name),
+        capabilities: [].concat(evo.primes || [], evo.combos || []).map((x) => x.name),
+        files: sess.files.map(fileSummary),
+        sessionId,
+        model: _resolvedModel,
+        cached: true,
+      });
+    }
+  }
+
   let model;
   try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
@@ -469,6 +533,7 @@ app.post("/ask", async (req, res) => {
       try { model = await getModel(); } catch (_) {}
     }
   }
+  if (!sess.files.length && answer) cacheSet(q, answer);
   sess.history.push({ q, a: answer.slice(0, 3000) });
   pruneSession(sess);
   res.json({
@@ -494,7 +559,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.9.0",
+    version: "3.10.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -546,15 +611,54 @@ app.post("/api/agent", async (req, res) => {
   try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
   // Konteks awal dari KB untuk mengarahkan pilihan tool
-  const kbHints = CODEX.toolsPrompt();
   const evo = pickCap(task);
   const evoList = [].concat(evo.primes || [], evo.combos || []);
+  const top = KB.pickCards(task, KB.loadCards(), 3);
+  const needExec = NEED_EXEC_RE.test(task);
+
+  // ===== MODE CHAT CEPAT: tanpa loop tool, 1 panggilan API, jawaban < 3-5 detik =====
+  if (!needExec) {
+    const cached = cacheGet(task);
+    if (cached) {
+      return res.json({ answer: cached, steps: [], final: true, sessionId, mode: "chat", cached: true, model: _resolvedModel });
+    }
+    const prompt = buildLightPrompt(task, { history: [], files: [] }, top, evo);
+    let answer = "";
+    let ok = false;
+    for (let attempt = 0; attempt < Math.max(1, KEYS.length); attempt++) {
+      try {
+        const r = await model.generateContent(prompt);
+        answer = r.response.text();
+        ok = true;
+        break;
+      } catch (e) {
+        const msg = String((e && e.message) || e);
+        const quota = /429|quota|Too Many|rate.limit|RESOURCE_EXHAUSTED/i.test(msg);
+        if (!quota || attempt >= Math.max(1, KEYS.length) - 1) {
+          return res.status(429).json({ error: msg, retry: true });
+        }
+        _keyIdx = (_keyIdx + 1) % KEYS.length;
+        try { model = await getModel(); } catch (_) {}
+      }
+    }
+    if (ok) cacheSet(task, answer);
+    return res.json({
+      answer: ok ? answer : "(agen tidak menghasilkan jawaban)",
+      steps: [],
+      final: ok,
+      sessionId,
+      mode: "chat",
+      model: _resolvedModel,
+    });
+  }
+
+  // ===== MODE CODER: loop eksekusi tool nyata (buat file, jalankan kode, dll) =====
+  const kbHints = CODEX.toolsPrompt();
   const capTxt = evoList.length
     ? evoList.map((c) => "Evolusi terpilih: " + c.name + " (cakupan " + (c.skills || c.domains || []).join(", ") + ")" + (c.insight ? " — " + c.insight : "")).join("\n")
     : "";
   // FUSI KODE & LOGIKA dari skill teratas utk tugas ini (arahan eksekusi nyata)
-  const kbTop = KB.pickCards(task, KB.loadCards(), 3);
-  const kbPack = KB.fusionPack(kbTop, 3500);
+  const kbPack = KB.fusionPack(top, 3500);
 
   const SYSTEM = "Kamu agen eksekusi (seperti Codex) dengan akses penuh ke workspace. " +
     "Jawab/kerjakan tugas user. JIKA tugas meminta eksekusi (buat file, jalankan, hitung, sql, chart, csv, web, otomasi) ANDA WAJIB memanggil tool. " +
@@ -575,10 +679,9 @@ app.post("/api/agent", async (req, res) => {
   let answer = "";
   const steps = [];
   const doneCalls = new Set();
-  const MAX_IT = 8;
+  const MAX_IT = 4;
   let final = false;
   let noToolStreak = 0;
-  const needExec = /(buat|tulis|jalankan|execute|hitung|sql|database|csv|json|scrap|fetch|deploy|install|test|run|bash|kode|chart|grafik|otomasi|analisis|file|node|render|convert)/i.test(task);
 
   // Deteksi panggilan tool pada output model (beberapa baris JSON {tool,args})
   function extractCalls(text) {

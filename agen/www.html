@@ -344,7 +344,9 @@ function stopRun(){
   showBanner('⏸ Proses dihentikan. Silakan coba lagi atau ubah pertanyaan.');
 }
 function isExecQuery(q){
-  return /(buat file|tulis file|jalankan|execute|hitung|sql|database|csv|json|scrap|fetch|deploy|install|test|run |bash|kode|program|otomatis|analisis data|baca file|perintah|node |python|file )/i.test(q);
+  // Hanya tugas yang benar-benar butuh EKSEKUSI nyata yang masuk mode Coder.
+  // Pertanyaan biasa (tanya, jelaskan, bandingkan, analisis teks) tetap cepat via /ask.
+  return /(buat (file|chart|grafik|script)|tulis (file|script|kode)|jalankan|execute|hitung|sql|database|db |csv|scrap|fetch|deploy|install|test|run |bash|node |python|chart|grafik|visualisasi|render|convert|konversi|otomasi|automation|simulasi|ekstrak|parse|generate)/i.test(q);
 }
 function setMode(m){
   MODE=m;
