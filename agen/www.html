@@ -55,6 +55,12 @@ header .sub{font-size:11px;color:var(--muted)}
 .pill{font-size:11px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:2px 9px;color:var(--muted)}
 .copyBtn{font-size:11px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:2px 8px;cursor:pointer}
 .copyBtn:hover{color:var(--accent);border-color:var(--accent)}
+.actionBar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.act{font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:3px 9px;cursor:pointer;transition:.15s}
+.act:hover{border-color:var(--accent);color:var(--accent)}
+.quickRow{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 4px;max-width:760px;margin:0 auto;width:100%}
+.quick{font-size:11.5px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:16px;padding:5px 11px;cursor:pointer}
+.quick:hover{border-color:var(--accent);color:var(--accent)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;max-width:760px;margin:0 auto;padding:2px 12px 8px;width:100%}
 .chip{font-size:12px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:20px;padding:6px 12px;cursor:pointer;transition:.15s}
 .chip:hover{border-color:var(--accent);color:var(--accent)}
@@ -100,6 +106,14 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
   <button class="chip">Cara deploy aplikasi ke Cloud Run</button>
   <button class="chip">Setup BigQuery untuk analitik</button>
   <button class="chip">Rekomendasi firewall GCP</button>
+</div>
+<div class="quickRow">
+  <button class="quick" data-fn="clarify">🤔 Perjelas maksud saya</button>
+  <button class="quick" data-fn="simplify">🪶 Mudahkan jawaban</button>
+  <button class="quick" data-fn="summary">📌 Ringkas</button>
+  <button class="quick" data-fn="example">🛠 Contoh implementasi</button>
+  <button class="quick" data-fn="step">👣 Langkah demi langkah</button>
+  <button class="quick" data-fn="deep">🔍 Lebih dalam</button>
 </div>
 <div id="files"></div>
 <footer>
@@ -228,6 +242,7 @@ function send(){
       if(res.d.error)throw new Error(res.d.error);
       var b=addMsg('bot',md(res.d.answer)).querySelector('.bub');
       var meta=document.createElement('div');meta.className='meta';
+      addActionBtns(b, res.d.answer||'');
       if(res.d.skills&&res.d.skills.length){var s=document.createElement('span');s.className='pill';s.textContent='📚 '+res.d.skills.join(' · ');meta.appendChild(s);}
       if(res.d.files&&res.d.files.length){var f=document.createElement('span');f.className='pill';f.textContent='📎 '+res.d.files.length+' file';meta.appendChild(f);}
       var cp=document.createElement('button');cp.className='copyBtn';cp.textContent='Salin';
@@ -326,6 +341,26 @@ function renderToolResult(brief){
   h+='</tbody></table>';
   return h;
 }
+function askFollowup(q){
+  $('q').value=q;autoGrow();send();
+}
+function addActionBtns(bub,lastQ){
+  var bar=document.createElement('div');bar.className='actionBar';
+  var acts=[
+    {l:'🤔 Ini bukan maksud saya',f:'Maaf, sepertinya kita salah paham. Yang saya maksud adalah: '+lastQ+'\n\nMohon perjelas ulang dengan mempertimbangkan konteks.'},
+    {l:'🪶 Mudahkan',f:'Jelaskan jawabanmu tadi dengan lebih sederhana, tanpa jargon, seperti ke pemula.'},
+    {l:'📌 Ringkas',f:'Ringkas jawabanmu tadi menjadi 3 poin utama saja.'},
+    {l:'🛠 Contoh kode',f:'Berikan contoh implementasi kode/konfigurasi yang bisa langsung dipakai untuk topik ini.'},
+    {l:'👣 Langkah',f:'Urai jawabanmu tadi menjadi langkah-langkah berurutan yang jelas.'},
+    {l:'🔍 Lebih dalam',f:'Perdalam topik ini: tambahkan detail teknis, best practice, dan perangkap yang umum.'}
+  ];
+  acts.forEach(function(a){
+    var b=document.createElement('button');b.className='act';b.textContent=a.l;
+    b.onclick=function(){askFollowup(a.f);};
+    bar.appendChild(b);
+  });
+  bub.appendChild(bar);
+}
 function sendAgent(){
   if(busy)return;
   var q=$('q').value.trim();
@@ -351,6 +386,7 @@ function sendAgent(){
       var ans=document.createElement('div');ans.style.marginTop='8px';
       ans.innerHTML=md(res.d.answer||'(tidak ada jawaban akhir)');
       box.appendChild(ans);
+      addActionBtns(box, res.d.answer||'');
       $('chat').scrollTop=$('chat').scrollHeight;
       setStatus('selesai');
     })
@@ -391,6 +427,17 @@ document.addEventListener('dragleave',function(e){e.preventDefault();if(--dragN<
 document.addEventListener('drop',function(e){
   e.preventDefault();dragN=0;$('drop').classList.remove('on');
   if(e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files);
+});
+document.querySelectorAll('.quick').forEach(function(qb){
+  qb.addEventListener('click',function(){
+    var fn=qb.dataset.fn;
+    if(fn==='clarify'){askFollowup('Saya ingin mengklarifikasi maksud saya. Mohon tanyakan apa yang kurang jelas sebelum menjawab.');}
+    else if(fn==='simplify'){askFollowup('Tolong jelaskan dengan bahasa sederhana, seakan saya pemula. Gunakan analogi jika perlu.');}
+    else if(fn==='summary'){askFollowup('Ringkas topik utama dari jawaban terakhir menjadi poin-poin singkat.');}
+    else if(fn==='example'){askFollowup('Berikan contoh nyata/implementasi untuk topik terakhir yang bisa langsung saya jalankan.');}
+    else if(fn==='step'){askFollowup('Ubah jawaban terakhir menjadi langkah-langkah berurutan yang mudah diikuti.');}
+    else if(fn==='deep'){askFollowup('Perdalam topik terakhir dengan detail teknis dan praktik terbaik.');}
+  });
 });
 document.querySelectorAll('.chip').forEach(function(c){
   c.addEventListener('click',function(){$('q').value=c.textContent;autoGrow();$('q').focus();});
