@@ -14,6 +14,14 @@ header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgb
 header h1{font-size:15px;margin:0;line-height:1.1}
 header .sub{font-size:11px;color:var(--muted)}
 #status{margin-left:auto;font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);padding:4px 10px;border-radius:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+.mode-switch{display:flex;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px}
+.mode-btn{font-size:12px;border:none;background:transparent;color:var(--muted);border-radius:16px;padding:5px 12px;cursor:pointer}
+.mode-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-weight:600}
+.step{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;word-break:break-word}
+.step .tl{font-weight:600;color:var(--accent)}
+.step.ok{border-color:#14532d;background:rgba(16,185,129,.08)}
+.step.err{border-color:#7f1d1d;background:rgba(251,113,133,.08)}
+.step .out{font-family:ui-monospace,monospace;background:#0b1626;padding:4px 6px;border-radius:6px;margin-top:4px;font-size:11.5px;white-space:pre-wrap}
 #status.on{color:var(--ok)}#status.off{color:var(--err)}
 #banner{display:none;margin:8px 12px 0;padding:10px 12px;border-radius:10px;background:#3a1522;border:1px solid #5b2233;color:var(--err);font-size:13px}
 #chat{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
@@ -67,7 +75,11 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
   <div class="logo">&#9729;&#65039;</div>
   <div>
     <h1>Agen AI Google Cloud</h1>
-    <div class="sub">Semua skill GCP &middot; diproses di cloud</div>
+    <div class="sub" id="subtitle">Semua skill GCP &middot; diproses di cloud</div>
+  </div>
+  <div class="mode-switch" id="modeSwitch">
+    <button class="mode-btn active" data-mode="chat">💬 Chat</button>
+    <button class="mode-btn" data-mode="coder">⚡ Coder</button>
   </div>
   <span id="status">menghubungkan&hellip;</span>
 </header>
@@ -190,6 +202,7 @@ function send(){
   if(busy)return;
   var q=$('q').value.trim();
   if(!q)return;
+  if(MODE==='coder'){sendAgent();return;}
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('memproses di cloud&hellip;');
@@ -229,6 +242,50 @@ function resetChat(){
   welcome();
   showBanner('');setStatus('sesi direset');
 }
+var MODE='chat';
+function setMode(m){
+  MODE=m;
+  document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===m);});
+  var sub=$('subtitle');
+  if(m==='coder'){sub.textContent='Mode eksekusi · akses penuh seperti Codex';$('q').placeholder='Beri tugas, agen akan jalankan kode & baca/tulis file di cloud…';}
+  else{sub.textContent='Semua skill GCP · diproses di cloud';$('q').placeholder='Tanya apa saja soal Google Cloud… (Enter kirim, Shift+Enter baris baru)';}
+  autoGrow();
+}
+function sendAgent(){
+  if(busy)return;
+  var q=$('q').value.trim();
+  if(!q)return;
+  $('q').value='';autoGrow();
+  addMsg('user',esc(q));
+  var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('agen mengeksekusi&hellip;');
+  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>⚡ Langkah agen:</strong>';
+  var holder=$('chatWrap');
+  holder.appendChild(box);
+  $('chat').scrollTop=$('chat').scrollHeight;
+  fetch('/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID})})
+    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+    .then(function(res){
+      t.remove();
+      if(res.d.error)throw new Error(res.d.error);
+      (res.d.steps||[]).forEach(function(st,i){
+        var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
+        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>';
+        box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
+      });
+      var ans=document.createElement('div');ans.style.marginTop='8px';
+      ans.innerHTML=md(res.d.answer||'(tidak ada jawaban akhir)');
+      box.appendChild(ans);
+      $('chat').scrollTop=$('chat').scrollHeight;
+      setStatus('selesai');
+    })
+    .catch(function(err){
+      t.remove();
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc(err.message||'server error'));
+      showBanner('Mode Coder error. Coba lagi.');
+      setStatus('error','off');
+    })
+    .finally(function(){busy=false;$('sendBtn').disabled=false;});
+}
 function welcome(){
   var w=$('chatWrap');
   var bub='Halo! Saya agen AI <strong>Google Cloud</strong> — punya akses ke semua skill GCP (Cloud Run, BigQuery, Kubernetes, Security, dan lainnya).<br><br>📎 Bisa <strong>upload file</strong> (CSV, JSON, kode, log) atau <strong>gambar</strong> (paste/seret) untuk dianalisis.<br><br>Silakan tanya apa saja!';
@@ -237,6 +294,9 @@ function welcome(){
   w.appendChild(m);
 }
 document.getElementById('qbar').addEventListener('submit',function(e){e.preventDefault();send();});
+document.querySelectorAll('.mode-btn').forEach(function(b){
+  b.addEventListener('click',function(){setMode(b.dataset.mode);});
+});
 $('q').addEventListener('keydown',function(e){
   if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
 });

@@ -6,6 +6,8 @@ const path = require("path");
 const crypto = require("crypto");
 const { CAPS, pickCapabilities } = require("./capabilities.js");
 const KB = require("./knowledge.js");
+const CODEX = require("./codex.js");
+const EVO = require("./capabilities2.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -130,7 +132,7 @@ function pickSkills(q) {
 }
 
 function pickCap(q) {
-  return pickCapabilities(q, INDEX.map((x) => x.name), 2);
+  return EVO.pickEvolution(q, INDEX.map((x) => x.name), { maxPrime: 1, maxCombo: 2 });
 }
 
 // ---------- Konteks session ----------
@@ -188,22 +190,27 @@ function fileSummary(file) {
 }
 
 // ---------- Prompt builder ----------
-function buildPrompt(q, sess, top, caps) {
+function buildPrompt(q, sess, top, evo) {
   const parts = [];
   parts.push(
-    "Kamu Agen AI Google Cloud (gcp-agent) hasil fusion 449 skill -> kemampuan tingkat tinggi. " +
+    "Kamu Agen AI Google Cloud (gcp-agent) hasil EVOLUSI 769 skill -> kemampuan nyata tingkat tinggi. " +
     "Jawab bahasa Indonesia, padat, akurat, beri langkah konkret. Jujur jika tidak yakin."
   );
 
-  if (caps && caps.length) {
-    const capBlock = caps.map((c) =>
-      "KEMAMPUAN FUSION [" + (c.emoji || "🧠") + "] " + c.name +
-      " — cakupan: " + c.skills.join(", ") +
-      (c.note ? " — " + c.note : "") +
-      (c.insight ? "\n  Insight fusion: " + c.insight : "")
-    ).join("\n");
-    parts.push("Kemampuan fusion relevan:\n" + capBlock);
+  const evoBlock = [];
+  if (evo && evo.primes && evo.primes.length) {
+    for (const p of evo.primes) {
+      evoBlock.push("PRIME [" + (p.emoji || "🌐") + "] " + p.name + " — " + p.insight);
+    }
   }
+  if (evo && evo.combos && evo.combos.length) {
+    for (const c of evo.combos) {
+      evoBlock.push("KEMAMPUAN FUSION [" + (c.emoji || "🧠") + "] " + c.name +
+        " — cakupan: " + c.skills.join(", ") +
+        (c.insight ? " — " + c.insight : ""));
+    }
+  }
+  if (evoBlock.length) parts.push("Evolusi kemampuan yang relevan:\n" + evoBlock.join("\n"));
 
   if (top.length) {
     const skillsBlock = top.map((s) => KB.formatCard(s, 1500)).join("\n\n");
@@ -306,6 +313,14 @@ app.get("/api/capabilities", (req, res) => {
   });
 });
 
+
+app.get("/api/evolution", (req, res) => {
+  res.json({
+    primes: EVO.PRIMES.map((p) => ({ id: p.id, name: p.name, emoji: p.emoji, domains: p.domains, insight: p.insight })),
+    combos: EVO.COMBOS.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, skills: c.skills, insight: c.insight })),
+  });
+});
+
 app.post("/ask", async (req, res) => {
   if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur di server." });
   const q = String((req.body && req.body.question) || "").trim();
@@ -335,11 +350,11 @@ app.post("/ask", async (req, res) => {
   if (inlineFiles.length) pruneSession(sess);
 
   const top = pickSkills(q);
-  const caps = pickCap(q);
+  const evo = pickCap(q);
   let model;
   try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
-  const prompt = buildPrompt(q, sess, top, caps);
+  const prompt = buildPrompt(q, sess, top, evo);
   // Konten multimodal: teks diikuti gambar (vision)
   const contentParts = [{ text: prompt }];
   for (const f of sess.files) {
@@ -378,7 +393,7 @@ app.post("/ask", async (req, res) => {
   res.json({
     answer,
     skills: top.map((x) => x.name),
-    capabilities: caps.map((x) => x.name),
+    capabilities: [].concat(evo.primes || [], evo.combos || []).map((x) => x.name),
     files: sess.files.map(fileSummary),
     sessionId,
     model: _resolvedModel,
@@ -398,10 +413,12 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "2.2.0",
+    version: "3.0.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
+    evolution: { primes: EVO.PRIMES.length, combos: EVO.COMBOS.length },
+    agentTools: CODEX.TOOL_LIST.map((t) => t.name),
   });
 });
 
@@ -434,6 +451,88 @@ app.post("/api/clear", (req, res) => {
   const sessionId = String((req.body && req.body.sessionId) || "default").slice(0, 64);
   sessions.delete(sessionId);
   res.json({ ok: true });
+});
+
+
+app.post("/api/agent", async (req, res) => {
+  if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur." });
+  const task = String((req.body && req.body.task) || "").trim();
+  const sessionId = String((req.body && req.body.sessionId) || "default").slice(0, 64);
+  if (!task) return res.status(400).json({ error: "Tugas kosong" });
+  if (task.length > 4000) return res.status(400).json({ error: "Tugas terlalu panjang (maks 4000)." });
+
+  let model;
+  try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
+
+  // Konteks awal dari KB untuk mengarahkan pilihan tool
+  const kbHints = CODEX.toolsPrompt();
+  const evo = pickCap(task);
+  const evoList = [].concat(evo.primes || [], evo.combos || []);
+  const capTxt = evoList.length
+    ? evoList.map((c) => "Evolusi terpilih: " + c.name + " (cakupan " + (c.skills || c.domains || []).join(", ") + ")" + (c.insight ? " — " + c.insight : "")).join("\n")
+    : "";
+
+  const SYSTEM = "Kamu agen eksekusi (seperti Codex) dengan akses penuh ke workspace. " +
+    "Jawab/kerjakan tugas user. Gunakan tool bila perlu langkah nyata (jalankan kode, baca/tulis file, cek web, cari KB). " +
+    "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
+    capTxt + "\n\n" + kbHints;
+
+  const messages = [{ role: "user", parts: [{ text: SYSTEM + "\n\nTUGAS USER:\n" + task }] }];
+  let modelOut;
+  try { const r = await model.generateContent(messages[0].parts); modelOut = r.response.text(); }
+  catch (e) { return res.status(429).json({ error: String((e && e.message) || e), retry: true }); }
+
+  let answer = "";
+  const steps = [];
+  const MAX_IT = 8;
+  let final = false;
+
+  // Deteksi panggilan tool pada output model (beberapa baris JSON {tool,args})
+  function extractCalls(text) {
+    const calls = [];
+    const re = /\{\s*"tool"\s*:\s*"([a-z]+)"\s*,\s*"args"\s*:\s*(\{(?:[^{}])*\})\s*\}/g;
+    let m;
+    while ((m = re.exec(text))) {
+      try { calls.push({ tool: m[1], args: JSON.parse(m[2]) }); } catch (_) {}
+    }
+    return calls;
+  }
+
+  for (let i = 0; i < MAX_IT; i++) {
+    const calls = extractCalls(modelOut);
+    const sel = modelOut.indexOf("[SELESAI]");
+    const hasFinish = sel !== -1;
+
+    // Kerjakan tool dulu (jika ada), lalu appends hasil ke percakapan untuk langkah berikutnya
+    let feed = modelOut;
+    if (calls.length) {
+      const results = [];
+      for (const c of calls.slice(0, 6)) {
+        const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
+        steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
+        results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
+      }
+      const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
+        "\n\nLanjutkan: kerjakan tugas, lalu tutup dengan [SELESAI]...";
+      messages.push({ role: "user", parts: [{ text: toolText }] });
+      try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+      catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal lanjut: " + (e.message||e) }); break; }
+      continue;
+    }
+
+    if (hasFinish) {
+      answer = modelOut.slice(sel + "[SELESAI]".length).trim();
+      final = true;
+      break;
+    }
+    // tidak ada tool & tidak finish -> jadikan ini langkah pemikiran, minta lanjut
+    messages.push({ role: "user", parts: [{ text: "Lanjutkan menyelesaikan tugas lalu tutup dengan [SELESAI]..." }] });
+    try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+    catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal: " + (e.message||e) }); break; }
+  }
+
+  sessions.delete(sessionId); // workspace agen bersifat ephemeral per panggilan (stateless serverless)
+  res.json({ answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
 });
 
 app.get("/", (req, res) => { res.send(HTML); });
