@@ -1,0 +1,13 @@
+# Build artifacts & caches (tidak perlu di-commit)
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+
+# Keystore signing (dibuat otomatis di workflow; jangan commit binary)
+keystore.properties
+*.keystore
+*.jks

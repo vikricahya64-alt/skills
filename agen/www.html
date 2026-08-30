@@ -47,6 +47,9 @@ header .sub{font-size:11px;color:var(--muted)}
 @keyframes progBlink{0%,100%{opacity:1}50%{opacity:.45}}
 .step.err{border-color:#7f1d1d;background:rgba(251,113,133,.08)}
 .step .out{font-family:ui-monospace,monospace;background:#0b1626;padding:4px 6px;border-radius:6px;margin-top:4px;font-size:11.5px;white-space:pre-wrap}
+.caprun{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(129,140,248,.12));border:1px solid var(--accent);color:var(--accent);border-radius:12px;padding:5px 12px;margin-top:8px;font-size:12.5px;font-weight:600}
+.caprun .cdot{width:9px;height:9px;border-radius:50%;background:#22d3ee;box-shadow:0 0 8px #22d3ee;animation:progPulse 1s ease-in-out infinite}
+.caprun.now{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(56,189,248,.22),rgba(129,140,248,.18));border:1px solid #22d3ee;color:#a5f3fc;font-size:13px}
 #status.on{color:var(--ok)}#status.off{color:var(--err)}
 #banner{display:none;margin:8px 12px 0;padding:10px 12px;border-radius:10px;background:#3a1522;border:1px solid #5b2233;color:var(--err);font-size:13px}
 #chat{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
@@ -600,7 +603,19 @@ function streamRun(url, q, box, title, finishMeta, t){
       rejectPromise(err||new Error('stream error'));
     }
     function handleEvent(ev){
-      if(ev.event==='start'){ setLive('mengaktifkan…'); return; }
+      if(ev.event==='start'){
+        var sk=ev.data&&ev.data.skill;
+        var skArr=ev.data&&ev.data.skills;
+        var label=sk||(skArr&&skArr.length?skArr.join(' · '):'');
+        if(label){
+          var b=document.createElement('div');b.className='caprun now';
+          b.innerHTML='<span class="cdot"></span> Sedang berjalan: '+esc(label);
+          box.appendChild(b);
+          setStatus('⚡ '+label);
+          $('chat').scrollTop=$('chat').scrollHeight;
+        }
+        setLive('mengaktifkan…'); return;
+      }
       if(ev.event==='progress'){
         if(ev.data&&ev.data.msg)setLive(ev.data.msg);
         return;

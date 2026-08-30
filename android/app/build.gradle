@@ -1,9 +1,17 @@
 plugins {
     id 'com.android.application'
 }
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace 'com.vikri.gcpagent'
     compileSdk 34
+
     defaultConfig {
         applicationId "com.vikri.gcpagent"
         minSdk 24
@@ -11,6 +19,30 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        rel {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+        }
+        release {
+            minifyEnabled false
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.rel
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
