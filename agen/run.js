@@ -16,16 +16,30 @@ const COMBO_COMMANDS = {
   "combo-agent-systems": ["Rancang sistem multi-agen untuk riset", "Orkestrasi subagent paralel"],
   "combo-runtime-performance": ["Optimasi performa runtime Next.js", "Percepat bundle dan startup app"],
   "combo-research-ai-pipeline": ["Susun MLE pipeline riset ke produksi", "Rancang eksperimen dan benchmark model"],
+  "combo-install-download": ["Instal uv dan setup project Python modern", "Download & pasang dependensi proyek sesuai best practice"],
 };
 
 // ---------- Amankan identitas kemampuan dari perintah ----------
 function matchSkill(q) {
   const w = q.toLowerCase();
-  // Semua PRIMES + semua COMBOS
   const pool = EVO.PRIMES.concat(EVO.COMBOS);
-  const full = pool.filter((it) => it.keywords && it.keywords.some((k) => w.includes(k)));
-  if (full.length) return full[0];
-  // cluster perintah singkat yang lazim
+  const isCombo = (it) => (it.id || "").startsWith("combo-");
+
+  // 1) Perintah instal/unduh yang jelas -> langsung ke kemampuan Install & Artifact
+  const installHit = /(install|instal|unduh|download|pasang|instalasi|package|dependensi|dependency|setup|helm install|docker pull|\bpip\b|\bnpm\b|\bcargo\b|\bbrew\b|\bgo get\b|\bapt\b|\bwinget\b)/i.test(w);
+  if (installHit) {
+    const installCap = pool.find((it) => it.id === "combo-install-download");
+    if (installCap) return installCap;
+  }
+
+  // 2) Skor keyword: kemampuan dengan paling banyak kata kunci cocok menang
+  const scored = pool
+    .map((it) => ({ it, score: (it.keywords || []).filter((k) => w.includes(k)).length }))
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score || ((isCombo(b.it) ? 1 : 0) - (isCombo(a.it) ? 1 : 0)));
+  if (scored.length) return scored[0].it;
+
+  // 3) cluster perintah singkat yang lazim
   const spec = [
     { starts: ["riset", "research", "deep dive", "investigate", "lakukan riset", "teliti"], combo: "combo-multi-agent-research" },
     { starts: ["efisien", "efisiensi", "optimasi", "optimize", "performa", "kinerja", "benchmark", "hemat"], combo: "combo-token-efficiency" },
@@ -37,6 +51,7 @@ function matchSkill(q) {
     { starts: ["agent", "subagent", "orchestration", "orkestrasi"], combo: "combo-agent-systems" },
     { starts: ["runtime", "bun", "nextjs", "performansi"], combo: "combo-runtime-performance" },
     { starts: ["mle", "riset ke ai", "pipeline riset", "eksperimen model"], combo: "combo-research-ai-pipeline" },
+    { starts: ["install", "instal", "unduh", "download", "package", "pasang", "setup", "dependensi", "dependency"], combo: "combo-install-download" },
   ];
   for (const s of spec) {
     for (const k of s.starts) if (w.includes(k)) {
@@ -138,6 +153,16 @@ const MISSIONS = {
       "Tulis rencana pipeline (file) di workspace.",
       "Jalankan simulasi/benchmark via tool bash bila bisa.",
       "Tutup dengan [SELESAI] + ringkasan.",
+    ],
+  },
+  "combo-install-download": {
+    goal: "Instalasi, unduh & distribusi artefak yang benar dan aman (package manager, container, IaC, CI/CD) sesuai permintaan user.",
+    steps: [
+      "Tentukan target instalasi & lingkungan (python/node/container/GKE/artifact).",
+      "Tulis file konfigurasi instalasi (requirements.txt, Dockerfile, helm chart, terraform, skrip) di workspace.",
+      "Jalankan instalasi/unduh via tool bash bila lingkungan mendukung.",
+      "Verifikasi hasil instalasi (version check, build, dry-run).",
+      "Tutup dengan [SELESAI] + langkah konkret yang bisa dijalankan user.",
     ],
   },
 };

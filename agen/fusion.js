@@ -32,6 +32,7 @@ const DOMAINS = [
   { d: "healthcare", kw: ["healthcare", "health", "emr", "cdss", "phi", "hipaa", "medical", "clinical", "patient", "pasien", "pharma", "farmaci", "wellness", "medis", "rekam medis"] },
   { d: "project", kw: ["project manager", "sprint", "delivery", "roadmap", "stakeholder", "agile", "jira", "milestone", "prioritiz", "gis", "bim", "cartograph", "mapping", "drone", "geospasial", "geospatial", "survey", "pemetaan"] },
   { d: "hr", kw: ["hr", "recruit", "rekrutmen", "hiring", "candidate", "kandidat", "interview", "wawancara", "onboard", "talent", "karyawan", "resume", "cv", "employee"] },
+  { d: "install", kw: ["install", "download", "package", "pip", "npm", "cargo", "brew", "helm", "docker", "build", "provision", "bootstrap", "artifact", "registry", "installer", "dependensi", "dependency", "setup", "unduh", "instalasi", "gcloud", "gke", "cluster"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -138,6 +139,7 @@ function attachSkills(tax, items) {
     scraping: "combo-web-scraping-intel",
     fintech: "combo-payment-fintech",
     hr: "combo-hr-recruitment",
+    install: "combo-install-download",
     efficiency: "combo-token-efficiency",
     performance: "combo-token-efficiency",
     game: "combo-game-xr",

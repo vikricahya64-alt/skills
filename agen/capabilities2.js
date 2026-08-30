@@ -37,8 +37,9 @@ const PRIMES = [
     domains: ["security-threat-hunting", "site-reliability-observability", "agentic-ai-orchestration"],
     insight: "Operasi yang aman, terukur, dan otonom: ancaman dimitigasi proaktif, sistem diobservasi berbasis SLO, dan agen/otomasi menjalankan remediasi — keandalan sebagai produk.",
   },
-];
 
+
+];
 const COMBOS = [
   {
     id: "combo-multi-agent-research",
@@ -312,7 +313,16 @@ const COMBOS = [
     skills: ["gcs-security-assessment", "accidental-data-loss-prevention", "signed-audit-trails-recipe", "bigquery-basics", "threat-mitigation-mapping", "data-engineering"],
     insight: "Pipeline data yang aman end-to-end: enkripsi, kontrol akses, audit trail, dan deteksi anomali — data mengalir cepat tanpa mengorbankan kepatuhan.",
   },
-];
+  {
+    id: "combo-install-download",
+    name: "Install, Download & Artifact Distribution",
+    emoji: "📦",
+    keywords: ["install", "download", "package", "pip", "npm", "helm", "docker", "build", "provision", "bootstrap", "artifact", "release", "brew", "cargo", "scoop", "winget", "apt", "registry", "installer", "unduh", "instalasi", "dependensi", "dependency", "setup", "deploy", "gcloud", "gke", "cluster"],
+    skills: ["uv-package-manager", "generating-python-installer", "managing-python-dependencies", "docker-patterns", "helm-chart-scaffolding", "terraform-module-library", "cloud-build-basics", "gcp-pipeline-resource-provisioning"],
+    insight: "Fusi total distribusi & instalasi: dari package manager (pip/npm/cargo/brew), containerization (Docker/Helm), infrastructure-as-code (Terraform/GKE), hingga CI/CD artifact pipeline — satu kemampuan terpadu untuk mengunduh, menginstal, membangun, dan mendistribusikan artefak apa pun di lingkungan apa pun.",
+  },
+]
+
 
 function pickEvolution(q, allSkillNames, opts = {}) {
   const words = q.toLowerCase();
