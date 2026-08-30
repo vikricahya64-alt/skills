@@ -99,8 +99,9 @@ function pickCapabilities(q, allSkills, max = 2) {
     for (const kw of cap.keywords) {
       if (words.includes(kw)) s += 2;
     }
-    // bonus jika nama skill relevan muncul
-    const inNames = cap.skills.filter((sk) => allSkills.some((x) => x.name.includes(sk)));
+    // bonus jika nama skill relevan muncul (terima array string ATAU objek {name})
+    const pool = allSkills.map((x) => (typeof x === "string" ? x : (x && x.name) || ""));
+    const inNames = cap.skills.filter((sk) => pool.some((nm) => nm.includes(sk)));
     s += inNames.length * 0.5;
     return { cap, s };
   }).filter((x) => x.s > 0).sort((a, b) => b.s - a.s);
