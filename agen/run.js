@@ -490,16 +490,23 @@ function buildMission(task, cap, sessId) {
   const kb = top.map((c) => "- " + c.name + ": " + c.description).join("\n");
 
   const stepsTxt = miss.steps.map((s, i) => (i + 1) + ". " + s).join("\n");
+  // Format eksplisit: kemampuan disebutkan dengan nama, emoji, insight, dan skills
+  const capExplicit =
+    cap.emoji + " " + cap.name + "\n" +
+    (cap.insight ? "Insight: " + cap.insight + "\n" : "") +
+    "Skill: " + (cap.skills || cap.domains || []).join(", ");
+
   return {
     skillKey: cap.id,
     skillName: cap.emoji + " " + cap.name,
     system: "Kamu agen eksekusi misi (seperti Codex). Pengguna memberikan SATU perintah, dan kamu menjalankan kemampuan khusus secara otomatis dari awal sampai selesai.\n\n" +
-      "KEMAMPUAN YANG DIAKTIFKAN: " + cap.emoji + " " + cap.name + "\n" +
+      "KEMAMPUAN EKSPLISIT YANG DIAKTIFKAN:\n" + capExplicit + "\n\n" +
       "TUJUAN MISI: " + miss.goal + "\n\n" +
       "RENCANA LANGKAH OTOMATIS:\n" + stepsTxt +
       (packTxt ? "\n\nPANDUAN DARI FUSI KODE & LOGIKA kemampuan ini:\n" + packTxt : "") +
       (kb ? "\n\nSKILL RELEVAN DI KNOWLEDGE BASE:\n" + kb : "") +
       "\n\nEKSEKUSI WAJIB NYATA: gunakan tool bash/run/npm/sql/write/read/fetch yang benar-benar menjalankan perintah di lingkungan gratis cloud. " +
+      "Terapkan insight dan pengetahuan spesifik kemampuan ini saat mengeksekusi — bukan pendekatan generik. " +
       "Jangan hanya menulis langkah-langkah. Jika tool gagal, coba cara lain sampai perintah tereksekusi. Jangan mengarang hasil tool. " +
       "Simpan artefak penting ke file di workspace. Selesaikan dengan blok [SELESAI]<ringkasan dalam Bahasa Indonesia>.",
   };

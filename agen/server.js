@@ -766,8 +766,16 @@ app.post("/api/agent", async (req, res) => {
   prog("🧠 Menyusun rencana dengan kemampuan: " + (skillNames.join(", ") || "umum") + "…");
 
   const kbHints = CODEX.toolsPrompt();
+  // Format eksplisit: setiap kemampuan disebutkan dengan nama, emoji, insight, dan skill-nya
   const capTxt = evoList.length
-    ? evoList.map((c) => "Evolusi terpilih: " + c.name + " (cakupan " + (c.skills || c.domains || []).join(", ") + ")" + (c.insight ? " — " + c.insight : "")).join("\n")
+    ? "KEMAMPUAN YANG TERAKTIF (gunakan pengetahuan spesifik tiap kemampuan):\n\n" +
+      evoList.map((c, i) => {
+        const num = i + 1;
+        const nameLine = num + ". " + (c.emoji || "") + " " + c.name;
+        const insightLine = c.insight ? "   Insight: " + c.insight : "";
+        const skillsLine = "   Skill: " + (c.skills || c.domains || []).join(", ");
+        return nameLine + "\n" + insightLine + "\n" + skillsLine;
+      }).join("\n\n")
     : "";
   // FUSI KODE & LOGIKA dari skill teratas utk tugas ini (arahan eksekusi nyata)
   const kbPack = KB.fusionPack(top, 3500);
@@ -781,7 +789,8 @@ app.post("/api/agent", async (req, res) => {
     "LINGKUNGAN: Linux serverless GRATIS; tool nyata tersedia: bash, run (node), npm (install package), sql, write, read, fetch, kb. Python TIDAK terpasang - jangan coba python3/pip. " +
     "ANDA WAJIB MENEKSEKUSI NYATA, bukan hanya menulis langkah-langkah: panggil tool, lihat hasil, verifikasi output. " +
     "JIka sebuah tool GAGAL, coba cara lain SEKARANG (run/node, bash, sql fallback, npm) sampai perintah benar-benar tereksekusi, lalu tutup [SELESAI] dengan hasil nyata. " +
-    "SEMUA kemampuan telah fusion+restrukturisasi penuh: kerjakan LANGSUNG memakai tool, JANGAN memanggil/mendelegasikan ke skill, kemampuan, atau sub-agen lain. " +
+    "Setiap kemampuan di bawah adalah KOMPETENSI EKSPLISIT — gunakan pengetahuan spesifik tiap kemampuan saat mengeksekusi, bukan pendekatan generik. " +
+    "Identifikasi kemampuan mana yang paling relevan dengan tugas user, lalu terapkan insight dan skill-nya secara langsung. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
     capTxt + (kbPack ? "\n\nFUSI KODE & LOGIKA dari knowledge base (gunakan persis):\n" + kbPack : "") +
     "\n\n" + kbHints;
@@ -909,13 +918,12 @@ app.post("/api/run", async (req, res) => {
     return res.status(500).json({ error: "Gagal menyiapkan model." });
   }
 
-  // Instruksi inti: semua kemampuan sudah fusion+restrukturisasi penuh,
-  // jadi JANGAN memanggil/mendelegasikan ke kemampuan/skill lain —
-  // langsung eksekusi tool (write/bash/read/kb/fetch) yang dibutuhkan.
+  // Instruksi inti: kemampuan eksplisit dengan nama, bukan fusion generik
   prog("🎯 Mengaktifkan kemampuan: " + mission.skillName + "…");
   const messages = [{ role: "user", parts: [{ text:
-    mission.system + "\n\nCATATAN PENTING: Semua kemampuan telah fusion+restrukturisasi total. " +
-    "JANGAN memanggil, mendelegasikan, atau mengarahkan ke kemampuan/skill lain — kerjakan LANGSUNG sendiri memakai tool nyata " +
+    mission.system + "\n\nCATATAN PENTING: Kemampuan di atas adalah KOMPETENSI EKSPLISIT dengan nama, insight, dan skill spesifik. " +
+    "Gunakan pengetahuan spesifik kemampuan ini saat mengeksekusi — bukan pendekatan generik. " +
+    "Identifikasi tahapan mana yang memerlukan tool spesifik, lalu eksekusi langsung memakai tool nyata " +
     "(write, bash, run, npm, sql, read, kb, fetch) yang tersedia. " +
     "WAJIB MENEKSEKUSI NYATA DI LINGKUNGAN, bukan menulis langkah-langkah saja: panggil tool, lihat output, verifikasi. " +
     "Jika tool GAGAL, coba cara lain sampai perintah benar-benar tereksekusi (run/node, bash, sql fallback, npm). " +
@@ -1323,7 +1331,7 @@ async function fallbackExec(task, sessionId) {
     "2. Jalankan ulang bila perlu dengan detail tambahan.",
     "",
     "## Catatan",
-    "- Semua kemampuan sudah fusion+restrukturisasi: dieksekusi langsung oleh agen, tanpa delegasi.",
+    "- Kemampuan yang diaktifkan dieksekusi langsung oleh agen dengan pengetahuan spesifik, tanpa delegasi.",
   ].join("\n");
   const gok = await CODEX.toolRunner("write", { path: "hasil-agen.md", content: genericMd }, SID);
   const gver = await CODEX.toolRunner("bash", { command: "node --version && node -e \"console.log('exec-done')\"" }, SID);
