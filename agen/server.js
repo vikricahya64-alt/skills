@@ -413,7 +413,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.0.0",
+    version: "3.0.1",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -474,6 +474,8 @@ app.post("/api/agent", async (req, res) => {
 
   const SYSTEM = "Kamu agen eksekusi (seperti Codex) dengan akses penuh ke workspace. " +
     "Jawab/kerjakan tugas user. Gunakan tool bila perlu langkah nyata (jalankan kode, baca/tulis file, cek web, cari KB). " +
+    "LINGKUNGAN: Linux serverless; Node.js tersedia (jalankan JS via node -e). Python TIDAK terpasang - jangan coba python3/python/pip. " +
+    "Untuk kalkulasi atau skrip, tulis file .js lalu jalankan: node namafile.js. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
     capTxt + "\n\n" + kbHints;
 
