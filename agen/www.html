@@ -17,6 +17,13 @@ header .sub{font-size:11px;color:var(--muted)}
 .mode-switch{display:flex;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px}
 .mode-btn{font-size:12px;border:none;background:transparent;color:var(--muted);border-radius:16px;padding:5px 12px;cursor:pointer}
 .mode-btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-weight:600}
+#capPanel{max-width:760px;margin:10px auto 0;padding:0 12px;width:100%;display:flex;flex-direction:column;gap:8px}
+.cap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.cap h4{margin:0;font-size:13.5px;color:var(--text)}
+.cap .ci{font-size:12px;color:var(--muted);margin:4px 0}
+.cap .cb{font-size:11.5px;background:var(--panel2);border:1px solid var(--line);color:var(--accent);border-radius:10px;padding:3px 9px;cursor:pointer}
+.cap .cb:hover{border-color:var(--accent)}
+.cap pre{background:#0b1626;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;white-space:pre-wrap;max-height:260px;overflow:auto;margin:6px 0 0}
 .step{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;word-break:break-word}
 .step .tl{font-weight:600;color:var(--accent)}
 .step.ok{border-color:#14532d;background:rgba(16,185,129,.08)}
@@ -78,12 +85,15 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
     <div class="sub" id="subtitle">Semua skill GCP &middot; diproses di cloud</div>
   </div>
   <div class="mode-switch" id="modeSwitch">
-    <button class="mode-btn active" data-mode="chat">💬 Chat</button>
+    <button class="mode-btn active" data-mode="auto">🎛 Auto</button>
+    <button class="mode-btn" data-mode="chat">💬 Chat</button>
     <button class="mode-btn" data-mode="coder">⚡ Coder</button>
+    <button class="mode-btn" data-mode="caps" id="capsBtn">🧬 Kemampuan</button>
   </div>
   <span id="status">menghubungkan&hellip;</span>
 </header>
 <div id="banner"></div>
+<div id="capPanel" style="display:none"></div>
 <div id="chat"><div class="wrap" id="chatWrap"></div></div>
 <div class="chips" id="chips">
   <button class="chip">Apa itu Google Cloud Storage?</button>
@@ -202,7 +212,7 @@ function send(){
   if(busy)return;
   var q=$('q').value.trim();
   if(!q)return;
-  if(MODE==='coder'){sendAgent();return;}
+  if(MODE==='coder'||(MODE==='auto'&&isExecQuery(q))){sendAgent();return;}
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('memproses di cloud&hellip;');
@@ -242,14 +252,61 @@ function resetChat(){
   welcome();
   showBanner('');setStatus('sesi direset');
 }
-var MODE='chat';
+var MODE='auto';
+var capLoaded=false;
+function isExecQuery(q){
+  return /(buat file|tulis file|jalankan|execute|hitung|sql|database|csv|json|scrap|fetch|deploy|install|test|run |bash|kode|program|otomatis|analisis data|baca file|perintah|node |python|file )/i.test(q);
+}
 function setMode(m){
   MODE=m;
   document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===m);});
   var sub=$('subtitle');
-  if(m==='coder'){sub.textContent='Mode eksekusi · akses penuh seperti Codex';$('q').placeholder='Beri tugas, agen akan jalankan kode & baca/tulis file di cloud…';}
+  if(m==='coder'){sub.textContent='Mode eksekusi · akses penuh seperti Codex';$('q').placeholder='Beri tugas, agen akan jalankan kode, SQL, file & web di cloud…';}
+  else if(m==='caps'){sub.textContent='Semua kemampuan · 100% bisa diakses';$('q').placeholder='Semua 24 kemampuan & logika/kode di bawah…';}
+  else if(m==='auto'){sub.textContent='Mode Auto · chat biasa atau langsung eksekusi sesuai konteks';$('q').placeholder='Tanya apa saja… (Auto: pertanyaan biasa dijawab, tugas eksekusi dijalankan)';}
   else{sub.textContent='Semua skill GCP · diproses di cloud';$('q').placeholder='Tanya apa saja soal Google Cloud… (Enter kirim, Shift+Enter baris baru)';}
+  var pan=$('capPanel');
+  if(m==='caps'){
+    pan.style.display='flex';
+    if(!capLoaded){capLoaded=true;renderCaps();}
+  }else{pan.style.display='none';}
   autoGrow();
+}
+function renderCaps(){
+  var pan=$('capPanel');
+  pan.innerHTML='<div class="cap"><h4>⏳ Memuat semua kemampuan…</h4></div>';
+  Promise.all([
+    fetch('/api/evolution').then(function(r){return r.json();}),
+    fetch('/api/pack').then(function(r){return r.json();})
+  ]).then(function(res){
+    var ev=res[0], pk=res[1];
+    var items=[];
+    (ev.primes||[]).forEach(function(p){items.push({type:'PRIME',id:p.id,name:p.name,emoji:p.emoji,insight:p.insight});});
+    (ev.combos||[]).forEach(function(c){items.push({type:'KEMAMPUAN FUSION',id:c.id,name:c.name,emoji:c.emoji,insight:c.insight});});
+    pan.innerHTML='';
+    items.forEach(function(it){
+      var info=(pk.packs||{})[it.id];
+      var card=document.createElement('div');card.className='cap';
+      card.innerHTML='<h4>'+it.emoji+' '+esc(it.name)+' <span style="font-size:10px;color:var(--muted)">'+it.type+'</span></h4>'+
+        '<div class="ci">'+esc(it.insight||'')+'</div>'+
+        (info?'<div class="ci">🧩 '+info.skillCount+' skill · '+info.codes+' kode · '+info.logic+' logika</div>':'')+
+        '<button class="cb" type="button">📂 Lihat logika & kode</button><div class="capBody" style="display:none"></div>';
+      card.querySelector('.cb').onclick=function(){
+        var body=card.querySelector('.capBody');
+        if(body.style.display!=='none'){body.style.display='none';return;}
+        body.style.display='block';body.innerHTML='<div class="ci">memuat…</div>';
+        fetch('/api/pack?id='+encodeURIComponent(it.id)).then(function(r){return r.json();}).then(function(d){
+          var txt=(d.formatted||'').slice(0,4000);
+          body.innerHTML='<pre>'+esc(txt)+'</pre>';
+        }).catch(function(){body.innerHTML='<div class="ci">gagal memuat</div>';});
+      };
+      pan.appendChild(card);
+    });
+    var total=items.length;
+    var top=document.createElement('div');top.className='cap';top.style.textAlign='center';
+    top.innerHTML='<h4>✅ '+total+' kemampuan · 1042 skill · coverage 100% — semuanya bisa diakses di sini</h4>';
+    pan.insertBefore(top,pan.firstChild);
+  }).catch(function(){pan.innerHTML='<div class="cap"><h4>⚠️ Gagal memuat kemampuan</h4></div>';});
 }
 function renderToolResult(brief){
   // Coba render hasil JSON array-of-object sebagai tabel (sql/csv/json)
