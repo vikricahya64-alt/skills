@@ -83,6 +83,9 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
 #micBtn:hover{border-color:var(--accent);color:var(--accent)}
 #micBtn.rec{background:#3a1522;border-color:var(--err);color:var(--err);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+#voiceBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#voiceBtn:hover{border-color:var(--accent);color:var(--accent)}
+#voiceBtn.playing{background:#42321a;border-color:#f59e0b;color:#fbbf24;animation:pulse 1.2s infinite}
 #pauseBtn:hover{background:#4c1d2d}
 #sendBtn:disabled{opacity:.5}
 #attBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -114,6 +117,7 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
   <button class="chip">Rekomendasi firewall GCP</button>
 </div>
 <div class="quickRow">
+  <button class="quick" id="voiceChatBtn">🔊 Obrolan suara</button>
   <button class="quick" data-fn="clarify">🤔 Perjelas maksud saya</button>
   <button class="quick" data-fn="simplify">🪶 Mudahkan jawaban</button>
   <button class="quick" data-fn="summary">📌 Ringkas</button>
@@ -249,8 +253,9 @@ function send(){
       t.remove();
       if(res.d.error)throw new Error(res.d.error);
       var b=addMsg('bot',md(res.d.answer)).querySelector('.bub');
+      lastAnswerText=res.d.answer||'';
       var meta=document.createElement('div');meta.className='meta';
-      addActionBtns(b, res.d.answer||'');
+      addActionBtns(b, lastAnswerText);
       if(res.d.skills&&res.d.skills.length){var s=document.createElement('span');s.className='pill';s.textContent='📚 '+res.d.skills.join(' · ');meta.appendChild(s);}
       if(res.d.files&&res.d.files.length){var f=document.createElement('span');f.className='pill';f.textContent='📎 '+res.d.files.length+' file';meta.appendChild(f);}
       var cp=document.createElement('button');cp.className='copyBtn';cp.textContent='Salin';
@@ -278,6 +283,29 @@ function resetChat(){
 var MODE='auto';
 var capLoaded=false;
 var recog=null,recogOn=false;
+var lastAnswerText='';
+var speaking=false;
+function speakText(txt){
+  if(!('speechSynthesis' in window)){showBanner('⚠️ Browser tidak mendukung text-to-speech.');return;}
+  window.speechSynthesis.cancel();
+  if(!txt){showBanner('🔊 Belum ada jawaban untuk dibacakan.');return;}
+  var u=new SpeechSynthesisUtterance(txt);
+  u.lang='id-ID';u.rate=1;u.pitch=1;
+  u.onstart=function(){speaking=true;setVoiceBtn(true);};
+  u.onend=function(){speaking=false;setVoiceBtn(false);};
+  u.onerror=function(){speaking=false;setVoiceBtn(false);};
+  window.speechSynthesis.speak(u);
+  setVoiceBtn(true);
+}
+function setVoiceBtn(on){
+  var b=$('voiceChatBtn');if(!b)return;
+  b.classList.toggle('playing',on);
+  b.textContent=on?'⏹ Baca':'🔊 Obrolan suara';
+}
+function toggleVoiceChat(){
+  if(speaking){window.speechSynthesis.cancel();speaking=false;setVoiceBtn(false);return;}
+  speakText(lastAnswerText||'');
+}
 function initSpeech(){
   if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){return false;}
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -309,6 +337,7 @@ var abortCtrl=null;
 function showPause(){var b=$('pauseBtn');if(b)b.style.display='flex';}
 function hidePause(){var b=$('pauseBtn');if(b)b.style.display='none';}
 function stopRun(){
+  if(window.speechSynthesis){window.speechSynthesis.cancel();speaking=false;setVoiceBtn(false);}
   if(abortCtrl){try{abortCtrl.abort();}catch(_){}abortCtrl=null;}
   busy=false;$('sendBtn').disabled=false;hidePause();
   var ty=document.querySelector('.msg.bot.typing');if(ty)ty.remove();
@@ -441,10 +470,11 @@ function sendAgent(){
         e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
         box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
       });
+      lastAnswerText=res.d.answer||'';
       var ans=document.createElement('div');ans.style.marginTop='8px';
-      ans.innerHTML=md(res.d.answer||'(tidak ada jawaban akhir)');
+      ans.innerHTML=md(lastAnswerText||'(tidak ada jawaban akhir)');
       box.appendChild(ans);
-      addActionBtns(box, res.d.answer||'');
+      addActionBtns(box, lastAnswerText);
       $('chat').scrollTop=$('chat').scrollHeight;
       setStatus('selesai');
     })
@@ -466,6 +496,7 @@ function welcome(){
 document.getElementById('qbar').addEventListener('submit',function(e){e.preventDefault();send();});
 var pz=$('pauseBtn');if(pz)pz.addEventListener('click',stopRun);
 var mb=$('micBtn');if(mb)mb.addEventListener('click',toggleMic);
+var vb=$('voiceChatBtn');if(vb)vb.addEventListener('click',toggleVoiceChat);
 document.querySelectorAll('.mode-btn').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
