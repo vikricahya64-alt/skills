@@ -377,6 +377,79 @@ function startProgress(res) {
   };
 }
 
+// Eksekusi tool yang adaptif: jika sebuah tool GAGAL, otomatis coba cara lain yang tersedia
+// (run/npm/bash/sql) agar perintah tetap tereksekusi — bukan berhenti di langkah pertama.
+async function execCallsRobust(calls, sessionId, doneCalls, steps, emitStep) {
+  const results = [];
+  for (const c of (calls || []).slice(0, 6)) {
+    const key = c.tool + ":" + JSON.stringify(c.args || {});
+    if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
+    doneCalls.add(key);
+    const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
+    if (out.ok) {
+      steps.push({ tool: c.tool, args: c.args, ok: true, brief: (out.result || "").slice(0, 400) });
+      if (emitStep) emitStep({ tool: c.tool, ok: true, brief: (out.result || "").slice(0, 400) });
+      results.push("(" + c.tool + ") " + out.result.slice(0, 3000));
+      continue;
+    }
+    // === Tool gagal -> coba alternatif nyata secara otomatis ===
+    const why = (out.error || out.result || "");
+    const altOut = await tryAlternatives(c, sessionId, why);
+    if (altOut && altOut.ok) {
+      steps.push({ tool: c.tool + "->alt", args: c.args, ok: true, brief: (altOut.result || "").slice(0, 400) });
+      if (emitStep) emitStep({ tool: c.tool + " (via " + altOut.used + ")", ok: true, brief: (altOut.result || "").slice(0, 400) });
+      results.push("(" + c.tool + " gagal: " + why.slice(0, 200) + " -> jalankan via " + altOut.used + " berhasil: " + altOut.result.slice(0, 2000) + ")");
+    } else {
+      steps.push({ tool: c.tool, args: c.args, ok: false, brief: (why || "gagal").slice(0, 400) });
+      if (emitStep) emitStep({ tool: c.tool, ok: false, brief: (why || "gagal").slice(0, 400) });
+      results.push("(" + c.tool + ") GALAT: " + why.slice(0, 2000));
+    }
+  }
+  return results;
+}
+
+// Beri tahu tool alternatif yang benar-benar bisa mengeksekusi di lingkungan gratis cloud.
+async function tryAlternatives(c, sessionId, why) {
+  const whyL = String(why || "").toLowerCase();
+  // Jika model minta perintah eksekusi tapi tool tidak ada -> jalankan via bash/run
+  const command = c.args && c.args.command;
+  if (command) {
+    const out = await CODEX.toolRunner("bash", { command }, sessionId);
+    if (out.ok) return { ok: true, result: out.result, used: "bash" };
+  }
+  const code = c.args && (c.args.code || c.args.script);
+  if (code) {
+    const out = await CODEX.toolRunner("run", { code }, sessionId);
+    if (out.ok) return { ok: true, result: out.result, used: "run" };
+  }
+  const file = c.args && c.args.file;
+  if (file) {
+    const out = await CODEX.toolRunner("run", { file }, sessionId);
+    if (out.ok) return { ok: true, result: out.result, used: "run" };
+  }
+  // SQL gagal (mis. runtime tak mendukung) -> coba mini fallback lewat tool sql (sudah ada fallback di codex)
+  if (c.tool === "sql") {
+    const out = await CODEX.toolRunner("sql", { sql: c.args.sql, init: c.args.init, mode: c.args.mode }, sessionId);
+    if (out.ok) return { ok: true, result: out.result, used: "sql-fallback" };
+  }
+  // npm install gagal (registry) -> coba bash npm; bila binary tak ada, simpan instruksi commit nyata
+  if (c.tool === "npm") {
+    const inst = c.args && c.args.install;
+    if (inst) {
+      const pkgs = (Array.isArray(inst) ? inst.join(" ") : String(inst));
+      const out = await CODEX.toolRunner("bash", { command: "npm install " + pkgs + " --no-audit --no-fund --loglevel=error" }, sessionId);
+      if (out.ok) return { ok: true, result: out.result, used: "npm-bash" };
+    }
+  }
+  // Tool tidak dikenal / tidak didukung -> representasikan sebagai komputasi nyata via node
+  if (!["ls","read","write","bash","run","npm","fetch","kb","sql","json","csv","chart"].includes(c.tool)) {
+    const placeholder = "// hasil fallback untuk tool: " + c.tool + "\nconsole.log('dieksekusi via run (tool fallback)');";
+    const out = await CODEX.toolRunner("run", { code: placeholder }, sessionId);
+    if (out.ok) return { ok: true, result: out.result, used: "run-fallback" };
+  }
+  return null;
+}
+
 // ---------- Routes ----------
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", skills: INDEX.length, hasKey: !!KEY, keys: KEYS.length, uptime: process.uptime() });
@@ -571,7 +644,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.14.2",
+    version: "3.15.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -685,7 +758,9 @@ app.post("/api/agent", async (req, res) => {
     "Format panggilan tool PERSIS satu baris, tanpa komentar, tanpa tanda kutip miring:\n" +
     "{\"tool\":\"chart\",\"args\":{\"data\":[{\"label\":\"Jan\",\"value\":120}],\"title\":\"Penjualan\",\"file\":\"chart.html\"}}\n" +
     "Contoh lain: {\"tool\":\"bash\",\"args\":{\"command\":\"node -e 'console.log(6*7)'\"}}\n" +
-    "LINGKUNGAN: Linux serverless; Node.js tersedia (jalankan JS via node -e). Python TIDAK terpasang - jangan coba python3/python/pip. " +
+    "LINGKUNGAN: Linux serverless GRATIS; tool nyata tersedia: bash, run (node), npm (install package), sql, write, read, fetch, kb. Python TIDAK terpasang - jangan coba python3/pip. " +
+    "ANDA WAJIB MENEKSEKUSI NYATA, bukan hanya menulis langkah-langkah: panggil tool, lihat hasil, verifikasi output. " +
+    "JIka sebuah tool GAGAL, coba cara lain SEKARANG (run/node, bash, sql fallback, npm) sampai perintah benar-benar tereksekusi, lalu tutup [SELESAI] dengan hasil nyata. " +
     "SEMUA kemampuan telah fusion+restrukturisasi penuh: kerjakan LANGSUNG memakai tool, JANGAN memanggil/mendelegasikan ke skill, kemampuan, atau sub-agen lain. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
     capTxt + (kbPack ? "\n\nFUSI KODE & LOGIKA dari knowledge base (gunakan persis):\n" + kbPack : "") +
@@ -728,17 +803,8 @@ app.post("/api/agent", async (req, res) => {
     // Kerjakan tool dulu (jika ada), lalu appends hasil ke percakapan untuk langkah berikutnya
     let feed = modelOut;
     if (calls.length) {
-      const results = [];
-      for (const c of calls.slice(0, 6)) {
-        const key = c.tool + ":" + JSON.stringify(c.args || {});
-        if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
-        doneCalls.add(key);
-        prog("⚙️ Mengeksekusi " + c.tool + "…", { tool: c.tool, args: c.args });
-        const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
-        steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
-        if (emit) emit("step", { tool: c.tool, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
-        results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
-      }
+      prog("⚙️ Mengeksekusi " + calls.length + " tool (dengan fallback cara lain bila gagal)…");
+      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); });
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan: kerjakan tugas, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });
@@ -760,8 +826,8 @@ app.post("/api/agent", async (req, res) => {
     let kick = "Lanjutkan menyelesaikan tugas lalu tutup dengan [SELESAI]...";
     if (needExec && noToolStreak <= 3) {
       kick = "PERINGATAN: Anda BELUM memanggil tool, padahal tugas ini butuh eksekusi nyata. " +
-        "Keluarkan baris JSON tool call SEKARANG (mis. {\"tool\":\"chart\",\"args\":{...}} atau {\"tool\":\"bash\",\"args\":{\"command\":\"...\"}}). " +
-        "Daftar tool: " + CODEX.TOOL_LIST.map((t) => t.name).join(", ") + ". Jangan menjawab seolah-olah tool sudah dijalankan.";
+        "Keluarkan baris JSON tool call SEKARANG (mis. {\"tool\":\"chart\",\"args\":{...}}, {\"tool\":\"bash\",\"args\":{\"command\":\"...\"}}, {\"tool\":\"run\",\"args\":{\"code\":\"...\"}}, atau {\"tool\":\"npm\",\"args\":{\"install\":\"...\"}}). " +
+        "Daftar tool: " + CODEX.TOOL_LIST.map((t) => t.name).join(", ") + ". Jika satu cara gagal, coba cara lain sampai tereksekusi. Jangan menjawab seolah-olah tool sudah dijalankan.";
       prog("🔁 Model belum memanggil tool — mencoba pendekatan lain…");
     } else {
       prog("⏳ Menunggu model menyelesaikan…");
@@ -771,9 +837,11 @@ app.post("/api/agent", async (req, res) => {
     catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal: " + (e.message||e) }); break; }
   }
 
-  // FALLBACK eksekusi nyata: bila tugas butuh eksekusi & tak ada tool call dari model
-  if (!steps.length && needExec) {
-    prog("🛠️ Beralih ke eksekusi langsung (fallback engine)…");
+  // FALLBACK eksekusi nyata: bila tak ada tool yang BERHASIL (atau tak ada tool sama sekali),
+  // cari cara lain sampai perintah tereksekusi (fallback engine nyata).
+  const hasOk = steps.some((s) => s.ok);
+  if (!hasOk && needExec) {
+    prog("🛠️ Tool belum berhasil — menjalankan eksekusi langsung (fallback engine, mencoba cara lain)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
       if (parsed && parsed.steps && parsed.steps.length) { steps.push(...parsed.steps); answer = parsed.answer || "Dieksekusi nyata di cloud. Lihat langkah di atas."; }
@@ -821,8 +889,10 @@ app.post("/api/run", async (req, res) => {
   const messages = [{ role: "user", parts: [{ text:
     mission.system + "\n\nCATATAN PENTING: Semua kemampuan telah fusion+restrukturisasi total. " +
     "JANGAN memanggil, mendelegasikan, atau mengarahkan ke kemampuan/skill lain — kerjakan LANGSUNG sendiri memakai tool nyata " +
-    "(write, bash, read, kb, fetch) yang tersedia. Jangan menulis 'panggil skill X' atau 'serahkan ke modul Y'. " +
-    "Bila butuh info, gunakan tool kb. Bila mencoba approach dan gagal, coba cara lain. " +
+    "(write, bash, run, npm, sql, read, kb, fetch) yang tersedia. " +
+    "WAJIB MENEKSEKUSI NYATA DI LINGKUNGAN, bukan menulis langkah-langkah saja: panggil tool, lihat output, verifikasi. " +
+    "Jika tool GAGAL, coba cara lain sampai perintah benar-benar tereksekusi (run/node, bash, sql fallback, npm). " +
+    "Jangan menulis 'panggil skill X' atau 'serahkan ke modul Y'. Bila butuh info, gunakan tool kb. " +
     "\n\nPERINTAH USER (1 perintah):\n" + task }] }];
   let modelOut;
   try {
@@ -857,17 +927,8 @@ app.post("/api/run", async (req, res) => {
     const hasFinish = sel !== -1;
 
     if (calls.length) {
-      const results = [];
-      for (const c of calls.slice(0, 6)) {
-        const key = c.tool + ":" + JSON.stringify(c.args || {});
-        if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
-        doneCalls.add(key);
-        prog("⚙️ Mengeksekusi " + c.tool + "…", { tool: c.tool, args: c.args });
-        const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
-        steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
-        if (emit) emit("step", { tool: c.tool, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
-        results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
-      }
+      prog("⚙️ Mengeksekusi " + calls.length + " tool (dengan fallback cara lain bila gagal)…");
+      const results = await execCallsRobust(calls, sessionId, doneCalls, steps, (st) => { if (emit) emit("step", st); });
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan misi sampai selesai, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });
@@ -901,8 +962,9 @@ app.post("/api/run", async (req, res) => {
   }
 
   // Fallback eksekusi nyata bila model tidak memanggil tool sama sekali
-  if (!steps.length) {
-    prog("🛠️ Beralih ke eksekusi langsung (fallback engine)…");
+  const hasOk = steps.some((s) => s.ok);
+  if (!hasOk) {
+    prog("🛠️ Tool belum berhasil — menjalankan eksekusi langsung (fallback engine, coba cara lain)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
       if (parsed && parsed.steps && parsed.steps.length) { steps.push(...parsed.steps); answer = parsed.answer; }

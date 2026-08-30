@@ -47,8 +47,9 @@ function listTree(dir, depth = 0) {
 
 async function runShell(cmd, sessionId) {
   const dir = wsDir(sessionId);
+  const shell = fs.existsSync("/bin/bash") ? "/bin/bash" : "/bin/sh";
   return new Promise((resolve) => {
-    exec(cmd, { cwd: dir, timeout: MAX_CMD_MS, maxBuffer: MAX_OUT * 4, shell: "/bin/bash" }, (err, stdout, stderr) => {
+    exec(cmd, { cwd: dir, timeout: MAX_CMD_MS, maxBuffer: MAX_OUT * 4, shell }, (err, stdout, stderr) => {
       const out = String(stdout || "") + (stderr ? "\n[stderr]\n" + stderr : "");
       resolve({
         exitCode: err ? (err.code === null ? 1 : err.code) : 0,
@@ -60,7 +61,7 @@ async function runShell(cmd, sessionId) {
 }
 
 function sqlDb(dir) {
-  // node:sqlite built-in (Node 22+). Fallback pesan jelas bila runtime lebih lama.
+  // node:sqlite built-in (Node 22+).
   try {
     const { DatabaseSync } = require("node:sqlite");
     const db = new DatabaseSync(dir + "/work.sqlite");
@@ -68,6 +69,95 @@ function sqlDb(dir) {
   } catch (e) {
     return null;
   }
+}
+
+// Mini SQL engine murni-JS sebagai fallback agar SQL TETAP tereksekusi nyata
+// di runtime mana pun (tanpa node:sqlite). State dipersist ke sql-data.json.
+function miniSql(dir, init, sql) {
+  const file = path.join(dir, "sql-data.json");
+  let tables = {};
+  try { tables = JSON.parse(fs.readFileSync(file, "utf8")); } catch (_) { tables = {}; }
+  const exec = (q) => {
+    const stmt = String(q || "").trim().replace(/;+$/, "");
+    const low = stmt.toLowerCase();
+    let m;
+    // CREATE TABLE
+    m = low.match(/^create table (?:if not exists )?([a-z0-9_-]+)\s*\(([\s\S]*)\)$/);
+    if (m) {
+      const name = m[1];
+      const cols = m[2].split(",").map((c) => c.trim().split(/\s+/)[0].replace(/["'`]/g, ""));
+      if (!tables[name]) tables[name] = { cols, rows: [] };
+      return { ok: true, result: "table " + name + " siap (" + cols.join(",") + ")" };
+    }
+    // INSERT INTO t (c1,c2) VALUES (v1,v2)
+    m = low.match(/^insert (?:into )?([a-z0-9_-]+)\s*(?:\(([^)]*)\))?\s*values\s*\(([\s\S]*)\)$/);
+    if (m) {
+      const name = m[1];
+      const t = tables[name];
+      if (!t) return { ok: false, error: "table " + name + " belum ada" };
+      const cols = m[2] ? m[2].split(",").map((c) => c.trim().replace(/["'`]/g, "")) : t.cols;
+      const vals = m[3].split(",").map((v) => {
+        const x = v.trim();
+        if (/^'[^']*'$/i.test(x) || /^"[^"]*"$/i.test(x)) return x.slice(1, -1);
+        const n = Number(x);
+        return Number.isFinite(n) ? n : x;
+      });
+      const row = {};
+      cols.forEach((c, i) => { row[c] = vals[i]; });
+      t.rows.push(row);
+      return { ok: true, result: "1 baris masuk ke " + name };
+    }
+    // SELECT cols FROM t [WHERE ...]
+    m = low.match(/^select ([\s\S]+?) from ([a-z0-9_-]+)(?: where ([\s\S]+))?$/);
+    if (m) {
+      const t = tables[m[2]];
+      if (!t) return { ok: false, error: "table " + m[2] + " belum ada" };
+      let rows = t.rows;
+      if (m[3]) {
+        const cond = String(m[3]).trim();
+        rows = rows.filter((r) => {
+          const cm = cond.match(/^([a-z0-9_]+)\s*(=|<>|!=|>|<|>=|<=)\s*(.+)$/);
+          if (!cm) return true;
+          const v = r[cm[1]];
+          let cmp = cm[3].trim();
+          if (/^'[^']*'$/.test(cmp) || /^"[^"]*"$/.test(cmp)) cmp = cmp.slice(1, -1);
+          const n = Number(cmp);
+          cmp = Number.isFinite(n) ? n : cmp;
+          switch (cm[2]) {
+            case "=": return String(v) === String(cmp);
+            case "!=": case "<>": return String(v) !== String(cmp);
+            case ">": return Number(v) > Number(cmp);
+            case "<": return Number(v) < Number(cmp);
+            case ">=": return Number(v) >= Number(cmp);
+            case "<=": return Number(v) <= Number(cmp);
+            default: return true;
+          }
+        });
+      }
+      const sel = String(m[1]).trim();
+      const agg = sel.match(/^(count|sum|avg)\s*\(([^)]*)\)$/i);
+      if (agg) {
+        const fn = agg[1].toLowerCase();
+        const col = agg[2].trim() === "*" ? null : agg[2].trim();
+        if (fn === "count") return { ok: true, result: JSON.stringify([{ count: rows.length }]) };
+        const vals = rows.map((r) => (col && r[col] != null ? Number(r[col]) : 0)).filter((n) => Number.isFinite(n));
+        if (fn === "sum") return { ok: true, result: JSON.stringify([{ sum: vals.reduce((a, b) => a + b, 0) }]) };
+        if (fn === "avg") { const x = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0; return { ok: true, result: JSON.stringify([{ avg: x }]) }; }
+      }
+      const cols = sel === "*" ? t.cols : sel.split(",").map((c) => c.trim());
+      const out = rows.map((r) => Object.fromEntries(cols.map((c) => [c, r[c]])));
+      return { ok: true, result: JSON.stringify(out).slice(0, 18000) || "[]" };
+    }
+    return { ok: false, error: "query tidak didukung mini-sql: " + stmt.slice(0, 120) };
+  };
+  const initOut = [];
+  for (const q of String(init || "").split(";")) {
+    if (q.trim()) { const r = exec(q); if (!r.ok) return r; initOut.push(r.result); }
+  }
+  const sqlOut = exec(sql);
+  fs.writeFileSync(file, JSON.stringify(tables));
+  if (!sqlOut.ok && !initOut.length) return sqlOut;
+  return sqlOut.ok ? sqlOut : { ok: false, error: sqlOut.error || "sql gagal" };
 }
 
 function escHtml(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -170,23 +260,57 @@ async function toolRunner(tool, args, sessionId) {
       }
       case "sql": {
         const db = sqlDb(dir);
-        if (!db) return { ok: false, error: "Runtime tidak mendukung node:sqlite (butuh Node 22+)." };
         try {
           const init = String(args.init || "");
-          if (init.trim()) db.exec(init);
-          if (args.mode === "table") { return { ok: true, result: "SQL executed (mode table)" }; }
-          const sql = String(args.sql || "");
-          if (!sql.trim()) return { ok: false, error: "SQL kosong" };
-          const stmt = db.prepare(sql);
-          if (/^\s*(select|pragma|with|explain)/i.test(sql.trim())) {
-            const rows = stmt.all();
-            return { ok: true, result: JSON.stringify(rows).slice(0, 18000) || "[]" };
+          if (db) {
+            if (init.trim()) db.exec(init);
+            if (args.mode === "table") return { ok: true, result: "SQL executed (mode table)" };
+            const sql = String(args.sql || "");
+            if (!sql.trim()) return { ok: false, error: "SQL kosong" };
+            const stmt = db.prepare(sql);
+            if (/^\s*(select|pragma|with|explain)/i.test(sql.trim())) {
+              const rows = stmt.all();
+              return { ok: true, result: JSON.stringify(rows).slice(0, 18000) || "[]" };
+            }
+            const info = stmt.run();
+            return { ok: true, result: JSON.stringify(info) };
           }
-          const info = stmt.run();
-          return { ok: true, result: JSON.stringify(info) };
+          // Fallback murni-JS agar SQL tetap tereksekusi nyata di runtime mana pun
+          return miniSql(dir, init, String(args.sql || ""));
         } catch (e) {
           return { ok: false, error: String((e && e.message) || e).slice(0, 500) };
         }
+      }
+      case "run": {
+        // Jalankan kode/file JS nyata via Node di workspace
+        let cmd;
+        if (args.file) { cmd = "node " + JSON.stringify(String(args.file)); }
+        else {
+          const code = String(args.code || args.script || "");
+          if (!code.trim()) return { ok: false, error: "tidak ada code/file untuk dijalankan" };
+          cmd = "node -e " + JSON.stringify(code);
+        }
+        const out = await runShell(cmd, sessionId);
+        return out.exitCode === 0
+          ? { ok: true, result: out.output || "(selesai tanpa output)" }
+          : { ok: false, result: out.output, error: out.error };
+      }
+      case "npm": {
+        // Instal package nyata di workspace lalu lapor versi
+        if (args.install) {
+          const pkgs = Array.isArray(args.install) ? args.install.join(" ") : String(args.install);
+          const pkgFile = path.join(dir, "package.json");
+          if (!fs.existsSync(pkgFile)) fs.writeFileSync(pkgFile, JSON.stringify({ name: "gcp-ws", private: true, version: "1.0.0" }, null, 2));
+          const out = await runShell("npm install " + pkgs + " --no-audit --no-fund --loglevel=error", sessionId);
+          if (out.exitCode !== 0) return { ok: false, result: out.output, error: out.error || "npm install gagal" };
+          return { ok: true, result: "npm install selesai: " + pkgs };
+        }
+        if (args.script) {
+          const out = await runShell("npm run " + String(args.script), sessionId);
+          return out.exitCode === 0 ? { ok: true, result: out.output || "(script selesai)" }
+                                    : { ok: false, result: out.output, error: out.error };
+        }
+        return { ok: false, error: "pakai arg install (daftar paket) atau script (nama script)" };
       }
       default:
         return { ok: false, error: "Tool tidak dikenal: " + tool };
@@ -200,10 +324,12 @@ const TOOL_LIST = [
   { name: "ls", desc: "Daftar file dalam workspace sesi (args: path opsional)" },
   { name: "read", desc: "Baca isi file di workspace (args: path)" },
   { name: "write", desc: "Tulis/ubah file di workspace (args: path, content)" },
-  { name: "bash", desc: "Jalankan perintah shell/Node/Python di workspace (args: command)" },
+  { name: "bash", desc: "Jalankan perintah shell/Node REAL di workspace. Wajib untuk eksekusi aktual, bukan sekedar langkah (args: command)" },
+  { name: "run", desc: "Jalankan kode/file JS nyata via Node di workspace (args: code ATAU file)" },
+  { name: "npm", desc: "Install package nyata di workspace lalu jalankan script (args: install [pkg...] ATAU script nama)" },
   { name: "fetch", desc: "Ambil konten URL publik (args: url)" },
   { name: "kb", desc: "Cari knowledge base 1042 skill (args: query, max)" },
-  { name: "sql", desc: "Jalankan SQL nyata di SQLite workspace (args: sql, init utk buat tabel, mode:'table' utk skip hasil)" },
+  { name: "sql", desc: "Jalankan SQL nyata (SQLite atau mini-engine) di workspace (args: sql, init utk buat tabel, mode:'table' utk skip hasil)" },
   { name: "json", desc: "Parse & kueri file JSON di workspace memakai expr JS (args: path, expr)" },
   { name: "csv", desc: "Baca file CSV/TSV di workspace jadi {headers, rows} (args: path)" },
   { name: "chart", desc: "Render grafik HTML nyata dari data (args: data array {label,value}, type bar/pie, title, file)" },

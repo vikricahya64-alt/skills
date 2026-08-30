@@ -223,7 +223,8 @@ function buildMission(task, cap, sessId) {
       "RENCANA LANGKAH OTOMATIS:\n" + stepsTxt +
       (packTxt ? "\n\nPANDUAN DARI FUSI KODE & LOGIKA kemampuan ini:\n" + packTxt : "") +
       (kb ? "\n\nSKILL RELEVAN DI KNOWLEDGE BASE:\n" + kb : "") +
-      "\n\nGunakan tool nyata bila membantu (bash, write, read, kb, fetch). Jangan mengarang hasil tool. " +
+      "\n\nEKSEKUSI WAJIB NYATA: gunakan tool bash/run/npm/sql/write/read/fetch yang benar-benar menjalankan perintah di lingkungan gratis cloud. " +
+      "Jangan hanya menulis langkah-langkah. Jika tool gagal, coba cara lain sampai perintah tereksekusi. Jangan mengarang hasil tool. " +
       "Simpan artefak penting ke file di workspace. Selesaikan dengan blok [SELESAI]<ringkasan dalam Bahasa Indonesia>.",
   };
 }
@@ -235,7 +236,7 @@ function buildGeneric(task) {
   return {
     skillKey: "generic",
     skillName: "⚡ Single-Command",
-    system: "Kamu agen eksekusi misi (seperti Codex). Jalankan SATU perintah user secara otomatis sampai selesai, gunakan tool nyata bila membantu.\n\n" +
+    system: "Kamu agen eksekusi misi (seperti Codex). Jalankan SATU perintah user secara otomatis sampai selesai — WAJIB eksekusi nyata via tool bash/run/npm/sql/write, coba cara lain bila gagal.\n\n" +
       "SKILL RELEVAN:\n" + kb +
       "\n\nLangkah: pahami tujuan -> pecah jadi tahapan -> kerjakan (tool bila perlu) -> tutup [SELESAI]<ringkasan dalam Bahasa Indonesia>.",
   };
