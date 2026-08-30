@@ -494,7 +494,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.4.1",
+    version: "3.4.3",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,

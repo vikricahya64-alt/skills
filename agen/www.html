@@ -78,6 +78,12 @@ footer{background:rgba(17,28,48,.9);border-top:1px solid var(--line);padding:8px
 textarea#q{flex:1;resize:none;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px;font-family:inherit;line-height:1.4;max-height:140px;min-height:46px}
 textarea#q:focus{outline:none;border-color:var(--accent)}
 #sendBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08121f;font-size:18px;cursor:pointer}
+#pauseBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid #7f1d1d;background:#3a1522;color:var(--err);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#micBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#micBtn:hover{border-color:var(--accent);color:var(--accent)}
+#micBtn.rec{background:#3a1522;border-color:var(--err);color:var(--err);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+#pauseBtn:hover{background:#4c1d2d}
 #sendBtn:disabled{opacity:.5}
 #attBtn{flex-shrink:0;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #attBtn:hover{border-color:var(--accent);color:var(--accent)}
@@ -118,8 +124,10 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
 <div id="files"></div>
 <footer>
   <form id="qbar">
+    <button type="button" id="micBtn" title="Input suara (convert suara ke teks)">🎤</button>
     <button type="button" id="attBtn" title="Lampirkan file/gambar">&#128206;</button>
     <textarea id="q" rows="1" placeholder="Tanya apa saja soal Google Cloud&hellip; (Enter kirim, Shift+Enter baris baru)"></textarea>
+    <button type="button" id="pauseBtn" title="Jeda / hentikan proses" style="display:none">⏸</button>
     <button type="submit" id="sendBtn" title="Kirim">&#10148;</button>
   </form>
 </footer>
@@ -229,13 +237,13 @@ function send(){
   if(MODE==='coder'||(MODE==='auto'&&isExecQuery(q))){sendAgent();return;}
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('memproses di cloud&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('memproses di cloud&hellip;');
   var body={question:q,sessionId:SID,files:files.map(function(f){
     var o={name:f.name,kind:f.kind,mime:f.mime};
     if(f.kind==='Gambar'){o.base64=f.base64;}else{o.text=f.text||'';}
     return o;
   })};
-  fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:abortCtrl.signal})
     .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
     .then(function(res){
       t.remove();
@@ -256,7 +264,7 @@ function send(){
       showBanner('Server tidak merespons atau terjadi error. Coba lagi sebentar lagi.');
       setStatus('error','off');
     })
-    .finally(function(){busy=false;$('sendBtn').disabled=false;});
+    .finally(function(){busy=false;$('sendBtn').disabled=false;hidePause();abortCtrl=null;});
 }
 function autoGrow(){var q=$('q');q.style.height='auto';q.style.height=Math.min(q.scrollHeight,140)+'px';}
 function resetChat(){
@@ -269,6 +277,44 @@ function resetChat(){
 }
 var MODE='auto';
 var capLoaded=false;
+var recog=null,recogOn=false;
+function initSpeech(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){return false;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR();
+  recog.lang='id-ID';
+  recog.interimResults=false;
+  recog.maxAlternatives=1;
+  recog.continuous=false;
+  recog.onresult=function(e){
+    var t=e.results[0][0].transcript||'';
+    var q=$('q');q.value=(q.value?q.value+' ':'')+t;autoGrow();q.focus();
+  };
+  recog.onerror=function(){setMic(false);};
+  recog.onend=function(){setMic(false);};
+  return true;
+}
+function setMic(on){
+  recogOn=on;
+  var b=$('micBtn');if(!b)return;
+  b.classList.toggle('rec',on);
+  setStatus(on?'🎤 mendengarkan…':'siap');
+}
+function toggleMic(){
+  if(recogOn){try{recog.stop();}catch(_){}setMic(false);return;}
+  if(!recog){if(!initSpeech()){showBanner('⚠️ Browser tidak mendukung input suara. Gunakan Chrome/Edge.');return;}}
+  try{recog.start();setMic(true);}catch(_){}
+}
+var abortCtrl=null;
+function showPause(){var b=$('pauseBtn');if(b)b.style.display='flex';}
+function hidePause(){var b=$('pauseBtn');if(b)b.style.display='none';}
+function stopRun(){
+  if(abortCtrl){try{abortCtrl.abort();}catch(_){}abortCtrl=null;}
+  busy=false;$('sendBtn').disabled=false;hidePause();
+  var ty=document.querySelector('.msg.bot.typing');if(ty)ty.remove();
+  setStatus('dihentikan','off');
+  showBanner('⏸ Proses dihentikan. Silakan coba lagi atau ubah pertanyaan.');
+}
 function isExecQuery(q){
   return /(buat file|tulis file|jalankan|execute|hitung|sql|database|csv|json|scrap|fetch|deploy|install|test|run |bash|kode|program|otomatis|analisis data|baca file|perintah|node |python|file )/i.test(q);
 }
@@ -344,6 +390,13 @@ function renderToolResult(brief){
 function askFollowup(q){
   $('q').value=q;autoGrow();send();
 }
+function downloadText(text,fname){
+  try{
+    var blob=new Blob([text||''],{type:'text/markdown;charset=utf-8'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;
+    document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+  }catch(_){}
+}
 function addActionBtns(bub,lastQ){
   var bar=document.createElement('div');bar.className='actionBar';
   var acts=[
@@ -352,11 +405,16 @@ function addActionBtns(bub,lastQ){
     {l:'📌 Ringkas',f:'Ringkas jawabanmu tadi menjadi 3 poin utama saja.'},
     {l:'🛠 Contoh kode',f:'Berikan contoh implementasi kode/konfigurasi yang bisa langsung dipakai untuk topik ini.'},
     {l:'👣 Langkah',f:'Urai jawabanmu tadi menjadi langkah-langkah berurutan yang jelas.'},
-    {l:'🔍 Lebih dalam',f:'Perdalam topik ini: tambahkan detail teknis, best practice, dan perangkap yang umum.'}
+    {l:'🔍 Lebih dalam',f:'Perdalam topik ini: tambahkan detail teknis, best practice, dan perangkap yang umum.'},
+    {l:'🔄 Ulangi cara lain',f:'Jawab ulang pertanyaan terakhir dengan pendekatan/cara yang benar-benar berbeda dari jawaban sebelumnya, tetap akurat.'},
+    {l:'📄 Unduh .md',f:'__DOWNLOAD__'}
   ];
   acts.forEach(function(a){
     var b=document.createElement('button');b.className='act';b.textContent=a.l;
-    b.onclick=function(){askFollowup(a.f);};
+    b.onclick=function(){
+      if(a.f==='__DOWNLOAD__'){downloadText(lastQ,'jawaban-agen.md');return;}
+      askFollowup(a.f);
+    };
     bar.appendChild(b);
   });
   bub.appendChild(bar);
@@ -367,12 +425,12 @@ function sendAgent(){
   if(!q)return;
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;setStatus('agen mengeksekusi&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('agen mengeksekusi&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>⚡ Langkah agen:</strong>';
   var holder=$('chatWrap');
   holder.appendChild(box);
   $('chat').scrollTop=$('chat').scrollHeight;
-  fetch('/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID})})
+  fetch('/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID}),signal:abortCtrl.signal})
     .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
     .then(function(res){
       t.remove();
@@ -396,7 +454,7 @@ function sendAgent(){
       showBanner('Mode Coder error. Coba lagi.');
       setStatus('error','off');
     })
-    .finally(function(){busy=false;$('sendBtn').disabled=false;});
+    .finally(function(){busy=false;$('sendBtn').disabled=false;hidePause();abortCtrl=null;});
 }
 function welcome(){
   var w=$('chatWrap');
@@ -406,6 +464,8 @@ function welcome(){
   w.appendChild(m);
 }
 document.getElementById('qbar').addEventListener('submit',function(e){e.preventDefault();send();});
+var pz=$('pauseBtn');if(pz)pz.addEventListener('click',stopRun);
+var mb=$('micBtn');if(mb)mb.addEventListener('click',toggleMic);
 document.querySelectorAll('.mode-btn').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
@@ -446,6 +506,7 @@ var clearBtn=document.createElement('button');clearBtn.className='chip';clearBtn
 clearBtn.style.marginLeft='auto';
 clearBtn.addEventListener('click',resetChat);
 document.getElementById('chips').appendChild(clearBtn);
+if(window.SpeechRecognition||window.webkitSpeechRecognition){initSpeech();}
 welcome();
 fetch('/api/info').then(function(r){return r.json();}).then(function(d){
   setStatus('✅ '+d.skills+' skill · '+(d.model||'AI'));$('status').classList.add('on');
