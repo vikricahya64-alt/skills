@@ -20,6 +20,7 @@ const COMBO_COMMANDS = {
   "combo-network-edge": ["Rancang reverse proxy nginx dengan load balancer", "Konfigurasi service mesh Istio untuk edge GKE"],
   "combo-os-environment": ["Buat lingkungan dev reproduksibel dengan flox", "Susun bash script defensif + shellcheck untuk production"],
   "combo-build-shipping": ["Buat aplikasi Android editor foto video lengkap", "Build & compile project saya jadi APK dan kode source lengkap", "Scaffold project web frontend+backend yang bisa di-build", "Compile project jadi artifact dan susun pipeline CI/CD shipping"],
+  "combo-build-apk": ["Buat APK aplikasi editor foto", "Compile aplikasi android saya jadi APK", "Buat project Android lengkap lalu build APK debug", "Susun pipeline build APK release dengan signing", "Buat aplikasi android editor video dan compile menjadi apk"],
 
   "combo-devtools-dx": ["Tingkatkan DX repo: dokumentasi hidup + tooling CLI", "Rancang developer experience dan standar koding"],
   "combo-media-generation": ["Buat presentasi visual untuk pitch deck", "Generasi infografis untuk konten media"],
@@ -76,6 +77,7 @@ function matchSkill(q) {
     { starts: ["network", "jaringan", "proxy", "nginx", "load balancer", "dns", "vlan", "vpn", "waf", "istio", "linkerd", "service mesh", "firewall"], combo: "combo-network-edge" },
     { starts: ["flox", "nix", "environment reproduksibel", "reproducible env", "bash defensif", "shellcheck", "bats", "lingkungan os", "linux environment"], combo: "combo-os-environment" },
     { starts: ["editor foto video", "edit foto video", "edit video", "kompilasi", "compile", "bangun project", "bangun aplikasi", "build project", "build aplikasi", "scaffold", "struktur project", "proyek lengkap", "apk lengkap", "siap release", "cara build", "cara compile", "bundling", "packaging", "buat apk android lengkap"], combo: "combo-build-shipping" },
+    { starts: ["build apk", "kompilasi apk", "compile apk", "buat apk", "bikin apk", "aplikasi android", "app android", "project android", "apk debug", "apk release", "signed apk", "aplikasi android editor foto", "aplikasi android editor video", "editor foto video lengkap", "editer foto android", "editor video android", "editor foto", "editor video", "make apk", "cara buat apk", "compile aplikasi android"], combo: "combo-build-apk" },
 
     { starts: ["developer experience", "devtools", "tooling", "standar koding"], combo: "combo-devtools-dx" },
     { starts: ["buat presentasi", "slides", "infografis", "konten visual", "media ai"], combo: "combo-media-generation" },
@@ -256,6 +258,17 @@ const MISSIONS = {
       "Eksekusi nyata bila lingkungan mendukung: jalankan tool bash/build script (mis. npm install & build bila package tersedia, node untuk verifikasi sintaks). Pada serverless tanpa mengubah env: jalankan verifikasi via tool run/node dan lint struktur. Implementasikan PRINSIP before-you-build & clean architecture; gunakan pattern compose/React Native yang benar.",
       "Sajikan INFO BUILD: daftar seluruh file project, struktur folder, perintah build yang harus dijalankan user di mesin lokal (mis. ./gradlew assembleDebug atau npm run build), dan langkah menghasilkan APK lalu menginstall ke perangkat.",
       "Tutup dengan [SELESAI] + ringkasan build & tautan untuk unduh project ZIP.",
+    ],
+  },
+  "combo-build-apk": {
+    goal: "Bangun APK Android A-Z: susun project Gradle lengkap (settings, build.gradle root & app, gradle.properties, AndroidManifest, res, MainActivity.kt) dengan clean architecture, puisikan pola Kotlin/Compose/material design, lalu buat pipeline build (assembleDebug/assembleRelease), signing/dex/R8-ProGuard, hingga distribusi APK/AAB — semua file ditulis ke workspace agar source bisa diunduh & di-build di Android Studio.",
+    steps: [
+      "Tentukan jenis aplikasi Android dari permintaan user (mis. editor foto/video, utilitas, dll) dan package name (mis. com.namamu.photoeditor) + SDK/Compile SDK & minSdk/targetSdk.",
+      "Tulis STRUKTUR PROJECT ANDROID LENGKAP memakai tool write (satu file per panggilan write):\n   settings.gradle (project name, include ':app'),\n   build.gradle root (plugin classpath / AGP version),\n   gradle.properties (JVM args, androidx.useAndroidX=true),\n   app/build.gradle (namespace, compileSdk/minSdk/targetSdk, dependencies Compose/Kotlin, buildTypes debug & release + signingConfig + minifyEnabled),\n   app/src/main/AndroidManifest.xml (application, activity, permissions, intent-filter LAUNCHER),\n   app/src/main/java/<paket>/MainActivity.kt (UI utama, tombol pilih gambar/video, aksi edit: crop/rotate/filter, simpan),\n   app/src/main/res/values/strings.xml & themes.xml, app/src/main/res/values/colors.xml,\n   resource tambahan bila perlu (layout_scene.xml, menu, icons).",
+      "Rancang fungsionalitas EDITOR sesuai permintaan dengan clean architecture (MVVM): layer data/domain/ui, state hoisting di Compose, dan lifecycle-aware coroutine/Flow (seleksi galeri, crop/rotate/filter bitmap, simpan ke MediaStore).",
+      "Eksekusi nyata bila lingkungan mendukung: jalankan tool bash untuk verifikasi struktur (mis. pastikan file ada via ls), validasi sintaks Kotlin/XML bila Java/Kotlin tersedia, atau gunakan tool run/node sebagai simulasi logika. Pada serverless TANPA Android SDK: verifikasi kelengkapan semua file project lalu beri INSTRUKSI BUILD yang benar.",
+      "Sajikan INSTRUKSI BUILD APK eksplisit: cara membuka project di Android Studio, jalankan Build > Make Project lalu Build > Build APK(s) (atau CLI: ./gradlew assembleDebug; untuk release pastikan signingConfig & keystore; hasil di app/build/outputs/apk/), cara membuat AAB (./gradlew bundleRelease), dan langkah menginstall APK ke device (adb install atau copy file APK).",
+      "Tutup dengan [SELESAI] + ringkasan build APK & tautan untuk mengunduh project ZIP (source siap-build).",
     ],
   },
 
