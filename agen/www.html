@@ -298,7 +298,8 @@ function send(){
   if(busy)return;
   var q=$('q').value.trim();
   if(!q)return;
-  if(MODE==='coder'||(MODE==='auto'&&isExecQuery(q))){sendAgent();return;}
+  if(MODE==='coder'){sendAgent();return;}
+  if(MODE==='auto'&&isExecQuery(q)){sendRun(q);return;}
   $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
   var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('memproses di cloud&hellip;');
@@ -447,11 +448,9 @@ function renderCaps(){
     items.forEach(function(it){
       var info=(pk.packs||{})[it.id];
       var card=document.createElement('div');card.className='cap';
-      var runBtns=(it.commands&&it.commands.length)?'<div class="runRow">'+it.commands.map(function(c){return '<button class="runBtn" type="button" data-combo="'+esc(it.id)+'">▶ '+esc(c)+'</button>';}).join('')+'</div>':'';
       card.innerHTML='<h4>'+it.emoji+' '+esc(it.name)+' <span style="font-size:10px;color:var(--muted)">'+it.type+'</span></h4>'+
         '<div class="ci">'+esc(it.insight||'')+'</div>'+
         (info?'<div class="ci">🧩 '+info.skillCount+' skill · '+info.codes+' kode · '+info.logic+' logika</div>':'')+
-        runBtns+
         '<button class="cb" type="button">📂 Lihat logika & kode</button><div class="capBody" style="display:none"></div>';
       card.querySelector('.cb').onclick=function(){
         var body=card.querySelector('.capBody');
@@ -462,9 +461,6 @@ function renderCaps(){
           body.innerHTML='<pre>'+esc(txt)+'</pre>';
         }).catch(function(){body.innerHTML='<div class="ci">gagal memuat</div>';});
       };
-      card.querySelectorAll('.runBtn').forEach(function(btn){
-        btn.onclick=function(){var cmd=this.textContent.replace(/^▶\s*/,'');confirmRun(cmd,this.getAttribute('data-combo'),(it.emoji||'')+' '+(it.name||''));};
-      });
       pan.appendChild(card);
     });
     var total=items.length;
@@ -675,36 +671,51 @@ function streamRun(url, q, box, title, finishMeta, t, combo){
       .catch(function(err){ finishErr(err); });
   });
 }
-function confirmRun(cmd,comboId,comboName){
-  if(busy){ addMsg('bot','⏳ <strong>Masih ada kemampuan yang sedang berjalan.</strong> Tunggu sampai selesai sebelum menjalankan kemampuan lain.'); showBanner('Eksekusi diblokir: tunggu kemampuan berjalan selesai.'); return; }
+function sendRun(q){
+  q=String(q||'').trim();
+  if(!q)return;
+  $('q').value='';autoGrow();hideHero();
+  verifyCapability(q);
+}
+function verifyCapability(q){
   var word=LS('verifyWord');
   if(!word){
-    verifyModal('🔑 Atur Kata Kunci Verifikasi','Simpan & Jalankan',function(w){
-      LS('verifyWord',w);execCombo(cmd,comboId);
-    });
+    setVerifyWord(function(){ runCapability(q); });
     return;
   }
+  verifyModal('🔑 Verifikasi Kemampuan',
+    'Kemampuan ini akan berjalan <b>nyata</b> di cloud. Ketik kata kunci verifikasi milik Anda lalu klik Jalankan.',
+    '🚀 Jalankan Sekarang', function(v){return v.trim()===word;},
+    function(){ runCapability(q); },
+    function(){ setVerifyWord(function(){ runCapability(q); }); });
+}
+function setVerifyWord(onDone){
+  verifyModal('🔑 Atur Kata Kunci Verifikasi',
+    'Kata kunci adalah <b>pilihan Anda</b> dan tersimpan hanya di browser ini. Kata kunci itu wajib diketik setiap kali menjalankan kemampuan. Minimal 3 karakter.',
+    'Simpan', function(v){return v.trim().length>=3;},
+    function(w){ LS('verifyWord',w); onDone&&onDone(w); });
+}
+function verifyModal(title,desc,btnLabel,validate,onOk,chgFn){
   var ov=document.createElement('div');ov.className='confirmOv';
   ov.innerHTML='<div class="confirmBox">'+
-    '<h4>⚠️ Konfirmasi sebelum eksekusi</h4>'+
-    '<div class="ci">'+(comboName?'🏷️ <b>'+esc(comboName)+'</b><br>':'')+'Kemampuan ini akan berjalan <b>nyata</b> di lingkungan. '+
-    'Ketik kata kunci verifikasi milik Anda lalu klik Jalankan. '+
-    '<a href="javascript:void(0)" id="cfChg" style="color:var(--accent)">🔑 ganti kata kunci</a></div>'+
-    '<input type="text" id="cfWord" placeholder="Ketik kata kunci Anda…" autocomplete="off">'+
-    '<div class="runRow"><button class="runBtn" id="cfGo" type="button" disabled>🚀 Jalankan Sekarang</button>'+
-    '<button class="cb" id="cfX" type="button">Batal</button></div>'+
+    '<h4>'+title+'</h4>'+
+    '<div class="ci">'+desc+
+    (chgFn?' <a href="javascript:void(0)" id="vmChg" style="color:var(--accent)">🔑 ganti kata kunci</a>':'')+'</div>'+
+    '<input type="text" id="vmInp" placeholder="Ketik kata kunci Anda…" autocomplete="off">'+
+    '<div class="runRow"><button class="runBtn" id="vmGo" type="button" disabled>'+btnLabel+'</button>'+
+    '<button class="cb" id="vmX" type="button">Batal</button></div>'+
     '</div>';
   document.body.appendChild(ov);
-  var inp=ov.querySelector('#cfWord'),go=ov.querySelector('#cfGo');
-  function matches(){return inp.value.trim()===word;}
-  function chk(){go.disabled=!matches();}
+  var inp=ov.querySelector('#vmInp'),go=ov.querySelector('#vmGo');
+  function valid(){return validate?validate(inp.value):inp.value.trim().length>=3;}
+  function chk(){go.disabled=!valid();}
   inp.addEventListener('input',chk);
-  function killConfirm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
-  function goRun(){ if(matches()){ killConfirm(); execCombo(cmd,comboId); } }
-  go.onclick=goRun;
-  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') goRun(); });
-  ov.querySelector('#cfX').onclick=killConfirm;
-  ov.querySelector('#cfChg').onclick=function(){ killConfirm(); verifyModal('🔑 Ganti Kata Kunci Verifikasi','Simpan',function(w){ LS('verifyWord',w); addMsg('bot','🔑 Kata kunci verifikasi diperbarui.'); }); };
+  function rm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
+  function done(){ if(valid()){ var v=inp.value.trim(); rm(); onOk(v); } }
+  go.onclick=done;
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') done(); });
+  ov.querySelector('#vmX').onclick=rm;
+  if(chgFn) ov.querySelector('#vmChg').onclick=function(){ rm(); chgFn(); };
   inp.focus();
 }
 function LS(k,v){
@@ -713,53 +724,13 @@ function LS(k,v){
     var x=localStorage.getItem(k); return x==null?'':x;
   }catch(e){ return v!==undefined?null:''; }
 }
-function verifyModal(title,btnLabel,onOk){
-  var ov=document.createElement('div');ov.className='confirmOv';
-  ov.innerHTML='<div class="confirmBox">'+
-    '<h4>'+title+'</h4>'+
-    '<div class="ci">Kata kunci adalah <b>pilihan Anda</b> dan tersimpan hanya di browser ini. Kata kunci itu wajib diketik untuk menjalankan kemampuan dari panel. Minimal 3 karakter.</div>'+
-    '<input type="text" id="kvInp" placeholder="Tentukan kata kunci Anda…" autocomplete="off">'+
-    '<div class="runRow"><button class="runBtn" id="kvGo" type="button" disabled>'+btnLabel+'</button>'+
-    '<button class="cb" id="kvX" type="button">Batal</button></div>'+
-    '</div>';
-  document.body.appendChild(ov);
-  var inp=ov.querySelector('#kvInp'),go=ov.querySelector('#kvGo');
-  function valid(){return inp.value.trim().length>=3;}
-  function chk(){go.disabled=!valid();}
-  inp.addEventListener('input',chk);
-  function rm(){ if(ov.parentNode)ov.parentNode.removeChild(ov); }
-  function done(){ if(valid()){ var w=inp.value.trim(); rm(); onOk(w); } }
-  go.onclick=done;
-  inp.addEventListener('keydown',function(e){ if(e.key==='Enter') done(); });
-  ov.querySelector('#kvX').onclick=rm;
-  inp.focus();
-}
-function execCombo(q,combo){
+function runCapability(q){
   if(busy)return;
-  q=String(q||'').trim();
-  if(!q)return;
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi — ikuti progres di bawah&hellip;');
-  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
-  $('chatWrap').appendChild(box);
-  streamRun('/api/run',q,box,'▶ misi',true,t,combo)
-    .catch(function(err){
-      t.remove();
-      addMsg('bot','⚠️ <strong>Error:</strong> '+esc((err&&err.message)||'server error'));
-      showBanner('Single-command error. Coba lagi.');
-      setStatus('error','off');
-    })
-    .finally(function(){busy=false;$('sendBtn').disabled=false;hidePause();abortCtrl=null;});
-}
-function sendRun(q){
-  if(busy)return;
-  q=String(q||'').trim();
-  if(!q)return;
-  $('q').value='';autoGrow();hideHero();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi — ikuti progres di bawah&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan kemampuan — ikuti progres di bawah&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
   $('chatWrap').appendChild(box);
-  streamRun('/api/run',q,box,'▶ misi',true,t)
+  streamRun('/api/run',q,box,'🚀 kemampuan',true,t)
     .catch(function(err){
       t.remove();
       addMsg('bot','⚠️ <strong>Error:</strong> '+esc((err&&err.message)||'server error'));
@@ -797,7 +768,7 @@ document.getElementById('qbar').addEventListener('submit',function(e){e.preventD
 var pz=$('pauseBtn');if(pz)pz.addEventListener('click',stopRun);
 var mb=$('micBtn');if(mb)mb.addEventListener('click',toggleMic);
 var vb=$('voiceChatBtn');if(vb)vb.addEventListener('click',toggleVoiceChat);
-var kb=$('keyBtn');if(kb)kb.addEventListener('click',function(){verifyModal('🔑 Atur Kata Kunci Verifikasi','Simpan',function(w){LS('verifyWord',w);addMsg('bot','🔑 Kata kunci verifikasi diperbarui: '+esc(w));});});
+var kb=$('keyBtn');if(kb)kb.addEventListener('click',function(){setVerifyWord(function(w){addMsg('bot','🔑 Kata kunci verifikasi diperbarui.');});});
 document.querySelectorAll('.mode-btn').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
