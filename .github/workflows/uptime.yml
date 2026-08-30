@@ -1,0 +1,21 @@
+name: Cek Server 24/7
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # setiap 30 menit
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /api/health
+        env:
+          URL: ${{ vars.AGENT_URL || 'https://gcp-agent-beta.vercel.app' }}
+        run: |
+          code=$(curl -s -o /tmp/health.json -w "%{http_code}" --max-time 25 "$URL/api/health")
+          echo "HTTP $code"
+          cat /tmp/health.json 2>/dev/null || true
+          test "$code" = "200" || { echo "::error::Server tidak sehat (HTTP $code)"; exit 1; }
+          grep -q '"status":"ok"' /tmp/health.json \
+            || { echo "::error::Payload health tidak valid"; exit 1; }

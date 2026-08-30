@@ -1,0 +1,41 @@
+# Deploy ke Cloud Run agar server aktif 24/7.
+# Persyaratan: akun GCP (free tier $0) + project & billing yang aktif.
+# Cara pakai (dari root repo):
+#   gcloud auth login
+#   gcloud config set project PROYEK_ANDA
+#   gcloud builds submit --tag gcr.io/PROYEK_ANDA/gcp-agent
+#   gcloud run deploy gcp-agent \
+#     --image gcr.io/PROYEK_ANDA/gcp-agent \
+#     --platform managed \
+#     --region asia-southeast1 \
+#     --cpu 1 --memory 512Mi \
+#     --min-instances 1 --max-instances 1 \
+#     --set-env-vars "GEMINI_API_KEY=ISI_KUNCI" \
+#     --allow-unauthenticated
+#
+# Tidak ada sleep: Cloud Run selalu hangat (min-instances=1), free sampai kuota.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: gcp-agent
+  labels:
+    cloud.googleapis.com/location: asia-southeast1
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "10"
+    spec:
+      containerConcurrency: 80
+      containers:
+        - image: gcr.io/PROYEK_ANDA/gcp-agent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GEMINI_API_KEY
+              value: "ISI_KUNCI"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"

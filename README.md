@@ -196,6 +196,46 @@ endpoint API agar semua skill dapat dikeluarkan/ditemukan.
 Server agen juga memuat semua skill saat startup. Endpoint
 `GET /api/skills` mengeluarkan daftar seluruh nama skill yang tersedia.
 
+## Menjalankan server 24 jam dengan API gratis
+
+Server (`agen/server.js`) diproses penuh di cloud dan bisa dijalankan 24/7 secara
+gratis melalui **Google Cloud Run** (free tier) atau hosting apa pun.
+
+### 1. Ambil kunci API Gemini (gratis)
+
+1. Buka https://aistudio.google.com/apikey (login akun Google).
+2. Buat API key (pakai model gratis di bawah kuota).
+3. Salin ke `.env`:
+
+```
+GEMINI_API_KEY=isi-kunci-anda
+```
+
+### 2. Deploy ke Cloud Run (aktif 24 jam)
+
+Dari root repo:
+
+```bash
+gcloud auth login
+gcloud config set project NAMA_PROYEK
+gcloud builds submit --tag gcr.io/NAMA_PROYEK/gcp-agent
+gcloud run deploy gcp-agent   --image gcr.io/NAMA_PROYEK/gcp-agent   --platform managed --region asia-southeast1   --cpu 1 --memory 512Mi   --min-instances 1 --max-instances 1   --set-env-vars "GEMINI_API_KEY=isi-kunci-anda"   --allow-unauthenticated
+```
+
+- `--min-instances 1` membuat server **selalu hangat** (tidak tidur), jadi aktif 24 jam.
+- Cloud Run punya kuota gratis per bulan (berapapun pemakaian di bawah kuota = $0).
+- File konfigurasi lengkap: [`cloudrun.yaml`](./cloudrun.yaml), [`Dockerfile`](./Dockerfile), [`api`](.env.example).
+
+### 3. Pantau otomatis
+
+Workflow `.github/workflows/uptime.yml` mengetes `/api/health` setiap 30 menit dan
+menandai gagal bila server mati. Set URL server Anda lewat variabel repo
+`AGENT_URL` (repo -> Settings -> Secrets and variables -> Actions -> Variables).
+
+- Vercel (deploy web/APK): `vercel.json` + `api/index.js`.
+- Container Cloud Run: `Dockerfile` + `cloudrun.yaml`.
+- API gratis: gunakan Gemini key di `.env` / `--set-env-vars`.
+
 ## Support
 
 If you need help or encounter issues with these skills, search for existing
