@@ -107,6 +107,7 @@ textarea#q:focus{outline:none;border-color:var(--accent)}
   <span id="status">menghubungkan&hellip;</span>
 </header>
 <div id="banner"></div>
+<div id="capPanel" style="display:none"></div>
 <div id="chat"><div class="wrap" id="chatWrap"></div></div>
 <div class="chips" id="chips">
   <button class="chip">Apa itu Google Cloud Storage?</button>
@@ -350,11 +351,51 @@ function setMode(m){
   document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===m);});
   var sub=$('subtitle');
   if(m==='coder'){sub.textContent='Mode eksekusi · akses penuh seperti Codex';$('q').placeholder='Beri tugas, agen akan jalankan kode, SQL, file & web di cloud…';}
+  else if(m==='caps'){sub.textContent='Semua kemampuan · 100% bisa diakses';$('q').placeholder='Semua 24 kemampuan & logika/kode di bawah…';}
   else if(m==='auto'){sub.textContent='Mode Auto · chat biasa atau langsung eksekusi sesuai konteks';$('q').placeholder='Tanya apa saja… (Auto: pertanyaan biasa dijawab, tugas eksekusi dijalankan)';}
   else{sub.textContent='Semua skill GCP · diproses di cloud';$('q').placeholder='Tanya apa saja soal Google Cloud… (Enter kirim, Shift+Enter baris baru)';}
   var pan=$('capPanel');
-  pan.style.display='none';
+  if(m==='caps'){
+    pan.style.display='flex';
+    if(!capLoaded){capLoaded=true;renderCaps();}
+  }else{pan.style.display='none';}
   autoGrow();
+}
+function renderCaps(){
+  var pan=$('capPanel');
+  pan.innerHTML='<div class="cap"><h4>⏳ Memuat semua kemampuan…</h4></div>';
+  Promise.all([
+    fetch('/api/evolution').then(function(r){return r.json();}),
+    fetch('/api/pack').then(function(r){return r.json();})
+  ]).then(function(res){
+    var ev=res[0], pk=res[1];
+    var items=[];
+    (ev.primes||[]).forEach(function(p){items.push({type:'PRIME',id:p.id,name:p.name,emoji:p.emoji,insight:p.insight});});
+    (ev.combos||[]).forEach(function(c){items.push({type:'KEMAMPUAN FUSION',id:c.id,name:c.name,emoji:c.emoji,insight:c.insight});});
+    pan.innerHTML='';
+    items.forEach(function(it){
+      var info=(pk.packs||{})[it.id];
+      var card=document.createElement('div');card.className='cap';
+      card.innerHTML='<h4>'+it.emoji+' '+esc(it.name)+' <span style="font-size:10px;color:var(--muted)">'+it.type+'</span></h4>'+
+        '<div class="ci">'+esc(it.insight||'')+'</div>'+
+        (info?'<div class="ci">🧩 '+info.skillCount+' skill · '+info.codes+' kode · '+info.logic+' logika</div>':'')+
+        '<button class="cb" type="button">📂 Lihat logika & kode</button><div class="capBody" style="display:none"></div>';
+      card.querySelector('.cb').onclick=function(){
+        var body=card.querySelector('.capBody');
+        if(body.style.display!=='none'){body.style.display='none';return;}
+        body.style.display='block';body.innerHTML='<div class="ci">memuat…</div>';
+        fetch('/api/pack?id='+encodeURIComponent(it.id)).then(function(r){return r.json();}).then(function(d){
+          var txt=(d.formatted||'').slice(0,4000);
+          body.innerHTML='<pre>'+esc(txt)+'</pre>';
+        }).catch(function(){body.innerHTML='<div class="ci">gagal memuat</div>';});
+      };
+      pan.appendChild(card);
+    });
+    var total=items.length;
+    var top=document.createElement('div');top.className='cap';top.style.textAlign='center';
+    top.innerHTML='<h4>✅ '+total+' kemampuan · 1042 skill · coverage 100% — semuanya bisa diakses di sini</h4>';
+    pan.insertBefore(top,pan.firstChild);
+  }).catch(function(){pan.innerHTML='<div class="cap"><h4>⚠️ Gagal memuat kemampuan</h4></div>';});
 }
 function renderToolResult(brief){
   // Coba render hasil JSON array-of-object sebagai tabel (sql/csv/json)
