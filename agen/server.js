@@ -229,7 +229,7 @@ async function getModelName() {
   if (_resolvedModel) return _resolvedModel;
   const want = (process.env.GEMINI_MODEL || "").trim();
   if (want) { _resolvedModel = want; return _resolvedModel; }
-  if (!KEY) { _resolvedModel = "gemini-2.5-flash"; return _resolvedModel; }
+  if (!KEY) { _resolvedModel = "gemini-3.6-flash"; return _resolvedModel; }
   try {
     const resp = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models?key=" + KEY + "&pageSize=200"
@@ -239,13 +239,18 @@ async function getModelName() {
       const models = (data.models || [])
         .filter(m => (m.supportedGenerationMethods || []).includes("generateContent"))
         .map(m => String(m.name || "").replace("models/", ""))
-        .filter(n => /flash/i.test(n));
-      const prefer = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+        .filter(n => /^gemini-[\d.]+-flash(-[a-z0-9]+)?$/i.test(n) && !/preview|tts|audio|vision|image|embedding/i.test(n));
+      models.sort((a, b) => {
+        const va = parseFloat((a.match(/[\d.]+/) || [])[0] || 0);
+        const vb = parseFloat((b.match(/[\d.]+/) || [])[0] || 0);
+        return vb - va || a.localeCompare(b);
+      });
+      const prefer = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.0-flash"];
       for (const p of prefer) { if (models.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
-      if (models.length) { _resolvedModel = models[models.length - 1]; return _resolvedModel; }
+      if (models.length) { _resolvedModel = models[0]; return _resolvedModel; }
     }
   } catch (_) {}
-  _resolvedModel = "gemini-2.5-flash";
+  _resolvedModel = "gemini-3.6-flash";
   return _resolvedModel;
 }
 
