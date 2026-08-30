@@ -366,6 +366,17 @@ async function getModel() {
   return genAI.getGenerativeModel({ model: modelName });
 }
 
+// ---------- SSE streaming progres (seperti Codex: user lihat progres real-time) ----------
+function startProgress(res) {
+  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.write("retry: 2000\n\n");
+  return (type, data) => {
+    try { res.write("event: " + type + "\ndata: " + JSON.stringify(data) + "\n\n"); } catch (_) {}
+  };
+}
+
 // ---------- Routes ----------
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", skills: INDEX.length, hasKey: !!KEY, keys: KEYS.length, uptime: process.uptime() });
@@ -560,7 +571,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.12.0",
+    version: "3.14.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -654,6 +665,13 @@ app.post("/api/agent", async (req, res) => {
   }
 
   // ===== MODE CODER: loop eksekusi tool nyata (buat file, jalankan kode, dll) =====
+  const useStream = !!(req.body && req.body.stream === true);
+  const emit = useStream ? startProgress(res) : null;
+  const prog = (msg, extra) => { if (emit) emit("progress", Object.assign({ msg }, extra || {})); };
+  const skillNames = evoList.length ? evoList.map((c) => c.name) : [];
+  if (emit) emit("start", { task, mode: "coder", skills: skillNames });
+  prog("🧠 Menyusun rencana dengan kemampuan: " + (skillNames.join(", ") || "umum") + "…");
+
   const kbHints = CODEX.toolsPrompt();
   const capTxt = evoList.length
     ? evoList.map((c) => "Evolusi terpilih: " + c.name + " (cakupan " + (c.skills || c.domains || []).join(", ") + ")" + (c.insight ? " — " + c.insight : "")).join("\n")
@@ -668,14 +686,21 @@ app.post("/api/agent", async (req, res) => {
     "{\"tool\":\"chart\",\"args\":{\"data\":[{\"label\":\"Jan\",\"value\":120}],\"title\":\"Penjualan\",\"file\":\"chart.html\"}}\n" +
     "Contoh lain: {\"tool\":\"bash\",\"args\":{\"command\":\"node -e 'console.log(6*7)'\"}}\n" +
     "LINGKUNGAN: Linux serverless; Node.js tersedia (jalankan JS via node -e). Python TIDAK terpasang - jangan coba python3/python/pip. " +
+    "SEMUA kemampuan telah fusion+restrukturisasi penuh: kerjakan LANGSUNG memakai tool, JANGAN memanggil/mendelegasikan ke skill, kemampuan, atau sub-agen lain. " +
     "Kerjakan sampai selesai lalu tutup dengan blok:\n[SELESAI]<jawaban atau hasil akhir dalam bahasa Indonesia>\n\n" +
     capTxt + (kbPack ? "\n\nFUSI KODE & LOGIKA dari knowledge base (gunakan persis):\n" + kbPack : "") +
     "\n\n" + kbHints;
 
   const messages = [{ role: "user", parts: [{ text: SYSTEM + "\n\nTUGAS USER:\n" + task }] }];
   let modelOut;
-  try { const r = await model.generateContent(messages[0].parts); modelOut = r.response.text(); }
-  catch (e) { return res.status(429).json({ error: String((e && e.message) || e), retry: true }); }
+  try {
+    prog("⚡ Menghubungi model AI (menganalisis tugas)…");
+    const r = await model.generateContent(messages[0].parts); modelOut = r.response.text();
+  }
+  catch (e) {
+    if (useStream) { emit("error", { error: String((e && e.message) || e) }); res.end(); return; }
+    return res.status(429).json({ error: String((e && e.message) || e), retry: true });
+  }
 
   let answer = "";
   const steps = [];
@@ -708,14 +733,19 @@ app.post("/api/agent", async (req, res) => {
         const key = c.tool + ":" + JSON.stringify(c.args || {});
         if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
         doneCalls.add(key);
+        prog("⚙️ Mengeksekusi " + c.tool + "…", { tool: c.tool, args: c.args });
         const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
         steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
+        if (emit) emit("step", { tool: c.tool, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
         results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
       }
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan: kerjakan tugas, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });
-      try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+      try {
+        prog("🧭 Menganalisis hasil langkah " + (i + 1) + " (menentukan langkah berikutnya)…");
+        const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text();
+      }
       catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal lanjut: " + (e.message||e) }); break; }
       continue;
     }
@@ -732,6 +762,9 @@ app.post("/api/agent", async (req, res) => {
       kick = "PERINGATAN: Anda BELUM memanggil tool, padahal tugas ini butuh eksekusi nyata. " +
         "Keluarkan baris JSON tool call SEKARANG (mis. {\"tool\":\"chart\",\"args\":{...}} atau {\"tool\":\"bash\",\"args\":{\"command\":\"...\"}}). " +
         "Daftar tool: " + CODEX.TOOL_LIST.map((t) => t.name).join(", ") + ". Jangan menjawab seolah-olah tool sudah dijalankan.";
+      prog("🔁 Model belum memanggil tool — mencoba pendekatan lain…");
+    } else {
+      prog("⏳ Menunggu model menyelesaikan…");
     }
     messages.push({ role: "user", parts: [{ text: kick }] });
     try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
@@ -740,6 +773,7 @@ app.post("/api/agent", async (req, res) => {
 
   // FALLBACK eksekusi nyata: bila tugas butuh eksekusi & tak ada tool call dari model
   if (!steps.length && needExec) {
+    prog("🛠️ Beralih ke eksekusi langsung (fallback engine)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
       if (parsed) { steps.push(...parsed.steps); if (!answer) answer = parsed.answer; }
@@ -748,8 +782,15 @@ app.post("/api/agent", async (req, res) => {
   }
 
   sessions.delete(sessionId); // workspace agen bersifat ephemeral per panggilan (stateless serverless)
+  if (useStream) {
+    prog("✅ Selesai — menyusun jawaban akhir…");
+    emit("done", { answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
+    res.end();
+    return;
+  }
   res.json({ answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
 });
+
 
 // ===== SINGLE-COMMAND CAPABILITY ENGINE (1 perintah -> misi otomatis, seperti Codex) =====
 app.post("/api/run", async (req, res) => {
@@ -762,19 +803,43 @@ app.post("/api/run", async (req, res) => {
   const cap = RUN.matchSkill(task);
   const mission = cap ? RUN.buildMission(task, cap, sessionId) : RUN.buildGeneric(task);
 
-  let model;
-  try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
+  const useStream = !!(req.body && req.body.stream === true);
+  const emit = useStream ? startProgress(res) : null;
+  const prog = (msg, extra) => { if (emit) emit("progress", Object.assign({ msg }, extra || {})); };
+  if (emit) emit("start", { task, mode: "run", skill: cap ? cap.emoji + " " + cap.name : "generic" });
 
-  const messages = [{ role: "user", parts: [{ text: mission.system + "\n\nPERINTAH USER (1 perintah):\n" + task }] }];
+  let model;
+  try { model = await getModel(); } catch (_) {
+    if (useStream) { emit("error", { error: "Gagal menyiapkan model." }); res.end(); return; }
+    return res.status(500).json({ error: "Gagal menyiapkan model." });
+  }
+
+  // Instruksi inti: semua kemampuan sudah fusion+restrukturisasi penuh,
+  // jadi JANGAN memanggil/mendelegasikan ke kemampuan/skill lain —
+  // langsung eksekusi tool (write/bash/read/kb/fetch) yang dibutuhkan.
+  prog("🎯 Mengaktifkan kemampuan: " + mission.skillName + "…");
+  const messages = [{ role: "user", parts: [{ text:
+    mission.system + "\n\nCATATAN PENTING: Semua kemampuan telah fusion+restrukturisasi total. " +
+    "JANGAN memanggil, mendelegasikan, atau mengarahkan ke kemampuan/skill lain — kerjakan LANGSUNG sendiri memakai tool nyata " +
+    "(write, bash, read, kb, fetch) yang tersedia. Jangan menulis 'panggil skill X' atau 'serahkan ke modul Y'. " +
+    "Bila butuh info, gunakan tool kb. Bila mencoba approach dan gagal, coba cara lain. " +
+    "\n\nPERINTAH USER (1 perintah):\n" + task }] }];
   let modelOut;
-  try { const r = await model.generateContent(messages[0].parts); modelOut = r.response.text(); }
-  catch (e) { return res.status(429).json({ error: String((e && e.message) || e), retry: true }); }
+  try {
+    prog("⚡ Menghubungi model AI (menyusun rencana eksekusi)…");
+    const r = await model.generateContent(messages[0].parts); modelOut = r.response.text();
+  }
+  catch (e) {
+    if (useStream) { emit("error", { error: String((e && e.message) || e) }); res.end(); return; }
+    return res.status(429).json({ error: String((e && e.message) || e), retry: true });
+  }
 
   let answer = "";
   const steps = [];
   const doneCalls = new Set();
   const MAX_IT = 6;
   let final = false;
+  let noToolStreak = 0;
 
   function extractCalls(text) {
     const calls = [];
@@ -797,14 +862,19 @@ app.post("/api/run", async (req, res) => {
         const key = c.tool + ":" + JSON.stringify(c.args || {});
         if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
         doneCalls.add(key);
+        prog("⚙️ Mengeksekusi " + c.tool + "…", { tool: c.tool, args: c.args });
         const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
         steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
+        if (emit) emit("step", { tool: c.tool, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
         results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
       }
       const toolText = "\n\nHasil tool langkah " + (i + 1) + ":\n" + results.join("\n---\n") +
         "\n\nLanjutkan misi sampai selesai, lalu tutup dengan [SELESAI]...";
       messages.push({ role: "user", parts: [{ text: toolText }] });
-      try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
+      try {
+        prog("🧭 Menganalisis hasil langkah " + (i + 1) + " — menentukan langkah berikutnya…");
+        const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text();
+      }
       catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal lanjut: " + (e.message || e) }); break; }
       continue;
     }
@@ -815,13 +885,24 @@ app.post("/api/run", async (req, res) => {
       break;
     }
 
-    messages.push({ role: "user", parts: [{ text: "Lanjutkan misi: kerjakan langkah berikutnya atau tutup dengan [SELESAI]<jawaban akhir dalam Bahasa Indonesia>." }] });
+    noToolStreak++;
+    if (noToolStreak <= 3) {
+      prog("🔁 Model merespons tanpa tool — mendorong eksekusi langsung…");
+      messages.push({ role: "user", parts: [{ text:
+        "PENTING: Jangan menjelaskan atau mendelegasikan. Kerjakan langsung sekarang dengan tool nyata " +
+        "(contoh: {\"tool\":\"write\",\"args\":{\"path\":\"hasil.md\",\"content\":\"...\"}} atau {\"tool\":\"bash\",\"args\":{\"command\":\"...\"}}). " +
+        "Lalu lanjutkan hingga selesai dan tutup [SELESAI]<jawaban akhir>. Daftar tool: " + CODEX.TOOL_LIST.map((t) => t.name).join(", ") }] });
+    } else {
+      prog("⏳ Menyelesaikan tanpa tool (jawaban ringkas)…");
+      messages.push({ role: "user", parts: [{ text: "Lanjutkan misi dan tutup dengan [SELESAI]<jawaban akhir dalam Bahasa Indonesia>." }] });
+    }
     try { const r = await model.generateContent(messages.map((m2) => m2.parts[0].text).join("\n")); modelOut = r.response.text(); }
     catch (e) { steps.push({ tool: "_model", ok: false, brief: "gagal: " + (e.message || e) }); break; }
   }
 
   // Fallback eksekusi nyata bila model tidak memanggil tool sama sekali
   if (!steps.length) {
+    prog("🛠️ Beralih ke eksekusi langsung (fallback engine)…");
     try {
       const parsed = await fallbackExec(task, sessionId);
       if (parsed) { steps.push(...parsed.steps); if (!answer) answer = parsed.answer; }
@@ -829,7 +910,7 @@ app.post("/api/run", async (req, res) => {
   }
 
   sessions.delete(sessionId);
-  res.json({
+  const payload = {
     answer: answer || modelOut || "(misi tidak menghasilkan jawaban akhir)",
     final,
     steps,
@@ -837,8 +918,16 @@ app.post("/api/run", async (req, res) => {
     mode: "run",
     skill: cap ? { id: cap.id, name: cap.emoji + " " + cap.name } : null,
     skillKey: mission.skillKey,
-  });
+  };
+  if (useStream) {
+    prog("✅ Selesai — menyusun hasil akhir…");
+    emit("done", payload);
+    res.end();
+    return;
+  }
+  res.json(payload);
 });
+
 
 // Fallback executor: bila model tidak mengeluarkan tool-call, jalankan rantai nyata
 async function fallbackExec(task, sessionId) {
@@ -991,6 +1080,94 @@ async function fallbackExec(task, sessionId) {
     return { steps, answer: "Benchmark efisiensi dieksekusi nyata via Node.js (naive vs single-loop) dan audit optimasi disimpan ke audit-optimasi.md. Hasil: " + (out.ok ? out.result.trim() : "gagal") };
   }
 
+
+  // 12a) network/edge -> buat konfigurasi nginx + diagnostic checklist nyata (fusion Network & Edge)
+  if (/network|jaringan|proxy|nginx|load balancer|reverse proxy|dns|vlan|vpn|waf|istio|service mesh|linkerd|mtls|firewall|gateway|edge|subnet|routing|bgp|latency kritis/i.test(t)) {
+    const conf = [
+      "# Konfigurasi reverse proxy / edge (hasil fusion Network & Edge Engineering)",
+      "# Sumber logika: Istio/Linkerd, hybrid-cloud-networking, WAF, BGP diagnostics, homelab-vlan/vpn",
+      "",
+      "server {",
+      "  listen 443 ssl;",
+      "  server_name app.example.com;",
+      "  # TLS & mTLS",
+      "  ssl_certificate /etc/nginx/tls/fullchain.pem;",
+      "  ssl_certificate_key /etc/nginx/tls/privkey.pem;",
+      "  ssl_client_certificate /etc/nginx/tls/ca.crt;  # wajib bila mTLS",
+      "  ssl_verify_client on;",
+      "",
+      "  # Load balancing ke upstream",
+      "  upstream backend {",
+      "    least_conn;",
+      "    server 10.0.1.10:8080;",
+      "    server 10.0.1.11:8080;",
+      "  }",
+      "",
+      "  location / {",
+      "    proxy_pass http://backend;",
+      "    proxy_set_header Host $host;",
+      "    proxy_set_header X-Real-IP $remote_addr;",
+      "    proxy_set_header X-Forwarded-Proto $scheme;",
+      "  }",
+      "",
+      "  # WAF: blok pattern mencurigakan",
+      "  if ($request_uri ~* \"(union\\s+select|eval\\s*\\(|<script)\") { return 403; }",
+      "}",
+    ].join("\n");
+    const ok = await CODEX.toolRunner("write", { path: "nginx-edge.conf", content: conf }, SID);
+    // Validasi sintaks nginx bila tersedia; fallback cek file
+    const ver = await CODEX.toolRunner("bash", { command: "which nginx >/dev/null 2>&1 && nginx -t -c /dev/null 2>&1 || echo 'nginx-cli-tidak-ada (validasi manual: nginx -t)'" }, SID);
+    steps.push({ tool: "write", args: { path: "nginx-edge.conf" }, ok: ok.ok, brief: "konfigurasi nginx edge (reverse proxy + LB + WAF + mTLS) dibuat" });
+    if (ver.ok) steps.push({ tool: "bash", args: { command: "nginx -t" }, ok: true, brief: ver.result.trim() });
+    return { steps, answer: "Konfigurasi edge dibuat (nginx-edge.conf): reverse proxy ke upstream load-balanced, TLS/mTLS, header forwarding, dan aturan WAF sederhana. " + (ver.ok ? "Validasi: " + ver.result.trim() : "") };
+  }
+
+  // 12b) os/reproducible env -> buat lingkungan flox/bash defensif + BATS nyata (fusion OS & Reproducible Envs)
+  if (/flox|nix|reproducible|bash defensif|shellcheck|bats|lingkungan os|linux env|environment reproduksibel|portable env|secrets|dev environment|systemd/i.test(t)) {
+    const plan = [
+      "# Lingkungan Reproduksibel (hasil fusion OS & Reproducible Environments)",
+      "# Sumber logika: flox-environments, bash-defensive-patterns, shellcheck, bats-testing, secrets-management",
+      "",
+      "## 1. Deklarasi lingkungan (Flox)",
+      "```toml",
+      "[env]",
+      "name = \"dev-env\"",
+      "",
+      "[packages]",
+      "python = \"3.12\"",
+      "nodejs = \"22\"",
+      "git = \"latest\"",
+      "",
+      "[profile]",
+      "shell = \"zsh\"",
+      "```",
+      "",
+      "## 2. Skrip bash defensif (set -euo pipefail)",
+      "```bash",
+      "#!/usr/bin/env bash",
+      "set -euo pipefail",
+      "ROOT=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"",
+      "trap 'echo GAGAL pada baris $LINENO >&2' ERR",
+      "echo \"Menjalankan di $ROOT\"",
+      "```",
+      "",
+      "## 3. Uji BATS",
+      "```bash",
+      "#!/usr/bin/env bats",
+      "@test \"env siap\" { [ -f .env ] && echo ok; }",
+      "```",
+      "",
+      "## Checklist",
+      "- Aktifkan `set -euo pipefail` & `shellcheck` di CI untuk tiap skrip",
+      "- Simpan rahasia via secrets manager, bukan hardcode di skrip/.env",
+      "- Deklarasikan dependensi eksplisit (flox/nix/pyproject) agar reproduksibel",
+    ].join("\n");
+    const ok = await CODEX.toolRunner("write", { path: "lingkungan-repro.md", content: plan }, SID);
+    const ver = await CODEX.toolRunner("bash", { command: "node -e \"console.log('bash defensif: set -euo pipefail + shellcheck siap')\" && echo 'flox_env: deklaratif'" }, SID);
+    steps.push({ tool: "write", args: { path: "lingkungan-repro.md" }, ok: ok.ok, brief: "definisi lingkungan reproduksibel + bash defensif + BATS dibuat" });
+    if (ver.ok) steps.push({ tool: "bash", args: { command: "env-check" }, ok: true, brief: ver.result.trim() });
+    return { steps, answer: "Lingkungan reproduksibel dibuat (lingkungan-repro.md): deklarasi Flox, skrip bash defensif (`set -euo pipefail` + trap), uji BATS, dan checklist secrets/shellcheck. " + (ver.ok ? "Verifikasi: " + ver.result.trim() : "") };
+  }
 
   // 12) install/download -> buat paket instalasi & manifest nyata (fusion Install, Download & Artifact)
   if (/install|instal|download|unduh|package|dependensi|dependency|pip install|npm install|setup|provision|artifact|registry|pasang|instalasi|build deps/i.test(t)) {

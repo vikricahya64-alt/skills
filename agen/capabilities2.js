@@ -317,9 +317,25 @@ const COMBOS = [
     id: "combo-install-download",
     name: "Install, Download & Artifact Distribution",
     emoji: "📦",
-    keywords: ["install", "download", "package", "pip", "npm", "helm", "docker", "build", "provision", "bootstrap", "artifact", "release", "brew", "cargo", "scoop", "winget", "apt", "registry", "installer", "unduh", "instalasi", "dependensi", "dependency", "setup", "deploy", "gcloud", "gke", "cluster"],
+    keywords: ["install", "download", "package", "pip", "npm", "helm", "docker", "build", "provision", "bootstrap", "artifact", "release", "brew", "cargo", "scoop", "winget", "apt", "registry", "installer", "unduh", "instalasi", "dependensi", "dependency", "gcloud", "artifact registry"],
     skills: ["uv-package-manager", "generating-python-installer", "managing-python-dependencies", "docker-patterns", "helm-chart-scaffolding", "terraform-module-library", "cloud-build-basics", "gcp-pipeline-resource-provisioning"],
     insight: "Fusi total distribusi & instalasi: dari package manager (pip/npm/cargo/brew), containerization (Docker/Helm), infrastructure-as-code (Terraform/GKE), hingga CI/CD artifact pipeline — satu kemampuan terpadu untuk mengunduh, menginstal, membangun, dan mendistribusikan artefak apa pun di lingkungan apa pun.",
+  },
+  {
+    id: "combo-network-edge",
+    name: "Network & Edge Engineering",
+    emoji: "🌐",
+    keywords: ["network", "proxy", "nginx", "load balancer", "dns", "cdn", "bgp", "vlan", "vpn", "firewall", "waf", "service mesh", "istio", "linkerd", "mtls", "observability", "latency", "routing", "gateway", "edge", "vpc", "subnet", "traffic", "reverse proxy", "ssh", "netmiko", "protocol"],
+    skills: ["network-bgp-diagnostics", "network-config-validation", "network-interface-health", "gke-networking", "gke-service-networking", "google-cloud-global-frontend-configuration", "google-cloud-networking-observability", "google-cloud-waf-security", "homelab-network-readiness", "homelab-network-setup", "homelab-pihole-dns", "homelab-vlan-segmentation", "homelab-wireguard-vpn", "latency-critical-systems", "netmiko-ssh-automation", "hybrid-cloud-networking", "istio-traffic-management", "linkerd-patterns", "mtls-configuration", "Network Engineer", "protocol-reverse-engineering", "docker-patterns"],
+    insight: "Rekayasa jaringan end-to-end: dari konfigurasi BGP/VLAN/Firewall/WAF hingga service mesh (Istio/Linkerd), mTLS, DNS caching (Pi-hole), observability latency kritis, dan SSH automation — satu kemampuan terpadu untuk membangun, mengamankan, dan mengobservasi jaringan apa pun, edge maupun cloud.",
+  },
+  {
+    id: "combo-os-environment",
+    name: "OS & Reproducible Environments",
+    emoji: "🐧",
+    keywords: ["linux", "ubuntu", "flox", "nix", "bash", "shell", "shellcheck", "defensif", "defensive", "systemd", "terminal", "env", "reproducible", "dev environment", "container runtime", "ssh", "secrets", "config", "deploy env", "sandbox", "portable", "dotfile"],
+    skills: ["flox-environments", "bash-defensive-patterns", "shellcheck-configuration", "bats-testing-patterns", "netmiko-ssh-automation", "autonomous-agent-harness", "python-configuration", "secrets-management", "docker-patterns", "spark-environment-setup", "uv-package-manager", "managing-python-dependencies", "deployment-pipeline-design"],
+    insight: "Lingkungan kerja yang portabel, aman, dan reproduksibel: manajemen env deklaratif (Flox/Nix), bash defensif produksi, shellcheck, BATS, secrets management, dan provisioning agen — satu kemampuan untuk menjalankan apa pun secara konsisten di lingkungan apa pun.",
   },
 ]
 

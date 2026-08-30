@@ -29,6 +29,9 @@ header .sub{font-size:11px;color:var(--muted)}
 .step{font-size:12.5px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;margin:4px 0;word-break:break-word}
 .step .tl{font-weight:600;color:var(--accent)}
 .step.ok{border-color:#14532d;background:rgba(16,185,129,.08)}
+.step .progText{color:var(--accent);font-size:12px;font-style:italic}
+.progDots{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;animation:progPulse 1s ease-in-out infinite}
+@keyframes progPulse{0%,100%{opacity:.3}50%{opacity:1}}
 .step.err{border-color:#7f1d1d;background:rgba(251,113,133,.08)}
 .step .out{font-family:ui-monospace,monospace;background:#0b1626;padding:4px 6px;border-radius:6px;margin-top:4px;font-size:11.5px;white-space:pre-wrap}
 #status.on{color:var(--ok)}#status.off{color:var(--err)}
@@ -456,40 +459,110 @@ function addActionBtns(bub,lastQ){
   });
   bub.appendChild(bar);
 }
-function sendRun(q){
-  if(busy)return;
-  q=String(q||'').trim();
-  if(!q)return;
-  $('q').value='';autoGrow();
-  addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi kemampuan&hellip;');
-  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
-  var holder=$('chatWrap');
-  holder.appendChild(box);
-  $('chat').scrollTop=$('chat').scrollHeight;
-  fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID}),signal:abortCtrl.signal})
-    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
-    .then(function(res){
-      t.remove();
-      if(res.d.error)throw new Error(res.d.error);
-      if(res.d.skill){var st=document.createElement('div');st.className='step ok';st.innerHTML='<span class="tl">KEMAMPUAN</span> '+esc(res.d.skill.name);box.appendChild(st);}
-      (res.d.steps||[]).forEach(function(st,i){
-        var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
-        var tbl=renderToolResult(st.brief||'');
-        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
-        box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
-      });
-      lastAnswerText=res.d.answer||'';
+function parseSSE(buf){
+  // Parse blok SSE menjadi array {event,data}
+  var out=[];
+  var cur=null;
+  var lines=buf.split("\n");
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i];
+    if(line==="" && cur){ out.push(cur); cur=null; continue; }
+    if(line.startsWith("event:")){ if(!cur)cur={event:line.slice(6).trim(),data:[]}; else cur.event=line.slice(6).trim(); }
+    else if(line.startsWith("data:")){ var d=line.slice(5).trim(); if(!cur){cur={event:"message",data:[]};} cur.data.push(d); }
+  }
+  if(cur) out.push(cur);
+  return out.map(function(e){ var txt=e.data.join("\n"); try{return {event:e.event,data:JSON.parse(txt)};}catch(_){return {event:e.event,data:txt};} });
+}
+function streamRun(url, q, box, title, finishMeta, t){
+  return new Promise(function(resolvePromise, rejectPromise){
+    var statusEl=document.createElement('div');
+    statusEl.className='step ok';
+    statusEl.innerHTML='<span class="tl">'+title+'</span> <span class="progText">memulai…</span>';
+    box.appendChild(statusEl);
+    $('chat').scrollTop=$('chat').scrollHeight;
+    var seenSteps=0;
+    var finished=false;
+    function finishOk(d){
+      if(finished)return; finished=true;
+      if(t)t.remove();
+      if(statusEl&&statusEl.parentNode)statusEl.parentNode.removeChild(statusEl);
+      if(finishMeta&&d&&d.skill){
+        var st2=document.createElement('div');st2.className='step ok';st2.innerHTML='<span class="tl">KEMAMPUAN</span> '+esc(d.skill.name);box.appendChild(st2);
+      }
+      lastAnswerText=(d&&d.answer)||'';
       var ans=document.createElement('div');ans.style.marginTop='8px';
       ans.innerHTML=md(lastAnswerText||'(tidak ada hasil akhir)');
       box.appendChild(ans);
       addActionBtns(box, lastAnswerText);
       $('chat').scrollTop=$('chat').scrollHeight;
       setStatus('selesai');
-    })
+      resolvePromise(d||{});
+    }
+    function finishErr(err){
+      if(finished)return; finished=true;
+      if(t)t.remove();
+      if(statusEl&&statusEl.parentNode)statusEl.parentNode.removeChild(statusEl);
+      setStatus('error','off');
+      rejectPromise(err||new Error('stream error'));
+    }
+    function handleEvent(ev){
+      if(ev.event==='start'){ statusEl.querySelector('.progText').textContent='mengaktifkan…'; return; }
+      if(ev.event==='progress'){
+        if(ev.data&&ev.data.msg)statusEl.querySelector('.progText').textContent=ev.data.msg;
+        $('chat').scrollTop=$('chat').scrollHeight; return;
+      }
+      if(ev.event==='step'){
+        var st=ev.data;
+        var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
+        var tbl=renderToolResult(st.brief||'');
+        e.innerHTML='<span class="tl">#'+(seenSteps+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
+        box.appendChild(e);seenSteps++;
+        statusEl.querySelector('.progText').textContent=st.ok?('tool '+st.tool+' selesai') : ('tool '+st.tool+' gagal, coba lain…');
+        $('chat').scrollTop=$('chat').scrollHeight; return;
+      }
+      if(ev.event==='error'){ finishErr(new Error(ev.data&&ev.data.error||'stream error')); return; }
+      if(ev.event==='done'){ finishOk(ev.data); return; }
+    }
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({task:q,sessionId:SID,stream:true}),signal:abortCtrl.signal})
+      .then(function(r){
+        if(!r.ok||!r.body){
+          return r.json().then(function(d){ finishErr(new Error(d&&d.error||'server error')); }, function(){ finishErr(new Error('server error')); });
+        }
+        var reader=r.body.getReader();
+        var dec=new TextDecoder();
+        var buf="";
+        function pump(){
+          return reader.read().then(function(res){
+            if(res.done){ if(!finished)finishErr(new Error('stream berakhir tanpa hasil')); return; }
+            buf+=dec.decode(res.value,{stream:true});
+            var idx;
+            while((idx=buf.indexOf("\n\n"))!==-1){
+              var chunk=buf.slice(0,idx); buf=buf.slice(idx+2);
+              var evs=parseSSE(chunk);
+              evs.forEach(handleEvent);
+            }
+            return pump();
+          }).catch(function(err){ finishErr(err); });
+        }
+        return pump();
+      })
+      .catch(function(err){ finishErr(err); });
+  });
+}
+function sendRun(q){
+  if(busy)return;
+  q=String(q||'').trim();
+  if(!q)return;
+  $('q').value='';autoGrow();
+  addMsg('user',esc(q));
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('🎯 menjalankan misi&hellip;');
+  var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>🎯 Misi kemampuan:</strong>';
+  $('chatWrap').appendChild(box);
+  streamRun('/api/run',q,box,'▶ misi',true,t)
     .catch(function(err){
       t.remove();
-      addMsg('bot','⚠️ <strong>Error:</strong> '+esc(err.message||'server error'));
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc((err&&err.message)||'server error'));
       showBanner('Single-command error. Coba lagi.');
       setStatus('error','off');
     })
@@ -501,33 +574,13 @@ function sendAgent(){
   if(!q)return;
   $('q').value='';autoGrow();
   addMsg('user',esc(q));
-  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('agen mengeksekusi&hellip;');
+  var t=typing();busy=true;$('sendBtn').disabled=true;showPause();setStatus('⚡ mengeksekusi&hellip;');
   var box=document.createElement('div');box.className='bub';box.innerHTML='<strong>⚡ Langkah agen:</strong>';
-  var holder=$('chatWrap');
-  holder.appendChild(box);
-  $('chat').scrollTop=$('chat').scrollHeight;
-  fetch('/api/agent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:q,sessionId:SID}),signal:abortCtrl.signal})
-    .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
-    .then(function(res){
-      t.remove();
-      if(res.d.error)throw new Error(res.d.error);
-      (res.d.steps||[]).forEach(function(st,i){
-        var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
-        var tbl=renderToolResult(st.brief||'');
-        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
-        box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
-      });
-      lastAnswerText=res.d.answer||'';
-      var ans=document.createElement('div');ans.style.marginTop='8px';
-      ans.innerHTML=md(lastAnswerText||'(tidak ada jawaban akhir)');
-      box.appendChild(ans);
-      addActionBtns(box, lastAnswerText);
-      $('chat').scrollTop=$('chat').scrollHeight;
-      setStatus('selesai');
-    })
+  $('chatWrap').appendChild(box);
+  streamRun('/api/agent',q,box,'⚙ eksekusi',false,t)
     .catch(function(err){
       t.remove();
-      addMsg('bot','⚠️ <strong>Error:</strong> '+esc(err.message||'server error'));
+      addMsg('bot','⚠️ <strong>Error:</strong> '+esc((err&&err.message)||'server error'));
       showBanner('Mode Coder error. Coba lagi.');
       setStatus('error','off');
     })

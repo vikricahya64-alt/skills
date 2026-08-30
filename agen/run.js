@@ -17,6 +17,8 @@ const COMBO_COMMANDS = {
   "combo-runtime-performance": ["Optimasi performa runtime Next.js", "Percepat bundle dan startup app"],
   "combo-research-ai-pipeline": ["Susun MLE pipeline riset ke produksi", "Rancang eksperimen dan benchmark model"],
   "combo-install-download": ["Instal uv dan setup project Python modern", "Download & pasang dependensi proyek sesuai best practice"],
+  "combo-network-edge": ["Rancang reverse proxy nginx dengan load balancer", "Konfigurasi service mesh Istio untuk edge GKE"],
+  "combo-os-environment": ["Buat lingkungan dev reproduksibel dengan flox", "Susun bash script defensif + shellcheck untuk production"],
 };
 
 // ---------- Amankan identitas kemampuan dari perintah ----------
@@ -26,7 +28,7 @@ function matchSkill(q) {
   const isCombo = (it) => (it.id || "").startsWith("combo-");
 
   // 1) Perintah instal/unduh yang jelas -> langsung ke kemampuan Install & Artifact
-  const installHit = /(install|instal|unduh|download|pasang|instalasi|package|dependensi|dependency|setup|helm install|docker pull|\bpip\b|\bnpm\b|\bcargo\b|\bbrew\b|\bgo get\b|\bapt\b|\bwinget\b)/i.test(w);
+  const installHit = /(install|instal|unduh|download|pasang|instalasi|package|dependensi|dependency|helm install|docker pull|\bpip\b|\bnpm\b|\bcargo\b|\bbrew\b|\bgo get\b|\bapt\b|\bwinget\b)/i.test(w);
   if (installHit) {
     const installCap = pool.find((it) => it.id === "combo-install-download");
     if (installCap) return installCap;
@@ -52,6 +54,8 @@ function matchSkill(q) {
     { starts: ["runtime", "bun", "nextjs", "performansi"], combo: "combo-runtime-performance" },
     { starts: ["mle", "riset ke ai", "pipeline riset", "eksperimen model"], combo: "combo-research-ai-pipeline" },
     { starts: ["install", "instal", "unduh", "download", "package", "pasang", "setup", "dependensi", "dependency"], combo: "combo-install-download" },
+    { starts: ["network", "jaringan", "proxy", "nginx", "load balancer", "dns", "vlan", "vpn", "waf", "istio", "linkerd", "service mesh", "firewall"], combo: "combo-network-edge" },
+    { starts: ["flox", "nix", "environment reproduksibel", "reproducible env", "bash defensif", "shellcheck", "bats", "lingkungan os", "linux environment"], combo: "combo-os-environment" },
   ];
   for (const s of spec) {
     for (const k of s.starts) if (w.includes(k)) {
@@ -163,6 +167,24 @@ const MISSIONS = {
       "Jalankan instalasi/unduh via tool bash bila lingkungan mendukung.",
       "Verifikasi hasil instalasi (version check, build, dry-run).",
       "Tutup dengan [SELESAI] + langkah konkret yang bisa dijalankan user.",
+    ],
+  },
+  "combo-network-edge": {
+    goal: "Rancang & kelola jaringan/edge (proxy, load balancer, DNS, VLAN/VPN, WAF, service mesh, mTLS) sesuai permintaan user.",
+    steps: [
+      "Identifikasi topologi & kebutuhan jaringan (publik/edge/internal, latency, keamanan).",
+      "Tulis file konfigurasi (nginx.conf, istio/linkerd, network YAML, dll) di workspace.",
+      "Jalankan verifikasi/validasi via tool bash bila memungkinkan (nginx -t, kubectl, dsb).",
+      "Tutup dengan [SELESAI] + langkah konkret & checklist observability.",
+    ],
+  },
+  "combo-os-environment": {
+    goal: "Siapkan lingkungan OS/reproducible yang aman (Flox/Nix, bash defensif, shellcheck, BATS, secrets) untuk kebutuhan user.",
+    steps: [
+      "Tentukan lingkungan target (dev/prod, Python/Node/container).",
+      "Tulis file env (flox/plan, .env, skrip bash, tests BATS) di workspace.",
+      "Jalankan verifikasi via tool bash bila memungkinkan.",
+      "Tutup dengan [SELESAI] + langkah reproduksi yang konsisten.",
     ],
   },
 };

@@ -33,6 +33,8 @@ const DOMAINS = [
   { d: "project", kw: ["project manager", "sprint", "delivery", "roadmap", "stakeholder", "agile", "jira", "milestone", "prioritiz", "gis", "bim", "cartograph", "mapping", "drone", "geospasial", "geospatial", "survey", "pemetaan"] },
   { d: "hr", kw: ["hr", "recruit", "rekrutmen", "hiring", "candidate", "kandidat", "interview", "wawancara", "onboard", "talent", "karyawan", "resume", "cv", "employee"] },
   { d: "install", kw: ["install", "download", "package", "pip", "npm", "cargo", "brew", "helm", "docker", "build", "provision", "bootstrap", "artifact", "registry", "installer", "dependensi", "dependency", "setup", "unduh", "instalasi", "gcloud", "gke", "cluster"] },
+  { d: "network", kw: ["network", "proxy", "nginx", "dns", "cdn", "bgp", "vlan", "vpn", "firewall", "waf", "istio", "linkerd", "mtls", "latency", "routing", "gateway", "edge", "vpc", "subnet", "traffic", "netmiko", "protocol", "load balanc"] },
+  { d: "osenv", kw: ["flox", "nix", "bash", "shellcheck", "bats", "terminal", "env", "reproducible", "linux", "ubuntu", "systemd", "portable", "managing-python-dependencies", "python-configuration", "secrets-management", "autonomous-agent"] },
 ];
 
 // Kata kunci luas => domain utama untuk setiap skill.
@@ -140,6 +142,8 @@ function attachSkills(tax, items) {
     fintech: "combo-payment-fintech",
     hr: "combo-hr-recruitment",
     install: "combo-install-download",
+    network: "combo-network-edge",
+    osenv: "combo-os-environment",
     efficiency: "combo-token-efficiency",
     performance: "combo-token-efficiency",
     game: "combo-game-xr",
