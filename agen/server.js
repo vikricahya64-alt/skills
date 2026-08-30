@@ -122,6 +122,28 @@ let INDEX = [];
 try { INDEX = loadSkills(); } catch (_) { INDEX = []; }
 console.log("Skill dimuat: " + INDEX.length + " dari " + SKILLS_DIR);
 
+// Pack fusion per kemampuan (kode+logika semua skill dalam cakupan)
+let PACKS = null;
+function loadPacks() {
+  if (PACKS) return PACKS;
+  try { PACKS = FUSION.getPacks(); } catch (_) {}
+  if (!PACKS) { PACKS = {}; }
+  return PACKS;
+}
+function ensurePacks() {
+  let packs = loadPacks();
+  if (Object.keys(packs).length) return packs;
+  try {
+    const items = EVO.PRIMES.concat(EVO.COMBOS);
+    const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), items);
+    packs = FUSION.buildPacks(enrich, INDEX);
+    FUSION.savePacks(packs);
+    PACKS = packs;
+  } catch (_) {}
+  return packs;
+}
+try { ensurePacks(); } catch (_) {}
+
 // ---------- Tokenizer & pemilihan skill ----------
 const STOP = new Set(["apa","itu","ini","dan","atau","di","ke","dari","pada","yang","dengan","untuk","bagaimana","cara","buat","membuat","adalah","tolong","the","a","an","of","to","in","on","for","how","what","is","with","and","please","using","use"]);
 function tokens(str) {
@@ -212,6 +234,14 @@ function buildPrompt(q, sess, top, evo) {
     }
   }
   if (evoBlock.length) parts.push("Evolusi kemampuan yang relevan:\n" + evoBlock.join("\n"));
+  // FUSI LOGIKA+KODE per kemampuan terpilih
+  const packs = loadPacks();
+  const packParts = [];
+  for (const it of [].concat(evo && evo.primes ? evo.primes : [], evo && evo.combos ? evo.combos : [])) {
+    const pk = packs[it.id];
+    if (pk) { const f = FUSION.formatPack(pk, 1500); if (f) packParts.push("### " + pk.name + "\n" + f); }
+  }
+  if (packParts.length) parts.push("FUSI LOGIKA & KODE PER KEMAMPUAN (dari semua skill terkait):\n" + packParts.join("\n\n"));
 
   if (top.length) {
     const skillsBlock = top.map((s) => KB.formatCard(s, 1500)).join("\n\n");
@@ -325,7 +355,23 @@ app.get("/api/evolution", (req, res) => {
   });
 });
 
+app.get("/api/pack", (req, res) => {
+  const id = String((req.query && req.query.id) || "");
+  const packs = ensurePacks();
+  if (id) {
+    const pk = packs[id];
+    if (!pk) return res.status(404).json({ error: "Paket tidak ditemukan: " + id, available: Object.keys(packs) });
+    res.json({ id, ...pk, formatted: FUSION.formatPack(pk, 4000) });
+    return;
+  }
+  res.json({
+    total: Object.keys(packs).length,
+    packs: Object.fromEntries(Object.entries(packs).map(([k, v]) => [k, { name: v.name, emoji: v.emoji, skillCount: v.skillCount, codes: v.codes.length, logic: v.logic.length }])),
+  });
+});
+
 app.get("/api/fusion", (req, res) => {
+  if (_fusionCache) return res.json(_fusionCache);
   try {
     const cards = KB.loadCards();
     const tax = FUSION.buildTaxonomy(cards);
@@ -444,7 +490,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.2.0",
+    version: "3.3.0",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,

@@ -251,6 +251,24 @@ function setMode(m){
   else{sub.textContent='Semua skill GCP · diproses di cloud';$('q').placeholder='Tanya apa saja soal Google Cloud… (Enter kirim, Shift+Enter baris baru)';}
   autoGrow();
 }
+function renderToolResult(brief){
+  // Coba render hasil JSON array-of-object sebagai tabel (sql/csv/json)
+  var raw=(brief||'').trim();
+  var data=null;
+  try{data=JSON.parse(raw);}catch(_){}
+  if(!data||!Array.isArray(data)||data.length===0)return null;
+  var arr=data.slice(0,50);
+  if(typeof arr[0]!=='object'||arr[0]===null||Array.isArray(arr[0]))return null;
+  var cols=[];
+  arr.forEach(function(r){Object.keys(r).forEach(function(k){if(cols.indexOf(k)<0)cols.push(k);});});
+  cols=cols.slice(0,8);
+  var h='<table style="border-collapse:collapse;width:100%;font-size:12px;margin:6px 0"><thead><tr>';
+  cols.forEach(function(c){h+='<th style="border:1px solid var(--line);padding:4px 6px;background:var(--panel2);text-align:left">'+esc(c)+'</th>';});
+  h+='</tr></thead><tbody>';
+  arr.forEach(function(r){h+='<tr>';cols.forEach(function(c){h+='<td style="border:1px solid var(--line);padding:4px 6px">'+esc(r[c])+'</td>';});h+='</tr>';});
+  h+='</tbody></table>';
+  return h;
+}
 function sendAgent(){
   if(busy)return;
   var q=$('q').value.trim();
@@ -269,7 +287,8 @@ function sendAgent(){
       if(res.d.error)throw new Error(res.d.error);
       (res.d.steps||[]).forEach(function(st,i){
         var e=document.createElement('div');e.className='step '+(st.ok?'ok':'err');
-        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>';
+        var tbl=renderToolResult(st.brief||'');
+        e.innerHTML='<span class="tl">#'+(i+1)+' '+esc(st.tool)+'</span> '+(st.ok?'✓':'✕')+(tbl?tbl:'<div class="out">'+esc((st.brief||st.error||'').slice(0,500))+'</div>');
         box.appendChild(e);$('chat').scrollTop=$('chat').scrollHeight;
       });
       var ans=document.createElement('div');ans.style.marginTop='8px';

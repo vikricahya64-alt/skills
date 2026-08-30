@@ -115,12 +115,36 @@ async function toolRunner(tool, args, sessionId) {
           result: picks.map((c) => KB.formatCard(c, 900)).join("\n\n") || "(tidak ada skill cocok)",
         };
       }
+      case "json": {
+        const p = safeJoin(dir, args.path);
+        if (!fs.existsSync(p)) return { ok: false, error: "File tidak ada: " + args.path };
+        const raw = fs.readFileSync(p, "utf8");
+        try {
+          const parsed = JSON.parse(raw);
+          const expr = args.expr || "data";
+          const fn = new Function("data", "return (" + expr + ");");
+          const result = fn(parsed);
+          return { ok: true, result: JSON.stringify(result).slice(0, 18000) };
+        } catch (e) {
+          return { ok: false, error: String((e && e.message) || e).slice(0, 400) };
+        }
+      }
+      case "csv": {
+        const p = safeJoin(dir, args.path);
+        if (!fs.existsSync(p)) return { ok: false, error: "File tidak ada: " + args.path };
+        const raw = fs.readFileSync(p, "utf8");
+        const lines = raw.split(/\r?\n/).filter((l) => l.trim() !== "");
+        const headers = (lines[0] || "").split(/[,;\t]/);
+        const rows = lines.slice(1).map((l) => l.split(/[,;\t]/));
+        return { ok: true, result: JSON.stringify({ headers, rows: rows.slice(0, 200) }).slice(0, 18000) };
+      }
       case "sql": {
         const db = sqlDb(dir);
         if (!db) return { ok: false, error: "Runtime tidak mendukung node:sqlite (butuh Node 22+)." };
         try {
           const init = String(args.init || "");
           if (init.trim()) db.exec(init);
+          if (args.mode === "table") { return { ok: true, result: "SQL executed (mode table)" }; }
           const sql = String(args.sql || "");
           if (!sql.trim()) return { ok: false, error: "SQL kosong" };
           const stmt = db.prepare(sql);
@@ -149,7 +173,9 @@ const TOOL_LIST = [
   { name: "bash", desc: "Jalankan perintah shell/Node/Python di workspace (args: command)" },
   { name: "fetch", desc: "Ambil konten URL publik (args: url)" },
   { name: "kb", desc: "Cari knowledge base 1042 skill (args: query, max)" },
-  { name: "sql", desc: "Jalankan SQL nyata di SQLite workspace (args: sql, init opsional utk buat tabel)" },
+  { name: "sql", desc: "Jalankan SQL nyata di SQLite workspace (args: sql, init utk buat tabel, mode:'table' utk skip hasil)" },
+  { name: "json", desc: "Parse & kueri file JSON di workspace memakai expr JS (args: path, expr)" },
+  { name: "csv", desc: "Baca file CSV/TSV di workspace jadi {headers, rows} (args: path)" },
 ];
 
 function toolsPrompt() {

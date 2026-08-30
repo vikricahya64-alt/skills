@@ -124,4 +124,68 @@ function attachSkills(tax, items) {
   return enriched;
 }
 
-module.exports = { DOMAINS, classifySkill, buildTaxonomy, coverageStats, attachSkills };
+// ---- FUSI KODE & LOGIKA PER KEMAMPUAN: gabungkan kode+logika semua skill ----
+const path = require("path");
+const PACKS_CACHE = path.join(__dirname, "packs.json");
+
+function buildPacks(enriched, cards) {
+  const byName = new Map(cards.map((c) => [c.name, c]));
+  const packs = {};
+  for (const e of enriched) {
+    const codes = [];
+    const logic = [];
+    const seenCode = new Set();
+    const seenLogic = new Set();
+    for (const skillName of e.allSkills || []) {
+      const card = byName.get(skillName);
+      if (!card) continue;
+      for (const c of card.codes || []) {
+        if (c.src.length < 8 || seenCode.has(c.src.slice(0, 80))) continue;
+        seenCode.add(c.src.slice(0, 80));
+        codes.push({ name: card.name, lang: c.lang, src: c.src.slice(0, 600) });
+      }
+      for (const l of card.logic || []) {
+        if (seenLogic.has(l)) continue;
+        seenLogic.add(l);
+        logic.push({ name: card.name, text: l.slice(0, 200) });
+      }
+    }
+    packs[e.id] = {
+      name: e.name,
+      emoji: e.emoji,
+      insight: e.insight,
+      skillCount: (e.allSkills || []).length,
+      codes: codes.slice(0, 40),
+      logic: logic.slice(0, 60),
+    };
+  }
+  return packs;
+}
+
+function getPacks(force = false) {
+  try {
+    if (!force && require("fs").existsSync(PACKS_CACHE)) {
+      return JSON.parse(require("fs").readFileSync(PACKS_CACHE, "utf8"));
+    }
+  } catch (_) {}
+  return null;
+}
+
+function savePacks(packs) {
+  try { require("fs").writeFileSync(PACKS_CACHE, JSON.stringify(packs)); } catch (_) {}
+}
+
+function formatPack(pack, maxChars = 1800) {
+  if (!pack) return "";
+  const lines = [];
+  if (pack.insight) lines.push("Insight: " + pack.insight);
+  lines.push("Logika kunci:");
+  for (const l of (pack.logic || []).slice(0, 8)) lines.push("◈ " + l.text);
+  lines.push("Kode nyata (cuplikan):");
+  for (const c of (pack.codes || []).slice(0, 4)) {
+    lines.push("```" + (c.lang || "") + "\n" + c.src.slice(0, 420) + "\n```");
+  }
+  return lines.join("\n").slice(0, maxChars);
+}
+
+module.exports = { DOMAINS, classifySkill, buildTaxonomy, coverageStats, attachSkills, buildPacks, getPacks, savePacks, formatPack };
