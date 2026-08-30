@@ -344,6 +344,12 @@ const COMBOS = [
     keywords: ["build", "bangun", "bangunkan", "kompilasi", "compile", "building", "apk", "android build", "gradle", "compose multiplatform", "cara build", "compile apk", "membangun project", "buat project", "menyusun proyek", "full project", "struktur project", "scaffold", "membuat aplikasi lengkap", "shipping", "menyebarkan", "packaging", "artifact", "bundling", "vite build", "next build", "docker build", "image build", "containerize", "ci/cd pipeline", "release process", "compile project", "build pipeline", "build script", "buat apk", "compile android", "android studio", "aplikasi android", "editor foto", "foto video", "editor video", "project android", "kode sumber apk", "sumber lengkap", "gradle project", "aplikasi lengkap", "apk source", "edit gambar", "pengeditan", "apps editor"],
     skills: ["compose-multiplatform-patterns", "android-clean-architecture", "mobile-android-design", "Mobile App Builder", "Mobile Release Engineer", "react-native-architecture", "react-native-patterns", "react-native-design", "docker-patterns", "cloud-build-basics", "web-artifacts-builder", "vite-patterns", "nextjs-turbopack", "nextjs-app-router-patterns", "frontend-patterns", "backend-patterns", "nodejs-backend-patterns", "api-design", "python-packaging", "uv-package-manager", "lean-build", "bazel-build-optimization", "deployment-patterns", "deployment-pipeline-design", "before-you-build", "Rapid Prototyper", "gke-manifest-generation", "k8s-manifest-generator", "google-cloud-solution-build-deploy-agents"],
     insight: "Fusi total membangun & mengirim project: restrukturisasi semua logika kode build menjadi satu kemampuan — scaffold struktur project lengkap (Android/Gradle/Compose Multiplatform, web frontend/backend, React Native), kompilasi/bundling (Gradle, Vite, Next build), containerization (Docker/Cloud Build), manifest GKE/K8s, dan pipeline CI/CD shipping — dengan tool write nyata agar setiap file ditulis ke workspace dan hasilnya bisa diunduh. Terapkan pedoman before-you-build (piprah), arsitektur bersih, optimasi build (lean/bazel), dan emisi produksi yang siap dirilis.",
+    commands: [
+      "Build & compile project saya jadi APK dan kode source lengkap",
+      "Scaffold project web frontend+backend yang bisa di-build",
+      "Compile project jadi artifact dan susun pipeline CI/CD shipping",
+      "Scaffold struktur project lengkap Android web mobile siap release",
+    ],
   },
   {
     id: "combo-build-apk",
@@ -352,6 +358,12 @@ const COMBOS = [
     keywords: ["apk", "build apk", "kompilasi apk", "compile apk", "buat apk", "bikin apk", "aplikasi android", "app android", "project android", "android studio", "gradle", "assembledebug", "assemble release", "gradlew", "aab", "app bundle", "signed apk", "keystore", "signing config", "manifest android", "mainactivity", "d8", "r8", "dex", "proguard", "minify", "resource shrink", "build variant", "flavor", "debug apk", "release apk", "editer foto android", "editor video android", "apk lengkap", "kode sumber apk", "apk editor", "editor foto", "editor video", "kode sumber", "source", "kotlin", "compose", "make apk", "cara buat apk", "compile aplikasi android"],
     skills: ["android-clean-architecture", "compose-multiplatform-patterns", "mobile-android-design", "Mobile App Builder", "Mobile Release Engineer", "kotlin-patterns", "kotlin-coroutines-flows", "kotlin-testing", "kotlin-exposed-patterns", "kotlin-ktor-patterns", "java-coding-standards", "dart-flutter-patterns", "react-native-architecture", "react-native-patterns", "dependency-upgrade", "web-artifacts-builder", "before-you-build", "Rapid Prototyper"],
     insight: "Fusi total membangun APK Android end-to-end: restrukturisasi semua logika kode build Android menjadi satu kemampuan — struktur project Gradle lengkap (settings.gradle, build.gradle root & app, gradle.properties, AndroidManifest.xml, res/values, MainActivity.kt), arsitektur bersih (clean architecture + MVVM), pola Kotlin/Compose/material design, sampai pipeline menghasilkan APK (assembleDebug/assembleRelease), signing (keystore/signingConfig), R8/ProGuard minify, dan distribusi AAB/APK — setiap file ditulis ke workspace memakai tool write agar source project bisa diunduh lalu di-build di Android Studio.",
+    commands: [
+      "Buat APK aplikasi Android editor foto video lengkap",
+      "Kompilasi APK sampai jadi file APK A-Z",
+      "Buat APK release yang sudah signed",
+      "Buat APK project Android lengkap dengan clean architecture",
+    ],
   },
 ]
 
