@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { CAPS, pickCapabilities } = require("./capabilities.js");
+const KB = require("./knowledge.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -94,17 +95,24 @@ function parseFrontmatter(text) {
 }
 
 function loadSkills() {
-  const files = findSkills(SKILLS_DIR);
-  return files.map((f) => {
-    const text = fs.readFileSync(f, "utf8");
-    const { name, description } = parseFrontmatter(text);
-    return {
-      f,
-      name: name || f.replace(SKILLS_DIR + "/", "").replace("/SKILL.md", ""),
-      description,
-      preview: text.slice(0, 1200),
-    };
-  }).sort((a, b) => a.name.localeCompare(b.name));
+  let cards = [];
+  try { cards = KB.loadCards(); } catch (_) { /* fallback di bawah */ }
+  if (!cards.length) {
+    const files = findSkills(SKILLS_DIR);
+    cards = files.map((f) => {
+      const text = fs.readFileSync(f, "utf8");
+      const { name, description } = parseFrontmatter(text);
+      return {
+        name: name || f.replace(SKILLS_DIR + "/", "").replace("/SKILL.md", ""),
+        description,
+        core: [text.replace(/^---\n[\s\S]*?\n(?:---|\.\.\.)\n/, "").slice(0, 600)],
+        keywords: [],
+      };
+    });
+  }
+  return cards
+    .map((c) => ({ name: c.name, description: c.description || "", core: c.core || [], keywords: c.keywords || [] }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 let INDEX = [];
@@ -117,26 +125,8 @@ function tokens(str) {
   return str.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
 }
 
-function scoreSkill(skill, words) {
-  const nameHay = skill.name.toLowerCase().replace(/[^a-z0-9]+/g, " ");
-  const descHay = (skill.description + " " + skill.preview).toLowerCase();
-  let s = 0;
-  for (const w of words) {
-    if (nameHay.includes(w)) s += 4;
-    if (descHay.includes(w)) s += 2;
-    if (skill.preview.toLowerCase().split(/\s+/).slice(0, 60).join(" ").includes(w)) s += 1;
-  }
-  return s;
-}
-
 function pickSkills(q) {
-  const words = tokens(q);
-  return INDEX
-    .map((skill) => ({ skill, s: scoreSkill(skill, words) }))
-    .filter((x) => x.s > 0)
-    .sort((a, b) => b.s - a.s)
-    .slice(0, 4)
-    .map((x) => x.skill);
+  return KB.pickCards(q, INDEX, 3);
 }
 
 function pickCap(q) {
@@ -201,43 +191,41 @@ function fileSummary(file) {
 function buildPrompt(q, sess, top, caps) {
   const parts = [];
   parts.push(
-    "Kamu adalah Agen AI Google Cloud (gcp-agent) yang telah mem-fusion seluruh 449 skill " +
-    "menjadi kemampuan tingkat tinggi. Jawab dalam bahasa Indonesia, ringkas namun lengkap, " +
-    "dan akurat. Jika tidak yakin, katakan dengan jujur."
+    "Kamu Agen AI Google Cloud (gcp-agent) hasil fusion 449 skill -> kemampuan tingkat tinggi. " +
+    "Jawab bahasa Indonesia, padat, akurat, beri langkah konkret. Jujur jika tidak yakin."
   );
 
   if (caps && caps.length) {
-    const capBlock = caps.map((c) => {
-      return "=== KEMAMPUAN FUSION: " + c.name + " (" + c.emoji + ") ===\n" +
-        "Skill gabungan: " + c.skills.join(", ") + (c.note ? "\nCatatan: " + c.note : "");
-    }).join("\n\n");
-    parts.push("Kemampuan fusion yang relevan untuk pertanyaan ini:\n" + capBlock);
-  }
-
-  if (sess.files.length) {
-    const filesBlock = sess.files.map((f, i) => {
-      return `### FILE ${i + 1}: ${f.name} (${f.kind}, ${f.size} byte)\n${f.text.slice(0, 12000)}`;
-    }).join("\n\n");
-    parts.push("Konteks file yang diunggah user ke sesi ini:\n" + filesBlock);
+    const capBlock = caps.map((c) =>
+      "KEMAMPUAN FUSION [" + (c.emoji || "🧠") + "] " + c.name +
+      " — cakupan: " + c.skills.join(", ") +
+      (c.note ? " — " + c.note : "") +
+      (c.insight ? "\n  Insight fusion: " + c.insight : "")
+    ).join("\n");
+    parts.push("Kemampuan fusion relevan:\n" + capBlock);
   }
 
   if (top.length) {
-    const skillsBlock = top.map((s) => "=== SKILL: " + s.name + " ===\n" + s.description + "\n\n" + fs.readFileSync(s.f, "utf8").slice(0, 6000)).join("\n\n");
-    parts.push("Skill yang relevan untuk pertanyaan ini:\n" + skillsBlock);
+    const skillsBlock = top.map((s) => KB.formatCard(s, 1500)).join("\n\n");
+    parts.push("Knowledge base skill relevan (kutip prosedur inti):\n" + skillsBlock);
   } else {
-    parts.push("(tidak ada skill spesifik yang cocok; gunakan pengetahuan Google Cloud umum)");
+    parts.push("(tidak ada skill spesifik dipilih; gunakan pengetahuan umum Google Cloud)");
+  }
+
+  if (sess.files.length) {
+    const filesBlock = sess.files.map((f, i) =>
+      `### FILE ${i + 1}: ${f.name} (${f.kind}, ${f.size} byte)\n${f.text.slice(0, 8000)}`
+    ).join("\n\n");
+    parts.push("Konteks file unggahan sesi ini:\n" + filesBlock);
   }
 
   if (sess.history.length) {
-    const hist = sess.history.slice(-8).map((m) => "User: " + m.q + "\nAgen: " + m.a).join("\n\n");
-    parts.push("Riwayat percakapan sesi ini (untuk konteks):\n" + hist);
+    const hist = sess.history.slice(-4).map((m) => "User: " + m.q + "\nAgen: " + m.a).join("\n\n");
+    parts.push("Riwayat sesi (konteks):\n" + hist);
   }
 
-  parts.push("Pertanyaan terakhir user: " + q);
-  parts.push(
-    "Jawab langsung tanpa pemanasan. Jika perlu langkah konkret, berikan langkah. " +
-    "Jika pertanyaan berkaitan dengan file upload, analisis isi file dengan teliti."
-  );
+  parts.push("Pertanyaan user: " + q);
+  parts.push("Jawab langsung, tanpa pemanasan. Jika berkaitan file, analisis isinya teliti.");
   return parts.join("\n\n");
 }
 
@@ -300,7 +288,7 @@ app.get("/api/skills", (req, res) => {
   if (q) list = pickSkills(q);
   res.json({
     total: INDEX.length,
-    skills: list.map((s) => ({ name: s.name, description: s.description || s.preview.slice(0, 120) })),
+    skills: list.map((s) => ({ name: s.name, description: s.description || (s.core || []).join(" ").slice(0, 120) })),
   });
 });
 
@@ -313,6 +301,7 @@ app.get("/api/capabilities", (req, res) => {
       emoji: c.emoji,
       skills: c.skills,
       note: c.note || "",
+      insight: c.insight || "",
     })),
   });
 });
@@ -409,7 +398,10 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "2.1.0",
+    version: "2.2.0",
+    kb: true,
+    kbCards: KB.loadCards().length,
+    maxTopSkills: 3,
   });
 });
 
