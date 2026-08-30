@@ -265,4 +265,12 @@ Apache 2.0 license. See the `LICENSE` file for details.
     data engineering, database, cloud-infra, keamanan, accessibility, content, agent orchestration, dll.
 - `skills/ecosystem/` — 74 skill dari ekosistem plugin Gemini/Google (Apache-2.0): AlloyDB, BigQuery, Cloud SQL, Spanner, Looker, Firestore, dll.
 
+## Fusion Kemampuan
+
+Seluruh 449 skill di-*fusion* menjadi **12 kemampuan tingkat tinggi** (meta-skill) via `agen/capabilities.js`:
+Cloud Full-Stack, Data Engineering, Database Ops, Security & Threat Hunting, Full-Stack App Builder,
+ML/AI Engineering, SRE & Observability, Developer Excellence, Cloud Data+Security, Agentic AI Orchestration,
+Web3, dan Mobile App. Saat bertanya, agen otomatis memilih kemampuan yang relevan dan menyatukannya dalam jawaban
+(endpoint `/api/capabilities`).
+
 Total 449 skill terindeks otomatis di `index.json` dan dimuat agen saat runtime.

@@ -4,6 +4,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { CAPS, pickCapabilities } = require("./capabilities.js");
 
 const app = express();
 app.use(express.json({ limit: "12mb" }));
@@ -138,6 +139,10 @@ function pickSkills(q) {
     .map((x) => x.skill);
 }
 
+function pickCap(q) {
+  return pickCapabilities(q, INDEX.map((x) => x.name), 2);
+}
+
 // ---------- Konteks session ----------
 const sessions = new Map();
 
@@ -193,12 +198,21 @@ function fileSummary(file) {
 }
 
 // ---------- Prompt builder ----------
-function buildPrompt(q, sess, top) {
+function buildPrompt(q, sess, top, caps) {
   const parts = [];
   parts.push(
-    "Kamu adalah Agen AI Google Cloud (gcp-agent). Jawab dalam bahasa Indonesia, " +
-    "ringkas namun lengkap, dan akurat. Jika tidak yakin, katakan dengan jujur."
+    "Kamu adalah Agen AI Google Cloud (gcp-agent) yang telah mem-fusion seluruh 449 skill " +
+    "menjadi kemampuan tingkat tinggi. Jawab dalam bahasa Indonesia, ringkas namun lengkap, " +
+    "dan akurat. Jika tidak yakin, katakan dengan jujur."
   );
+
+  if (caps && caps.length) {
+    const capBlock = caps.map((c) => {
+      return "=== KEMAMPUAN FUSION: " + c.name + " (" + c.emoji + ") ===\n" +
+        "Skill gabungan: " + c.skills.join(", ") + (c.note ? "\nCatatan: " + c.note : "");
+    }).join("\n\n");
+    parts.push("Kemampuan fusion yang relevan untuk pertanyaan ini:\n" + capBlock);
+  }
 
   if (sess.files.length) {
     const filesBlock = sess.files.map((f, i) => {
@@ -290,6 +304,19 @@ app.get("/api/skills", (req, res) => {
   });
 });
 
+app.get("/api/capabilities", (req, res) => {
+  res.json({
+    total: CAPS.length,
+    capabilities: CAPS.map((c) => ({
+      id: c.id,
+      name: c.name,
+      emoji: c.emoji,
+      skills: c.skills,
+      note: c.note || "",
+    })),
+  });
+});
+
 app.post("/ask", async (req, res) => {
   if (!KEY) return res.status(500).json({ error: "GEMINI_API_KEY belum diatur di server." });
   const q = String((req.body && req.body.question) || "").trim();
@@ -319,10 +346,11 @@ app.post("/ask", async (req, res) => {
   if (inlineFiles.length) pruneSession(sess);
 
   const top = pickSkills(q);
+  const caps = pickCap(q);
   let model;
   try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
-  const prompt = buildPrompt(q, sess, top);
+  const prompt = buildPrompt(q, sess, top, caps);
   // Konten multimodal: teks diikuti gambar (vision)
   const contentParts = [{ text: prompt }];
   for (const f of sess.files) {
@@ -361,6 +389,7 @@ app.post("/ask", async (req, res) => {
   res.json({
     answer,
     skills: top.map((x) => x.name),
+    capabilities: caps.map((x) => x.name),
     files: sess.files.map(fileSummary),
     sessionId,
     model: _resolvedModel,
