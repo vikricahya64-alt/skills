@@ -196,7 +196,7 @@ function loadCards(force = false) {
 }
 
 // ---- Tokenizer (ringan) ----
-const STOP = new Set(["apa","itu","ini","dan","atau","di","ke","dari","pada","yang","dengan","untuk","bagaimana","cara","buat","membuat","adalah","tolong","the","a","an","of","to","in","on","for","how","what","is","with","and","please","using","use","cara","saya","kamu","anda","mohon"]);
+const STOP = new Set(["apa","itu","ini","dan","atau","di","ke","dari","pada","yang","dengan","untuk","bagaimana","cara","buat","membuat","adalah","tolong","the","a","an","of","to","in","on","for","how","what","is","with","and","please","using","use","saya","kamu","anda","mohon"]);
 function tokens(str) {
   return (str || "").toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
 }

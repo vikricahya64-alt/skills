@@ -156,7 +156,7 @@ function setStatus(t,cls){var s=$('status');s.textContent=t;s.className=cls||'';
 function addMsg(role,html){
   var wrap=$('chatWrap');
   var m=document.createElement('div');m.className='msg '+role;
-  var av=document.createElement('div');av.className='av';av.textContent=(role==='user'?'\u{1F9D1}':'U+2601');
+  var av=document.createElement('div');av.className='av';av.textContent=(role==='user'?'🧑':'☁');
   var bub=document.createElement('div');bub.className='bub';bub.innerHTML=html;
   m.appendChild(av);m.appendChild(bub);
   wrap.appendChild(m);
@@ -362,7 +362,7 @@ function setMode(m){
   document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.toggle('active',b.dataset.mode===m);});
   var sub=$('subtitle');
   if(m==='coder'){sub.textContent='Mode eksekusi · akses penuh seperti Codex';$('q').placeholder='Beri tugas, agen akan jalankan kode, SQL, file & web di cloud…';}
-  else if(m==='caps'){sub.textContent='Semua kemampuan · 100% bisa diakses';$('q').placeholder='Semua 24 kemampuan & logika/kode di bawah…';}
+  else if(m==='caps'){sub.textContent='Semua kemampuan · 100% bisa diakses';$('q').placeholder='Semua kemampuan fusion & logika/kode di bawah…';}
   else if(m==='auto'){sub.textContent='Mode Auto · chat biasa atau langsung eksekusi sesuai konteks';$('q').placeholder='Tanya apa saja… (Auto: pertanyaan biasa dijawab, tugas eksekusi dijalankan)';}
   else{sub.textContent='Semua skill GCP · diproses di cloud';$('q').placeholder='Tanya apa saja soal Google Cloud… (Enter kirim, Shift+Enter baris baru)';}
   var pan=$('capPanel');
@@ -408,8 +408,16 @@ function renderCaps(){
       pan.appendChild(card);
     });
     var total=items.length;
-    var top=document.createElement('div');top.className='cap';top.style.textAlign='center';
-    top.innerHTML='<h4>✅ '+total+' kemampuan · 1042 skill · coverage 100% — semuanya bisa diakses di sini</h4>';
+    fetch('/api/info').then(function(r){return r.json();}).then(function(d){
+      var nSkills=(d&&d.skills)||0;
+      var top=document.createElement('div');top.className='cap';top.style.textAlign='center';
+      top.innerHTML='<h4>✅ '+total+' kemampuan · '+nSkills+' skill · coverage 100% — semuanya bisa diakses di sini</h4>';
+      pan.insertBefore(top,pan.firstChild);
+    }).catch(function(){
+      var top=document.createElement('div');top.className='cap';top.style.textAlign='center';
+      top.innerHTML='<h4>✅ '+total+' kemampuan — semuanya bisa diakses di sini</h4>';
+      pan.insertBefore(top,pan.firstChild);
+    });
     pan.insertBefore(top,pan.firstChild);
   }).catch(function(){pan.innerHTML='<div class="cap"><h4>⚠️ Gagal memuat kemampuan</h4></div>';});
 }

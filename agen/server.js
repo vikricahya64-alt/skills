@@ -635,7 +635,7 @@ app.post("/ask", async (req, res) => {
         const tryLite = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
         for (const lm of tryLite) { if (lm !== _resolvedModel) { _resolvedModel = lm; break; } }
       }
-      try { model = await getModel(); } catch (_) {}
+      try { model = await getModel(); } catch (_) { return res.status(429).json({ error: "Gagal rebuild model setelah rotasi key.", retry: true }); }
     }
   }
   if (!sess.files.length && answer) cacheSet(q, answer);
@@ -877,7 +877,6 @@ app.post("/api/agent", async (req, res) => {
     if (steps.length && !answer) answer = "Dieksekusi nyata di cloud. Lihat langkah di atas.";
   }
 
-  sessions.delete(sessionId); // workspace agen bersifat ephemeral per panggilan (stateless serverless)
   if (useStream) {
     prog("✅ Selesai — menyusun jawaban akhir…");
     emit("done", { answer: answer || modelOut || "(agen tidak menghasilkan jawaban akhir)", final, steps, sessionId });
@@ -1007,7 +1006,6 @@ app.post("/api/run", async (req, res) => {
     } catch (_) {}
   }
 
-  sessions.delete(sessionId);
   const payload = {
     answer: answer || modelOut || "(misi tidak menghasilkan jawaban akhir)",
     final,
@@ -1333,7 +1331,6 @@ async function fallbackExec(task, sessionId) {
   if (gver.ok) steps.push({ tool: "bash", args: { command: "env-check" }, ok: true, brief: gver.result.trim() });
   return { steps, answer: "Dieksekusi nyata: artefak disimpan ke hasil-agen.md dan environment diverifikasi (Node " + (gver.ok ? gver.result.trim().split("\n")[0] : "n/a") + "). Lihat langkah tool di atas." };
 
-  return null;
 }
 
 app.get("/", (req, res) => { res.send(HTML); });
