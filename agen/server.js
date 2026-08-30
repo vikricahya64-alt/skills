@@ -358,7 +358,7 @@ app.post("/api/upload", upload.array("files", 5), (req, res) => {
 
   const added = [];
   for (const f of req.files) {
-    const { text, kind } = extractText(f.buffer, f.originalname, f.mimetype);
+    const { text, kind, image } = extractText(f.buffer, f.originalname, f.mimetype);
     const entry = {
       id: crypto.randomBytes(6).toString("hex"),
       name: f.originalname,
@@ -367,6 +367,7 @@ app.post("/api/upload", upload.array("files", 5), (req, res) => {
       text,
       mime: f.mimetype,
     };
+    if (image) entry.image = image;
     sess.files.push(entry);
     added.push(fileSummary(entry));
   }
