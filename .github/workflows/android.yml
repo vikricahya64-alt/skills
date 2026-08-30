@@ -66,6 +66,14 @@ jobs:
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
 
+      # APK debug dibangun SEBELUM emulator diluncurkan, agar action emulator
+      # hanya melakukan install+launch. Ini menurunkan tekanan memori puncak
+      # (build + emulator berjalan bersamaan sering bikin PackageManager gagal
+      # mendaftarkan paket meski adb install bilang "Success").
+      - name: Bangun APK debug dulu (di luar emulator)
+        working-directory: android
+        run: gradle assembleDebug --no-daemon
+
       - name: Jalankan app di emulator Android (smoke test nyata)
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -78,12 +86,10 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           # Catatan: action menjalankan tiap baris script sebagai `sh -c` tersendiri,
           # jadi `cd` antarbaris tidak bertahan. Setiap baris dibuat mandiri.
-          # Semua perintah adb di-pin ke emulator-5554 agar mengenai perangkat yang sama;
-          # verifikasi proses via `pidof` (lebih andal daripada dumpsys yg sering ANR).
+          # All perintah adb di-pin ke emulator-5554; verifikasi proses via `pidof`.
           script: |
-            cd android && gradle assembleDebug --no-daemon
             adb devices
-            for i in 1 2 3 4 5; do adb -s emulator-5554 shell pm path com.vikri.gcpagent >/dev/null 2>&1 && break; adb -s emulator-5554 install -r android/app/build/outputs/apk/debug/app-debug.apk; sleep 5; done
+            for i in 1 2 3 4 5; do adb -s emulator-5554 shell pm path com.vikri.gcpagent >/dev/null 2>&1 && break; adb -s emulator-5554 install -r -t android/app/build/outputs/apk/debug/app-debug.apk; sleep 5; done
             echo "=== DIAG: pm path ==="; adb -s emulator-5554 shell pm path com.vikri.gcpagent
             echo "=== DIAG: pm list ==="; adb -s emulator-5554 shell pm list packages 2>/dev/null | grep -i gcp || echo "(gcp tidak terdaftar di pm list)"
             echo "=== DIAG: data/app ==="; adb -s emulator-5554 shell "ls -l /data/app 2>/dev/null | grep -i gcp" || echo "(gcp tidak ada di /data/app)"
