@@ -244,19 +244,29 @@ jobs:
   # ====== 3. PUBLISH KE PLAY CONSOLE (opsional — aktif jika secret ada) ======
   # Tambahkan secret PLAY_SERVICE_ACCOUNT_JSON (isi JSON service account Play)
   # + atur package_name di bawah, maka tiap build otomatis diupload ke track ALPHA.
-  # Catatan: tag `secrets` hanya boleh dipakai di tingkat STEP, bukan tingkat job.
+  # Catatan: `secrets` tidak boleh dipakai di if → deteksi dulu via run & env,
+  # lalu gate step publikasi memakai output (tanpa menyebut secret di if).
   play-publish:
     needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lewati - secret Play belum disiapkan
-        if: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON == '' }}
-        run: echo "PLAY_SERVICE_ACCOUNT_JSON kosong → publish dilewati"
+      - name: Deteksi ketersediaan secret Play
+        id: detect
+        env:
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -n "$SA_JSON" ]; then
+            echo "has=yes" >> "$GITHUB_OUTPUT"
+            echo "Secret Play tersedia → akan publish"
+          else
+            echo "has=no" >> "$GITHUB_OUTPUT"
+            echo "Secret Play belum disiapkan → publish dilewati"
+          fi
 
       - name: Unduh AAB resmi dari Release
-        if: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+        if: steps.detect.outputs.has == 'yes'
         run: |
           gh release download "v${{ needs.quality-gate.outputs.version_name }}" \
             --repo vikricahya64-alt/skills \
@@ -264,7 +274,7 @@ jobs:
           ls -la /tmp/app-release.aab
 
       - name: Upload AAB ke Play Console (track ALPHA)
-        if: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON != '' }}
+        if: steps.detect.outputs.has == 'yes'
         uses: r0adkll/upload-google-play@v1
         with:
           service_account_json: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
