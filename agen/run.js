@@ -19,6 +19,7 @@ const COMBO_COMMANDS = {
   "combo-install-download": ["Instal uv dan setup project Python modern", "Download & pasang dependensi proyek sesuai best practice"],
   "combo-network-edge": ["Rancang reverse proxy nginx dengan load balancer", "Konfigurasi service mesh Istio untuk edge GKE"],
   "combo-os-environment": ["Buat lingkungan dev reproduksibel dengan flox", "Susun bash script defensif + shellcheck untuk production"],
+  "combo-build-shipping": ["Buat aplikasi Android editor foto video lengkap", "Build & compile project saya jadi APK dan kode source lengkap", "Scaffold project web frontend+backend yang bisa di-build", "Compile project jadi artifact dan susun pipeline CI/CD shipping"],
 
   "combo-devtools-dx": ["Tingkatkan DX repo: dokumentasi hidup + tooling CLI", "Rancang developer experience dan standar koding"],
   "combo-media-generation": ["Buat presentasi visual untuk pitch deck", "Generasi infografis untuk konten media"],
@@ -74,6 +75,7 @@ function matchSkill(q) {
     { starts: ["install", "instal", "unduh", "download", "package", "pasang", "setup", "dependensi", "dependency"], combo: "combo-install-download" },
     { starts: ["network", "jaringan", "proxy", "nginx", "load balancer", "dns", "vlan", "vpn", "waf", "istio", "linkerd", "service mesh", "firewall"], combo: "combo-network-edge" },
     { starts: ["flox", "nix", "environment reproduksibel", "reproducible env", "bash defensif", "shellcheck", "bats", "lingkungan os", "linux environment"], combo: "combo-os-environment" },
+    { starts: ["editor foto video", "edit foto video", "edit video", "kompilasi", "compile", "bangun project", "bangun aplikasi", "build project", "build aplikasi", "scaffold", "struktur project", "proyek lengkap", "apk lengkap", "siap release", "cara build", "cara compile", "bundling", "packaging", "buat apk android lengkap"], combo: "combo-build-shipping" },
 
     { starts: ["developer experience", "devtools", "tooling", "standar koding"], combo: "combo-devtools-dx" },
     { starts: ["buat presentasi", "slides", "infografis", "konten visual", "media ai"], combo: "combo-media-generation" },
@@ -243,6 +245,17 @@ const MISSIONS = {
       "Tulis file env (flox/plan, .env, skrip bash, tests BATS) di workspace.",
       "Jalankan verifikasi via tool bash bila memungkinkan.",
       "Tutup dengan [SELESAI] + langkah reproduksi yang konsisten.",
+    ],
+  },
+  "combo-build-shipping": {
+    goal: "Bangun & kirim project A-Z: scaffold struktur project lengkap (Android/Gradle/Compose Multiplatform, web frontend+backend, React Native), kompilasi/bundling, containerization, manifest GKE/K8s, dan pipeline CI/CD — semua file ditulis ke workspace agar bisa diunduh.",
+    steps: [
+      "Tentukan target build: (a) aplikasi mobile/Android (APK/Compose Multiplatform/React Native) atau (b) aplikasi web (frontend+backend) — sesuaikan dengan permintaan user.",
+      "Tulis STRUKTUR PROJECT LENGKAP memakai tool write (satu file per panggilan write), contoh Android app:\n   settings.gradle, build.gradle (root), gradle.properties, app/build.gradle, app/src/main/AndroidManifest.xml, app/src/main/res/values/strings.xml & themes.xml, app/src/main/java/<paket>/MainActivity.kt, dan resource lain yang diperlukan (ikon, layout).",
+      "Untuk aplikasi web: tulis package.json, konfigurasi build (vite/next), kode frontend + backend (index/App, API routes, skema) di workspace.",
+      "Eksekusi nyata bila lingkungan mendukung: jalankan tool bash/build script (mis. npm install & build bila package tersedia, node untuk verifikasi sintaks). Pada serverless tanpa mengubah env: jalankan verifikasi via tool run/node dan lint struktur. Implementasikan PRINSIP before-you-build & clean architecture; gunakan pattern compose/React Native yang benar.",
+      "Sajikan INFO BUILD: daftar seluruh file project, struktur folder, perintah build yang harus dijalankan user di mesin lokal (mis. ./gradlew assembleDebug atau npm run build), dan langkah menghasilkan APK lalu menginstall ke perangkat.",
+      "Tutup dengan [SELESAI] + ringkasan build & tautan untuk unduh project ZIP.",
     ],
   },
 

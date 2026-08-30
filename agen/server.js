@@ -157,14 +157,28 @@ let _fusionCache = null;
 
 function ensurePacks() {
   let packs = loadPacks();
-  if (Object.keys(packs).length) return packs;
+  // Isi pack yang MUNGKIN BELUM ADA di cache packs.json (mis. combo baru)
+  // tanpa menimpa seluruh cache, supaya kemampuan baru tetap dapat fusi kode+logika.
   try {
     const items = EVO.PRIMES.concat(EVO.COMBOS);
-    const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), items);
-    packs = FUSION.buildPacks(enrich, INDEX);
-    FUSION.savePacks(packs);
-    PACKS = packs;
+    const missing = items.filter((it) => !packs[it.id]);
+    if (missing.length) {
+      const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), missing);
+      const fill = FUSION.buildPacks(enrich, INDEX);
+      for (const k of Object.keys(fill)) packs[k] = fill[k];
+      FUSION.savePacks(packs);
+      PACKS = packs;
+    }
   } catch (_) {}
+  if (!Object.keys(packs).length) {
+    try {
+      const items = EVO.PRIMES.concat(EVO.COMBOS);
+      const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), items);
+      packs = FUSION.buildPacks(enrich, INDEX);
+      FUSION.savePacks(packs);
+      PACKS = packs;
+    } catch (_) {}
+  }
   return packs;
 }
 try { ensurePacks(); } catch (_) {}

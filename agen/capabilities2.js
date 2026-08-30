@@ -337,6 +337,14 @@ const COMBOS = [
     skills: ["flox-environments", "bash-defensive-patterns", "shellcheck-configuration", "bats-testing-patterns", "netmiko-ssh-automation", "autonomous-agent-harness", "python-configuration", "secrets-management", "docker-patterns", "spark-environment-setup", "uv-package-manager", "managing-python-dependencies", "deployment-pipeline-design"],
     insight: "Lingkungan kerja yang portabel, aman, dan reproduksibel: manajemen env deklaratif (Flox/Nix), bash defensif produksi, shellcheck, BATS, secrets management, dan provisioning agen — satu kemampuan untuk menjalankan apa pun secara konsisten di lingkungan apa pun.",
   },
+  {
+    id: "combo-build-shipping",
+    name: "Build App & Project Shipping Fusion",
+    emoji: "🏗️",
+    keywords: ["build", "bangun", "bangunkan", "kompilasi", "compile", "building", "apk", "android build", "gradle", "compose multiplatform", "cara build", "compile apk", "membangun project", "buat project", "menyusun proyek", "full project", "struktur project", "scaffold", "membuat aplikasi lengkap", "shipping", "menyebarkan", "packaging", "artifact", "bundling", "vite build", "next build", "docker build", "image build", "containerize", "ci/cd pipeline", "release process", "compile project", "build pipeline", "build script", "buat apk", "compile android", "android studio", "aplikasi android", "editor foto", "foto video", "editor video", "project android", "kode sumber apk", "sumber lengkap", "gradle project", "aplikasi lengkap", "apk source", "edit gambar", "pengeditan", "apps editor"],
+    skills: ["compose-multiplatform-patterns", "android-clean-architecture", "mobile-android-design", "Mobile App Builder", "Mobile Release Engineer", "react-native-architecture", "react-native-patterns", "react-native-design", "docker-patterns", "cloud-build-basics", "web-artifacts-builder", "vite-patterns", "nextjs-turbopack", "nextjs-app-router-patterns", "frontend-patterns", "backend-patterns", "nodejs-backend-patterns", "api-design", "python-packaging", "uv-package-manager", "lean-build", "bazel-build-optimization", "deployment-patterns", "deployment-pipeline-design", "before-you-build", "Rapid Prototyper", "gke-manifest-generation", "k8s-manifest-generator", "google-cloud-solution-build-deploy-agents"],
+    insight: "Fusi total membangun & mengirim project: restrukturisasi semua logika kode build menjadi satu kemampuan — scaffold struktur project lengkap (Android/Gradle/Compose Multiplatform, web frontend/backend, React Native), kompilasi/bundling (Gradle, Vite, Next build), containerization (Docker/Cloud Build), manifest GKE/K8s, dan pipeline CI/CD shipping — dengan tool write nyata agar setiap file ditulis ke workspace dan hasilnya bisa diunduh. Terapkan pedoman before-you-build (piprah), arsitektur bersih, optimasi build (lean/bazel), dan emisi produksi yang siap dirilis.",
+  },
 ]
 
 
