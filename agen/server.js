@@ -320,11 +320,13 @@ function buildLightPrompt(q, sess, top, evo) {
 
 let _resolvedModel = null;
 
-async function getModelName() {
-  if (_resolvedModel) return _resolvedModel;
+async function getModelName(opts) {
+  opts = opts || {};
+  // Saat butuh vision (gambar), jangan cache model teks/lite yang tidak mendukung image.
+  if (_resolvedModel && !opts.vision) return _resolvedModel;
   const want = (process.env.GEMINI_MODEL || "").trim();
   if (want) { _resolvedModel = want; return _resolvedModel; }
-  if (!KEY) { _resolvedModel = "gemini-3.1-flash-lite"; return _resolvedModel; }
+  if (!KEY) { _resolvedModel = opts.vision ? "gemini-2.5-flash" : "gemini-3.1-flash-lite"; return _resolvedModel; }
   try {
     const resp = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models?key=" + KEY + "&pageSize=200"
@@ -342,13 +344,18 @@ async function getModelName() {
       const liteAll = all.filter(isLite);
       const preferLite = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
       const preferFull = ["gemini-3.6-flash", "gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash"];
+      // Vision WAJIB memakai flash penuh (lite TIDAK mendukung input gambar).
+      if (opts.vision) {
+        for (const p of preferFull) { if (full.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
+        if (full.length) { _resolvedModel = full[0]; return _resolvedModel; }
+      }
       for (const p of preferLite) { if (liteAll.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
       if (lite.length) { _resolvedModel = lite[0]; return _resolvedModel; }
       for (const p of preferFull) { if (full.includes(p)) { _resolvedModel = p; return _resolvedModel; } }
       if (full.length) { _resolvedModel = full[0]; return _resolvedModel; }
     }
   } catch (_) {}
-  _resolvedModel = "gemini-3.1-flash-lite";
+  _resolvedModel = opts.vision ? "gemini-2.5-flash" : "gemini-3.1-flash-lite";
   return _resolvedModel;
 }
 
@@ -360,9 +367,9 @@ function currKey() {
   return KEYS[_keyIdx];
 }
 
-async function getModel() {
+async function getModel(opts) {
   const genAI = new GoogleGenerativeAI(currKey());
-  const modelName = await getModelName();
+  const modelName = await getModelName(opts);
   return genAI.getGenerativeModel({ model: modelName });
 }
 
@@ -580,6 +587,8 @@ app.post("/ask", async (req, res) => {
   }
   if (inlineFiles.length) pruneSession(sess);
 
+  const hasImage = (sess.files || []).some((f) => !!(f.image && f.image.base64));
+
   const top = pickSkills(q);
   const evo = pickCap(q);
 
@@ -602,7 +611,7 @@ app.post("/ask", async (req, res) => {
   }
 
   let model;
-  try { model = await getModel(); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
+  try { model = await getModel(hasImage ? { vision: true } : undefined); } catch (_) { return res.status(500).json({ error: "Gagal menyiapkan model." }); }
 
   const prompt = buildPrompt(q, sess, top, evo);
   // Konten multimodal: teks diikuti gambar (vision)
@@ -630,12 +639,13 @@ app.post("/ask", async (req, res) => {
         return res.status(429).json({ error: msg, retry: true });
       }
       _keyIdx = (_keyIdx + 1) % KEYS.length;
-      if (_resolvedModel && !/_?lite/.test(_resolvedModel) && attempts === 1) {
+      // Jangan turun ke lite jika ada gambar (lite tidak mendukung image input).
+      if (!hasImage && _resolvedModel && !/_?lite/.test(_resolvedModel) && attempts === 1) {
         // Turun ke model lite (kuota jauh lebih besar) setelah flash penuh 429
         const tryLite = ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
         for (const lm of tryLite) { if (lm !== _resolvedModel) { _resolvedModel = lm; break; } }
       }
-      try { model = await getModel(); } catch (_) { return res.status(429).json({ error: "Gagal rebuild model setelah rotasi key.", retry: true }); }
+      try { model = await getModel(hasImage ? { vision: true } : undefined); } catch (_) { return res.status(429).json({ error: "Gagal rebuild model setelah rotasi key.", retry: true }); }
     }
   }
   if (!sess.files.length && answer) cacheSet(q, answer);
