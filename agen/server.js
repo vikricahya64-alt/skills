@@ -413,7 +413,7 @@ app.get("/api/info", async (req, res) => {
     limitFileMB: 20,
     maxQuestion: MAX_LEN,
     uptime: Math.round(process.uptime()),
-    version: "3.0.1",
+    version: "3.0.2",
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
@@ -486,6 +486,7 @@ app.post("/api/agent", async (req, res) => {
 
   let answer = "";
   const steps = [];
+  const doneCalls = new Set();
   const MAX_IT = 8;
   let final = false;
 
@@ -510,6 +511,9 @@ app.post("/api/agent", async (req, res) => {
     if (calls.length) {
       const results = [];
       for (const c of calls.slice(0, 6)) {
+        const key = c.tool + ":" + JSON.stringify(c.args || {});
+        if (doneCalls.has(key)) { results.push("(duplikat panggilan " + c.tool + " dilewati)"); continue; }
+        doneCalls.add(key);
         const out = await CODEX.toolRunner(c.tool, c.args, sessionId);
         steps.push({ tool: c.tool, args: c.args, ok: out.ok, brief: (out.result || out.error || "").slice(0, 400) });
         results.push("(" + c.tool + ") " + (out.ok ? out.result : "GALAT: " + (out.error || out.result)).slice(0, 3000));
