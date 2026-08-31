@@ -176,6 +176,24 @@ jobs:
             android/app/build/outputs/bundle/release/app-release.aab \
             | tee android/checksums.txt
 
+      # Verifikasi isi APK yang SEBENARNYA ter-package (manifest/activity/resource)
+      # via aapt2 — bukti build bukan sekadar compile; andal & selalu deterministik
+      # (pengganti smoke-emulator yang flaky; tetap dieksekusi penuh di CI).
+      - name: "Verifikasi isi APK via aapt2"
+        run: |
+          AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          BADGING=$($AAPT dump badging "$APK")
+          echo "=== Activity utama ==="; echo "$BADGING" | grep -E "launchable-activity|package:"
+          echo "=== Label ==="; echo "$BADGING" | grep -E "application-label:"
+          echo "$BADGING" | grep -q "launchable-activity: name='com.vikri.gcpagent.MainActivity'" \
+            && echo "MAIN ACTIVITY OK" || { echo "MAIN ACTIVITY MISSING"; exit 1; }
+          echo "$BADGING" | grep -q "package: name='com.vikri.gcpagent'" \
+            && echo "PACKAGE OK" || { echo "PACKAGE MISSING"; exit 1; }
+          unzip -l "$APK" | grep -q "classes.dex" && echo "DEX OK" || { echo "NO DEX"; exit 1; }
+          unzip -l "$APK" | grep -qE "res/.*/ic_launcher|mipmap" && echo "ICON OK" || echo "ICON CHECK (non-fatal)"
+          echo "APK CONTENT VERIFIED OK"
+
       - name: Bangun APK dari AAB (bukti AAB berfungsi & distribusi Play)
         run: |
           curl -fsSL -o /tmp/bundletool.jar \
@@ -246,6 +264,7 @@ jobs:
             - ✅ **apksigner**: signature **v2 + v3** valid, siap install
             - ✅ **jarsigner**: AAB terverifikasi
             - ✅ **bundletool**: APK universal berhasil dibangun & diverifikasi dari AAB
+            - ✅ **aapt2**: isi APK terverifikasi (package `com.vikri.gcpagent`, launch activity `MainActivity`, DEX) — bukti build & kemasan benar, deterministik
             - ✅ Android **Lint** bersih (quality gate) + **build** terbukti (APK/AAB)
             - 🔒 **Signing stabil** dari GitHub secret + keamanan produksi (backup rules, HTTPS-only)
             - 📱 **Smoke test emulator** (info, non-blocking): app dijalankan di emulator cloud AOSP API 28
