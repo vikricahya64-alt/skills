@@ -27,10 +27,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.vikri.gcpagent.ui.AppViewModel
 import com.vikri.gcpagent.R
@@ -129,12 +131,14 @@ fun AgenGCPApp(viewModel: AppViewModel = viewModel(factory = AppViewModel.Factor
             composable(
                 route = Routes.CAPABILITY_DETAIL,
                 arguments = listOf(
-                    androidx.navigation.navArgument("capId") { type = androidx.navigation.NavType.StringType }
+                    navArgument("capId") { type = NavType.StringType }
                 )
-            ) {
+            ) { backStackEntry ->
+                val capId = backStackEntry.arguments?.getString("capId").orEmpty()
                 CapabilityDetailScreen(
                     modifier = Modifier,
                     viewModel = viewModel,
+                    capId = capId,
                     onBack = { navController.popBackStack() }
                 )
             }
