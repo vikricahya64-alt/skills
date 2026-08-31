@@ -1,6 +1,8 @@
 package com.vikri.gcpagent
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,93 +14,198 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.stickyHeader
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vikri.gcpagent.R
 import com.vikri.gcpagent.ui.AppViewModel
+import com.vikri.gcpagent.ui.components.CapabilityRow
+import com.vikri.gcpagent.ui.components.FilterPill
+import com.vikri.gcpagent.ui.components.SearchField
+import com.vikri.gcpagent.ui.components.SkeletonBlock
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun CapabilitiesScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
+fun CapabilitiesScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AppViewModel
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val highlightedGroups = viewModel.groups
+    val selectedGroup = uiState.selectedGroup
     val groupsWithCaps = viewModel.groupsWithCapabilities
     val total = viewModel.totalCapabilities
+    val isLoading = uiState.capabilitiesLoading
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+    PullToRefreshBox(
+        isRefreshing = isLoading,
+        onRefresh = { viewModel.refreshCapabilities() },
+        modifier = modifier.fillMaxSize()
     ) {
-        item {
-            Text("Daftar Kemampuan", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(2.dp))
-            Text(
-                "$total kombinasi tersedia — grup dikelompokkan otomatis",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        for ((groupName, items) in groupsWithCaps) {
-            item {
-                Text(
-                    groupName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Judul & ikhtisar
+            item(key = "header") {
+                Column {
+                    Text(
+                        text = stringResource(R.string.cap_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.cap_subtitle, total),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    SearchField(
+                        query = uiState.searchQuery,
+                        placeholder = stringResource(R.string.cap_search_placeholder),
+                        onQueryChange = viewModel::setSearchQuery,
+                        onClear = { viewModel.setSearchQuery("") }
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    FilterRow(
+                        groups = highlightedGroups,
+                        selected = selectedGroup,
+                        onSelect = viewModel::selectGroup
+                    )
+                }
             }
-            items(items) { cap -> CapabilityRow(cap) }
+
+            if (isLoading) {
+                item(key = "skeleton") { SkeletonList() }
+            } else if (groupsWithCaps.isEmpty()) {
+                item(key = "empty") { EmptyState() }
+            } else {
+                for ((groupName, items) in groupsWithCaps) {
+                    stickyHeader(key = "group-$groupName") {
+                        GroupHeader(groupName)
+                    }
+                    itemsIndexed(items, key = { _, cap -> cap.id }) { _, cap ->
+                        CapabilityRow(cap = cap, showGroup = false)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun CapabilityRow(cap: Capability) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        modifier = Modifier.fillMaxWidth()
+private fun FilterRow(
+    groups: List<String>,
+    selected: String?,
+    onSelect: (String?) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-                contentAlignment = Alignment.Center
+        FilterPill(
+            label = stringResource(R.string.cap_filter_all),
+            selected = selected == null,
+            onClick = { onSelect(null) }
+        )
+        groups.forEach { group ->
+            FilterPill(
+                label = group,
+                selected = selected == group,
+                onClick = { onSelect(group) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun GroupHeader(name: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 8.dp, bottom = 4.dp)
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+private fun SkeletonList() {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        repeat(4) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(cap.emoji, style = MaterialTheme.typography.titleLarge)
-            }
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(
-                    cap.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                SkeletonBlock(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(18.dp),
+                    baseColor = MaterialTheme.colorScheme.surfaceVariant
                 )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    cap.insight,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
+                repeat(2) {
+                    SkeletonBlock(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(72.dp),
+                        baseColor = MaterialTheme.colorScheme.surfaceVariant,
+                        radius = 18
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.SearchOff,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(56.dp)
+        )
+        Text(
+            text = stringResource(R.string.cap_empty_title),
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            text = stringResource(R.string.cap_empty_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 }

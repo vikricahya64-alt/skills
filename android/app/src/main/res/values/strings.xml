@@ -1,21 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Nama & tab -->
     <string name="app_name">Agen GCP</string>
-    <string name="home_title">Agen GCP</string>
-    <string name="home_subtitle">Asisten Cloud &amp; DevOps berbasis AI</string>
-    <string name="home_open">Buka Agen</string>
-    <string name="home_open_desc">Luncurkan antarmuka web interaktif</string>
-    <string name="home_cap">Daftar Kemampuan</string>
-    <string name="home_cap_desc">39 kombinasi perintah &amp; output nyata</string>
-    <string name="home_about_title">Tentang</string>
-    <string name="home_about_desc">Agen GCP terhubung ke platform cloud untuk menjalankan otomatisasi build, kombo, dan pengiriman artefak.</string>
     <string name="nav_home">Beranda</string>
     <string name="nav_capabilities">Kemampuan</string>
     <string name="nav_web">Buka Agen</string>
+
+    <!-- Beranda -->
+    <string name="home_eyebrow">AI · Cloud · DevOps</string>
+    <string name="home_title">Agen GCP</string>
+    <string name="home_subtitle">Asisten Cloud &amp; DevOps berbasis AI — gabungkan 39 kemampuan menjadi satu alur kerja.</string>
+    <string name="home_status_on">Online</string>
+    <string name="home_status_desc">Agen hidup &amp; siap dipakai</string>
+    <string name="home_stats_title">Kemampuan</string>
+    <string name="home_stats_groups">Grup</string>
+    <string name="home_about_title">Tentang Agen</string>
+    <string name="home_about_desc">Agen GCP menautkan Anda ke platform cloud: otomatisasi build, kombo output nyata, dan pengiriman artefak (termasuk APK Android) — semuanya dalam satu antarmuka.</string>
+    <string name="home_open">Buka di Browser</string>
+    <string name="home_open_desc">Antarmuka web interaktif untuk menjalankan perintah &amp; mengunduh artefak.</string>
+    <string name="action_open_agent">Buka Agen</string>
+    <string name="action_view_capabilities">Lihat Kemampuan</string>
+    <string name="action_open_agent_desc">Jalankan langsung di antarmuka web.</string>
+    <string name="action_view_capabilities_desc">Jelajahi semua kombinasi yang tersedia.</string>
+
+    <!-- Kemampuan -->
     <string name="cap_title">Daftar Kemampuan</string>
-    <string name="cap_subtitle">39 kombinasi perintah tersedia</string>
-    <string name="web_title">Agen GCP</string>
-    <string name="cap_group_build">Build &amp; Delivery</string>
-    <string name="cap_group_data">Data &amp; Analitik</string>
-    <string name="cap_group_sys">Sistem &amp; Otomasi</string>
+    <string name="cap_subtitle">%1$d kombinasi siap dipakai — dikelompokkan otomatis</string>
+    <string name="cap_search_placeholder">Cari kemampuan…</string>
+    <string name="cap_filter_all">Semua</string>
+    <string name="cap_empty_title">Tidak ada hasil</string>
+    <string name="cap_empty_desc">Coba kata kunci lain atau hapus filter grup.</string>
+    <string name="cap_loading">Memuat…</string>
+    <string name="a11y_clear_search">Hapus pencarian</string>
+
+    <!-- Agen (web) -->
+    <string name="web_retry">Coba Lagi</string>
+    <string name="web_back">Kembali</string>
+    <string name="web_error_ssl">Sertifikat SSL tidak valid</string>
+    <string name="web_error_generic">Gagal memuat halaman</string>
+
+    <!-- Shortcut -->
+    <string name="shortcut_home">Beranda</string>
+    <string name="shortcut_capabilities">Kemampuan</string>
+    <string name="shortcut_agent">Buka Agen</string>
 </resources>

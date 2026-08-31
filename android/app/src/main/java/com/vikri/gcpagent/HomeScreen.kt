@@ -8,17 +8,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Launch
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -27,100 +32,142 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vikri.gcpagent.R
+import com.vikri.gcpagent.ui.AGEN_URL
 import com.vikri.gcpagent.ui.AppViewModel
-import com.vikri.gcpagent.ui.theme.CyanPrimary
-import com.vikri.gcpagent.ui.theme.SuccessGreen
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AppViewModel,
+    onOpenCapabilities: () -> Unit = {}
+) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    val primary = MaterialTheme.colorScheme.primary
+    val container = MaterialTheme.colorScheme.primaryContainer
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Header hero
+        // Hero gradient header
         Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
+            shape = RoundedCornerShape(26.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(Modifier.padding(24.dp)) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(CyanPrimary, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Filled.Code,
-                        contentDescription = null,
-                        tint = Color(0xFF0B1220),
-                        modifier = Modifier.size(34.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(primary, container)
+                        ),
+                        RoundedCornerShape(26.dp)
                     )
-                }
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Agen GCP",
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "Asisten cloud & DevOps berbasis AI",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        // Action card: open agent
-        Card(
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(Modifier.padding(20.dp)) {
-                Text(
-                    text = "Luncurkan Agen",
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = "Buka antarmuka web interaktif untuk menjalankan perintah, kombo, dan mengunduh artefak.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("https://gcp-agent-beta.vercel.app"))
+            ) {
+                Column(Modifier.padding(24.dp)) {
+                    Text(
+                        text = stringResource(R.string.home_eyebrow),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.home_title),
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(R.string.home_subtitle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    // Status online
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            Modifier
+                                .size(10.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.onPrimaryContainer,
+                                    CircleShape
+                                )
                         )
-                    }) {
-                        Icon(Icons.Filled.Launch, contentDescription = null)
-                        Spacer(Modifier.size(8.dp))
-                        Text("Buka di Browser")
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.home_status_on),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.home_status_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                     }
                 }
             }
         }
 
-        // Stats row
+        // Stat cards
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard("${viewModel.totalCapabilities}", "Kombinasi perintah", Modifier.weight(1f))
-            StatCard("R2", "Level evolusi", Modifier.weight(1f))
+            StatCard(
+                icon = Icons.Filled.GridView,
+                value = "${viewModel.totalCapabilities}",
+                label = stringResource(R.string.home_stats_title),
+                modifier = Modifier.weight(1f)
+            )
+            StatCard(
+                icon = Icons.Filled.CheckCircle,
+                value = "${viewModel.groups.size}",
+                label = stringResource(R.string.home_stats_groups),
+                modifier = Modifier.weight(1f)
+            )
         }
 
-        // About card
+        // Quick actions
+        Text(
+            text = stringResource(R.string.home_about_title),
+            style = MaterialTheme.typography.titleMedium
+        )
+        ActionCard(
+            icon = Icons.Filled.Code,
+            title = stringResource(R.string.action_open_agent),
+            desc = stringResource(R.string.action_open_agent_desc),
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(AGEN_URL))
+                )
+            }
+        )
+        ActionCard(
+            icon = Icons.Filled.GridView,
+            title = stringResource(R.string.action_view_capabilities),
+            desc = stringResource(R.string.action_view_capabilities_desc),
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onOpenCapabilities()
+            }
+        )
+
+        // About
         Card(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
@@ -129,34 +176,23 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: AppViewModel) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(Modifier.padding(20.dp)) {
-                Text("Tentang", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Agen GCP menautkan Anda ke platform cloud untuk otomatisasi build, 39 kombinasi output nyata, dan pengiriman artefak (termasuk APK Android).",
+                    text = stringResource(R.string.home_about_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        Modifier
-                            .size(8.dp)
-                            .background(SuccessGreen, CircleShape)
-                    )
-                    Spacer(Modifier.size(8.dp))
-                    Text(
-                        "Status: aktif & siap pakai",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = SuccessGreen
-                    )
-                }
             }
         }
     }
 }
 
 @Composable
-private fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
+private fun StatCard(
+    icon: ImageVector,
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -165,16 +201,70 @@ private fun StatCard(value: String, label: String, modifier: Modifier = Modifier
         modifier = modifier
     ) {
         Column(Modifier.padding(18.dp)) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(12.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionCard(
+    icon: ImageVector,
+    title: String,
+    desc: String,
+    onClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 92.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
     }

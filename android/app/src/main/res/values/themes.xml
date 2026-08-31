@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AgenGCP.Startup" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/splash_background</item>
-        <item name="android:statusBarColor">@color/splash_background</item>
-        <item name="android:windowLightStatusBar">false</item>
+    <!-- Tema saat aplikasi baru terbuka (pra-konten Compose) — memakai
+         androidx.core:core-splashscreen agar loncat dari splash ke konten
+         mulus & berperilaku sama lintas versi Android. -->
+    <style name="Theme.AgenGCP.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.AgenGCP</item>
     </style>
 
+    <!-- Tema runtime aplikasi; status bar & nav bar transparan karena UI memakai
+         edge-to-edge + warna skema dari Compose. -->
     <style name="Theme.AgenGCP" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">#0B1220</item>
-        <item name="android:navigationBarColor">#0B1220</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 

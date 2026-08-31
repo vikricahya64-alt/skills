@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Agen GCP</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_capabilities">Skills</string>
+    <string name="nav_web">Open Agent</string>
+
+    <string name="home_eyebrow">AI · Cloud · DevOps</string>
+    <string name="home_title">Agen GCP</string>
+    <string name="home_subtitle">AI-powered Cloud &amp; DevOps assistant — combine 39 capabilities into one workflow.</string>
+    <string name="home_status_on">Online</string>
+    <string name="home_status_desc">Agent is live &amp; ready</string>
+    <string name="home_stats_title">Capabilities</string>
+    <string name="home_stats_groups">Groups</string>
+    <string name="home_about_title">About Agent</string>
+    <string name="home_about_desc">Agen GCP links you to the cloud platform: build automation, real command combos, and artifact delivery (including Android APKs) — all in one interface.</string>
+    <string name="home_open">Open in Browser</string>
+    <string name="home_open_desc">Interactive web interface to run commands &amp; download artifacts.</string>
+    <string name="action_open_agent">Open Agent</string>
+    <string name="action_view_capabilities">View Skills</string>
+    <string name="action_open_agent_desc">Launch directly in the web interface.</string>
+    <string name="action_view_capabilities_desc">Explore all available combinations.</string>
+
+    <string name="cap_title">Skill List</string>
+    <string name="cap_subtitle">%1$d combinations ready — grouped automatically</string>
+    <string name="cap_search_placeholder">Search skills…</string>
+    <string name="cap_filter_all">All</string>
+    <string name="cap_empty_title">No results</string>
+    <string name="cap_empty_desc">Try another keyword or clear the group filter.</string>
+    <string name="cap_loading">Loading…</string>
+    <string name="a11y_clear_search">Clear search</string>
+
+    <string name="web_retry">Retry</string>
+    <string name="web_back">Back</string>
+    <string name="web_error_ssl">Invalid SSL certificate</string>
+    <string name="web_error_generic">Failed to load page</string>
+
+    <string name="shortcut_home">Home</string>
+    <string name="shortcut_capabilities">Skills</string>
+    <string name="shortcut_agent">Open Agent</string>
+</resources>

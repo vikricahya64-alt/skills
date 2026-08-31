@@ -270,8 +270,11 @@ jobs:
             - 📱 **Smoke test emulator** (info, non-blocking): app dijalankan di emulator cloud AOSP API 28
 
             ## Fitur
-            - 3 layar native: Beranda, Daftar Kemampuan (**39 gabungan**), Buka Agen
-            - Tema gelap/terang, adaptive icon, splash, R8/ProGuard
+            - **Desain kelas internasional**: tema Material 3 gelap/terang + **dynamic color (Material You)** di Android 12+, tipografi M3 lengkap, hero gradient, kartu beraksen, skeleton shimmer, pull-to-refresh, aksesibilitas (konten-deskripsi + haptic)
+            - **3 layar native**: Beranda (statistik 39 gabungan + cepat akses), Daftar Kemampuan (**pencarian + filter grup** + header sticky), Buka Agen (**progress bar deterministik**)
+            - **Dua bahasa**: Indonesia (default) + Inggris (`values-en`)
+            - **Splash screen** (core-splashscreen), **deep link** (`vikriagent://`), **pintasan aplikasi** saat tekan-lama ikon
+            - Adaptive icon, R8/ProGuard minify, tema gelap/terang
             - versionCode `${{ needs.quality-gate.outputs.version_code }}` · semver `v${{ needs.quality-gate.outputs.version_name }}`
 
             ## Changelog
