@@ -49,11 +49,13 @@ jobs:
             && echo "ARTEFAK DETERMINISTIK ✅ (release = katalog)" \
             || { echo "ARTEFAK MENYIMPANG DARI KATALOG — commit hasil generate"; exit 1; }
 
-      - name: Validasi kesehatan pohon skill (frontmatter + index) semua kemampuan
-        run: node tools/validate-skill-tree.js
-
-      - name: Cek konsistensi 4 sumber data
-        run: node tools/check-consistency.js
+      - name: Validasi arsitektur verifikasi terpadu (work + word + schema + pohon)
+        run: node tools/verify.js --docx-dir docs --report verify-report.json
+        env:
+          # Drift deterministik dgn katalog dibuktikan di langkah rekonstruksi di atas;
+          # di sini framework verify memeriksa konsistensi artefak, skema, pohon skill,
+          # kualitas kata deskripsi, serta struktur dokumen Word di docs/ (bila ada).
+          VERIFY_STRICT: "1"
 
       - name: Tetapkan versi rilis
         id: version

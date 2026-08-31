@@ -34,13 +34,15 @@ jobs:
           test "$expected" -eq "$actual"
 
       - name: Periksa konsistensi 4 sumber data (skills/index.json/packs.json/Capabilities.kt)
-        run: node tools/check-consistency.js
+        run: node tools/verify.js --suite artifact
+        env:
+          VERIFY_STRICT: "1"
 
       - name: Verifikasi generator & katalog (arsitektur 1 generator utk semua kemampuan)
         run: node tools/generate-capabilities.js --check
 
-      - name: Validasi pohon skill kemampuan (frontmatter + index siap rilis/unduh)
-        run: node tools/validate-skill-tree.js
+      - name: Validasi arsitektur verifikasi terpadu (schema + pohon skill + word quality)
+        run: node tools/verify.js --suite schema,tree,word --report verify-report.json
 
       - name: Uji server memuat seluruh skill
         working-directory: agen

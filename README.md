@@ -296,8 +296,8 @@ Inilah yang ditampilkan di app Android dan disajikan agen lewat `/api/evolution`
 
 Total **1.042 skill** terindeks otomatis di `index.json` dan dimuat agen saat runtime. Sinkronisasi
 empat sumber (skills ↔ index ↔ packs ↔ `Capabilities.kt`) dijaga otomatis lewat
-`tools/check-consistency.js` di pipeline CI, dan seluruh artefak kemampuan ditopang satu generator:
-`tools/generate-capabilities.js`.
+`tools/verify.js` (framework verifikasi terpadu, tanpa dependensi) di pipeline CI, dan seluruh
+artefak kemampuan ditopang satu generator: `tools/generate-capabilities.js`.
 
 ## Generator Kemampuan (arsitektur 1 generator utk semua kemampuan)
 
@@ -334,7 +334,7 @@ persis seperti membaca skill internasional, sementara semuanya tetap lahir dari 
 
 1. Ubah definisi di `agen/capability-catalog.js` (mis. tambah combo, ubah `family`, naikkan `version`).
 2. Jalankan `node tools/generate-capabilities.js` — semua artefak turunan diperbarui otomatis & konsisten.
-3. Commit + push; CI memverifikasi lewat `node tools/generate-capabilities.js --check` + `tools/check-consistency.js`.
+3. Commit + push; CI memverifikasi lewat `node tools/generate-capabilities.js --check` + `node tools/verify.js`.
 
 **Rilis & unduhan artefak (arsitektur rilis di atas generator):**
 
@@ -343,8 +343,10 @@ via `.github/workflows/release-skills.yml`:
 
 1. **Rekonstruksi deterministik** — generator dijalankan ulang; bila `git diff` berubah berarti artefak
    menyimpang dari katalog (release ditolak). Memastikan yang diunduh persis sama dengan sumber kebenaran.
-2. **Validasi kesehatan pohon** — `tools/validate-skill-tree.js` memeriksa frontmatter baku (`name`,
-   `metadata.version`, `metadata.category`, `description`) & konsistensi `index.json` untuk semua 55 kemampuan.
+2. **Verifikasi terpadu** — `tools/verify.js` memeriksa konsistensi artefak, validasi skema (katalog/
+   packs/index), pohon skill (frontmatter baku `name`, `metadata.version`, `metadata.category`,
+   `description` + konsistensi `index.json`), kualitas kata deskripsi, serta struktur dokumen Word
+   (`.docx`/`.doc`) — mencakup semua 55 kemampuan.
 3. **Paket artefak** — `capabilities-<v>.zip` & `.tar.gz` (seluruh pohon SKILL.md), `catalog-<v>.json`
    (manifest), dan `checksums.txt` (SHA-256).
 4. **GitHub Release** `skills-v<v>` — seluruh artefak siap diunduh konsumen (agen, CLI, marketplace),
