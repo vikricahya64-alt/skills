@@ -368,8 +368,8 @@ ${famTable}
 
 Total **1.042 skill** terindeks otomatis di \`index.json\` dan dimuat agen saat runtime. Sinkronisasi
 empat sumber (skills ↔ index ↔ packs ↔ \`Capabilities.kt\`) dijaga otomatis lewat
-\`tools/check-consistency.js\` di pipeline CI, dan seluruh artefak kemampuan ditopang satu generator:
-\`tools/generate-capabilities.js\`.
+\`tools/verify.js\` (framework verifikasi terpadu, tanpa dependensi) di pipeline CI, dan seluruh
+artefak kemampuan ditopang satu generator: \`tools/generate-capabilities.js\`.
 `;
 }
 
