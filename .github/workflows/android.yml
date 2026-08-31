@@ -50,12 +50,12 @@ jobs:
 
   # ====== 1b. UJI JALANKAN DI EMULATOR AWAN (app benar-benar dibuka, bukan sekadar compile) ======
   # Tujuan akhir: jadi GATE HIJAU yang andal. Action android-emulator-runner
-  # menjalankan tiap baris `script` sebagai proses `sh -c` TERPISAH, jadi sebuah
-  # baris yang gagal (exit != 0) akan MEMBATALKAN seluruh step dan mematikan
-  # emulator (emu kill) — perintah berikutnya tak pernah dijalankan.
-  # Solusi: jalankan SELURUH smoke test sebagai SATU skrip bash (bash -c) dengan
-  # `set +e`, sehingga satu kegagalan tidak menghentikan yang lain, dan lakukan
-  # guard device-online + boot + install + launch dengan retry yang tuntas.
+  # menjalankan SETIAP BARIS `script` sebagai proses `sh -c` TERPISAH — variabel &
+  # loop antar-baris tidak bertahan, dan baris yang gagal akan membatalkan step &
+  # mematikan emulator. Karena itu seluruh logika smoke test disimpan di file
+  # `.github/scripts/device-smoke.sh` dan dipanggil sebagai satu baris, sehingga
+  # variabel, loop, guard device-online/boot, install-retry & verifikasi launch
+  # bekerja secara normal (set +e agar satu kegagalan tak menghentikan yang lain).
   device-smoke:
     needs: quality-gate
     runs-on: ubuntu-latest
@@ -94,70 +94,12 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 420
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
-          # SEMUA langkah digabung dalam satu skrip bash dengan set +e.
-          # Guard device-online & boot ditulis manual agar pasti tunggu siap.
-          # Instal via push + pm install (lebih andal daripada streamed adb
-          # install di emulator CI yang lambat) + verifikasi loop.
-          script: |
-            set +e
-            ADB="adb -s emulator-5554"
-            APK=android/app/build/outputs/apk/debug/app-debug.apk
-            PKG=com.vikri.gcpagent
-
-            echo "=== 1. Tunggu device online ==="
-            for i in $(seq 1 30); do
-              $ADB shell true 2>/dev/null && { echo "device online (iter $i)"; break; }
-              sleep 3
-            done
-
-            echo "=== 2. Tunggu boot selesai ==="
-            for i in $(seq 1 60); do
-              boot=$($ADB shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
-              [ "$boot" = "1" ] && { echo "BOOT COMPLETED (iter $i)"; break; }
-              sleep 3
-            done
-            $ADB shell input keyevent 82
-
-            echo "=== 3. Push APK ==="
-            ls -la "$APK"
-            $ADB push "$APK" /data/local/tmp/app.apk
-            echo "push exit=$?"
-
-            echo "=== 4. Install (retry) ==="
-            installed=no
-            for i in 1 2 3 4 5; do
-              $ADB shell pm path "$PKG" 2>/dev/null | grep -q "package:" && { installed=yes; echo "already installed"; break; }
-              $ADB shell pm install -r -t /data/local/tmp/app.apk; code=$?
-              echo "install attempt $i exit=$code"
-              $ADB shell pm path "$PKG" 2>/dev/null | grep -q "package:" && { installed=yes; break; }
-              sleep 3
-            done
-            echo "installed=$installed"
-            if [ "$installed" != "yes" ]; then echo "APP NOT INSTALLED"; else echo "APP INSTALLED OK"; fi
-
-            echo "=== 5. Launch ==="
-            $ADB shell am start -W -n "$PKG/.MainActivity"
-
-            echo "=== 6. Verifikasi proses berjalan ==="
-            running=no
-            for i in $(seq 1 10); do
-              pid=$($ADB shell pidof "$PKG" 2>/dev/null | tr -d '\r')
-              [ -n "$pid" ] && { running=yes; echo "APP LAUNCHED OK (pid=$pid)"; break; }
-              sleep 5
-            done
-            echo "running=$running"
-
-            echo "=== 7. Focus & crash check ==="
-            $ADB shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp"
-            echo "--- logcat FATAL ---"
-            $ADB logcat -d 2>/dev/null | grep -iE "FATAL EXCEPTION|PROCESS DIED|ANR in com.vikri.gcpagent" | head -20
-
-            # Hasil: hanya GAGAL bila benar-benar tidak terpasang ATAU tidak berjalan.
-            if [ "$installed" != "yes" ] || [ "$running" != "yes" ]; then
-              echo "SMOKE RESULT: FAIL"
-              exit 1
-            fi
-            echo "SMOKE RESULT: PASS"
+          # Penting: action ini menjalankan SETIAP BARIS `script:` sebagai proses
+          # `sh -c` TERPISAH (variabel & loop antar-baris TIDAK bertahan, baris yang
+          # gagal membatalkan step & mematikan emulator). Maka seluruh logika smoke
+          # test ditaruh di file `.github/scripts/device-smoke.sh` dan dipanggil
+          # sebagai SATU BARIS di sini — variabel & loop bekerja normal di dalamnya.
+          script: bash .github/scripts/device-smoke.sh android/app/build/outputs/apk/debug/app-debug.apk
 
 
   # ====== 2. RILIS PRODUKSI: APK + AAB (Play-ready) + checksum ======
