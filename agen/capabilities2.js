@@ -1,6 +1,6 @@
-// EVOLUSI TINGKAT 2: restrukturisasi dari 449+ skill menjadi:
+// EVOLUSI TINGKAT 2: restrukturisasi dari 1.042 skill menjadi:
 //   PRIME  (4 domain evolusi tertinggi)
-//   COMBOS (16 kemampuan kombinasi nyata lintas-ekosistem)
+//   COMBOS (39 kemampuan kombinasi nyata lintas-ekosistem)
 // Setiap entri adalah "kemampuan nyata" — bukan daftar statis, melainkan
 // kompetensi gabungan yang mengarahkan agen memakai tool + knowledge base.
 

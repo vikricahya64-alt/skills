@@ -265,12 +265,30 @@ Apache 2.0 license. See the `LICENSE` file for details.
     data engineering, database, cloud-infra, keamanan, accessibility, content, agent orchestration, dll.
 - `skills/ecosystem/` — 74 skill dari ekosistem plugin Gemini/Google (Apache-2.0): AlloyDB, BigQuery, Cloud SQL, Spanner, Looker, Firestore, dll.
 
-## Fusion Kemampuan
+## Fusion Kemampuan (Arsitektur v3)
 
-Seluruh 449 skill di-*fusion* menjadi **12 kemampuan tingkat tinggi** (meta-skill) via `agen/capabilities.js`:
+Seluruh **1.042 skill** di-*fusion* menjadi **12 kemampuan tingkat tinggi** (meta-skill) via `agen/capabilities.js`:
 Cloud Full-Stack, Data Engineering, Database Ops, Security & Threat Hunting, Full-Stack App Builder,
 ML/AI Engineering, SRE & Observability, Developer Excellence, Cloud Data+Security, Agentic AI Orchestration,
 Web3, dan Mobile App. Saat bertanya, agen otomatis memilih kemampuan yang relevan dan menyatukannya dalam jawaban
 (endpoint `/api/capabilities`).
 
-Total 449 skill terindeks otomatis di `index.json` dan dimuat agen saat runtime.
+Dari 12 meta-skill itu, **arsitektur v3** (`agen/capabilities3.js` + `agen/packs.json`) mensintesis
+**4 PRIME** (umbrella domain evolusi) dan **39 COMBOS** (kemampuan kombinasi operasional nyata) — total
+**43 kemampuan**. Setiap kemampuan kini memakai *rich model* terpadu: `tier` (EVOLUTION untuk PRIME,
+ADVANCED-CAP untuk COMBOS), `family` (prime umbrella yang menaunginya), `commands`, `runnable`, `recipe`,
+dan `outcomes`. Semua 39 COMBOS bersifat *runnable* (punya jalur eksekusi nyata di `agen/outputs.js`).
+Inilah yang ditampilkan di app Android dan disajikan agen lewat `/api/evolution` / `/api/fusion`.
+
+**Peta family (COMBOS → PRIME umbrella):**
+
+| Family (PRIME) | Combo di dalamnya | Jumlah |
+|---|---|---|
+| `prime-cloud-platform` (Cloud & Infra) | install/download, network-edge, os-environment, backup-dr, finops-cost | 5 |
+| `prime-data-ai` (Data & AI) | sql-data-workflow, web-scraping, live-web, local-db, secure-data, dataviz-reporting, research-ai-pipeline, rag-knowledge, academic-research, healthcare-ai, translation-lang, multi-agent-research | 12 |
+| `prime-software-product` (Software & Product) | build-apk, build-shipping, ai-native-app, mobile-cloud, devtools-dx, e2e-quality, runtime-performance, token-efficiency, game-xr, media-generation, rendering-formats, web3-secure, payment-fintech, growth-content, hr-recruitment, project-delivery, generalist-master | 17 |
+| `prime-secobs-agentics` (Security/Obs/Agentic) | agent-systems, agentic-devops, automation-workflow, mcp-tool-builder, email-notifications | 5 |
+
+Total **1.042 skill** terindeks otomatis di `index.json` dan dimuat agen saat runtime. Sinkronisasi
+empat sumber (skills ↔ index ↔ packs ↔ `Capabilities.kt`) dijaga otomatis lewat
+`tools/check-consistency.js` di pipeline CI.

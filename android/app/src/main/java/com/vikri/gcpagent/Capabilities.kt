@@ -5,12 +5,14 @@ data class Capability(
     val name: String,
     val emoji: String,
     val insight: String,
-    val group: String
+    val group: String,
+    val tier: String = "CAP",
+    val family: String? = null
 )
 
 object CapabilityCatalog {
     val groups = listOf(
-        "Riset & AI", "Build App", "DevTools & Agent", "DevOps & Delivery",
+        "Evolusi", "Riset & AI", "Build App", "DevTools & Agent", "DevOps & Delivery",
         "Data", "Konten & Media", "Sistem & Performa", "Keamanan",
         "Keuangan & Cloud", "Otomasi", "Operasional", "Jaringan",
         "Kualitas", "Growth & Konten", "Web & Live", "Notifikasi",
@@ -57,6 +59,10 @@ object CapabilityCatalog {
         Capability("combo-os-environment", "OS & Reproducible Environments", "🐧", "Lingkungan kerja yang portabel, aman, dan reproduksibel: manajemen env deklaratif (Flox/Nix), bash defensif produksi, shellcheck, BATS, secrets management, dan provisioning agen — satu kemampuan untuk menjalankan apa pun secara konsisten di lingkungan apa pun.", "Sistem & Performa"),
         Capability("combo-build-shipping", "Build App & Project Shipping Fusion", "🏗️", "Fusi total membangun & mengirim project: restrukturisasi semua logika kode build menjadi satu kemampuan — scaffold struktur project lengkap (Android/Gradle/Compose Multiplatform, web frontend/backend, React Native), kompilasi/bundling (Gradle, Vite, Next build), containerization (Docker/Cloud Build), manifest GKE/K8s, dan pipeline CI/CD shipping — dengan tool write nyata agar setiap file ditulis ke workspace dan hasilnya bisa diunduh. Terapkan pedoman before-you-build (piprah), arsitektur bersih, optimasi build (lean/bazel), dan emisi produksi yang siap dirilis.", "DevOps & Delivery"),
         Capability("combo-build-apk", "Android APK Build Pipeline", "🧱", "Fusi total membangun APK Android end-to-end: restrukturisasi semua logika kode build Android menjadi satu kemampuan — struktur project Gradle lengkap (settings.gradle, build.gradle root & app, gradle.properties, AndroidManifest.xml, res/values, MainActivity.kt), arsitektur bersih (clean architecture + MVVM), pola Kotlin/Compose/material design, sampai pipeline menghasilkan APK (assembleDebug/assembleRelease), signing (keystore/signingConfig), R8/ProGuard minify, dan distribusi AAB/APK — setiap file ditulis ke workspace memakai tool write agar source project bisa diunduh lalu di-build di Android Studio.", "DevOps & Delivery"),
+        Capability("prime-cloud-platform", "Cloud & Infrastructure Evolution", "☁️", "Arsitek cloud end-to-end: infrastruktur sebagai kode, platform yang dapat diskalakan, database terkelola, dan keamanan data menyatu sejak desain — bukan lapisan terpisah.", "Evolusi", tier = "EVOLUTION"),
+        Capability("prime-data-ai", "Data & AI Evolution", "🤖", "Evolusi data menjadi intelijen: pipeline berkualitas melahirkan model yang dapat di-deploy, dimonitor, dan diamankan — siklus data→AI→keputusan yang berkelanjutan.", "Evolusi", tier = "EVOLUTION"),
+        Capability("prime-software-product", "Software & Product Evolution", "🧩", "Produk digital yang utuh: dari desain & UX, rekayasa frontend/backend/API, kualitas pengembangan, hingga teknologi baru (web3/mobile) — satu alur produk, bukan silo.", "Evolusi", tier = "EVOLUTION"),
+        Capability("prime-secobs-agentics", "Security, Observability & Agentic Evolution", "🛡️", "Operasi yang aman, terukur, dan otonom: ancaman dimitigasi proaktif, sistem diobservasi berbasis SLO, dan agen/otomasi menjalankan remediasi — keandalan sebagai produk.", "Evolusi", tier = "EVOLUTION"),
     )
 
     fun byGroup(g: String): List<Capability> = all.filter { it.group == g }

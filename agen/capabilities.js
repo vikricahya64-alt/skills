@@ -1,4 +1,4 @@
-// Fusion engine: mengubah 449 skill menjadi "kemampuan" tingkat tinggi (meta-skill).
+// Fusion engine: mengubah 1.042 skill menjadi "kemampuan" tingkat tinggi (meta-skill).
 // Tiap kemampuan menggabungkan banyak skill serupa + menambahkan perspektif lintas-domain.
 
 const CAPS = [

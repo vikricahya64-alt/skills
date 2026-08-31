@@ -9,6 +9,7 @@ const { CAPS, pickCapabilities } = require("./capabilities.js");
 const KB = require("./knowledge.js");
 const CODEX = require("./codex.js");
 const EVO = require("./capabilities2.js");
+const EVO3 = require("./capabilities3.js");
 const FUSION = require("./fusion.js");
 const RUN = require("./run.js");
 const OUTPUTS = require("./outputs.js");
@@ -157,15 +158,34 @@ function loadPacks() {
 let _fusionCache = null;
 
 function ensurePacks() {
+  // KARTU PENUH (dengan kolom codes/logic) — wajib untuk buildPacks agar tiap
+  // pack membawa "kode nyata + logika kunci" skill; jangan pakai INDEX yang
+  // sudah di-strip (hanya name/description/core/keywords).
+  const fullCards = () => { try { return KB.loadCards(); } catch (_) { return INDEX; } };
   let packs = loadPacks();
+  // Sinkronkan schema: jika packs.json belum ber-skema v3 (field tier/family/outcomes),
+  // bangun ulang SELURUH pack dari model v3 agar tak melenceng antar sumber.
+  const SCHEMA = "v3";
+  if (!packs.__schema || packs.__schema !== SCHEMA) {
+    try {
+      const items = EVO3.CAPS3;
+      const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), items);
+      packs = FUSION.buildPacks(enrich, fullCards());
+      packs.__schema = SCHEMA;
+      FUSION.savePacks(packs);
+      PACKS = packs;
+      console.log("[arusitektur v3] packs.json diregenerasi: " + Object.keys(packs).length + " kemampuan");
+      return packs;
+    } catch (_) {}
+  }
   // Isi pack yang MUNGKIN BELUM ADA di cache packs.json (mis. combo baru)
   // tanpa menimpa seluruh cache, supaya kemampuan baru tetap dapat fusi kode+logika.
   try {
-    const items = EVO.PRIMES.concat(EVO.COMBOS);
+    const items = EVO3.CAPS3;
     const missing = items.filter((it) => !packs[it.id]);
     if (missing.length) {
       const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), missing);
-      const fill = FUSION.buildPacks(enrich, INDEX);
+      const fill = FUSION.buildPacks(enrich, fullCards());
       for (const k of Object.keys(fill)) packs[k] = fill[k];
       FUSION.savePacks(packs);
       PACKS = packs;
@@ -173,9 +193,9 @@ function ensurePacks() {
   } catch (_) {}
   if (!Object.keys(packs).length) {
     try {
-      const items = EVO.PRIMES.concat(EVO.COMBOS);
+      const items = EVO3.CAPS3;
       const enrich = FUSION.attachSkills(FUSION.buildTaxonomy(INDEX), items);
-      packs = FUSION.buildPacks(enrich, INDEX);
+      packs = FUSION.buildPacks(enrich, fullCards());
       FUSION.savePacks(packs);
       PACKS = packs;
     } catch (_) {}
@@ -524,9 +544,22 @@ app.get("/api/capabilities", (req, res) => {
 
 
 app.get("/api/evolution", (req, res) => {
+  const capMeta = (c) => ({
+    id: c.id, name: c.name, emoji: c.emoji,
+    tier: c.tier || (c.domains ? "EVOLUTION" : "ADVANCED-CAP"),
+    family: c.family || null,
+    domains: c.domains || [],
+    skills: c.skills || [],
+    commands: c.commands || RUN.COMBO_COMMANDS[c.id] || [],
+    runnable: !!c.runnable || !!OUTPUTS.RECIPES[c.id],
+    recipe: c.recipe || OUTPUTS.RECIPES[c.id]?.name || null,
+    outcomes: c.outcomes || [],
+    insight: c.insight,
+  });
   res.json({
-    primes: EVO.PRIMES.map((p) => ({ id: p.id, name: p.name, emoji: p.emoji, domains: p.domains, insight: p.insight })),
-    combos: EVO.COMBOS.map((c) => ({ id: c.id, name: c.name, emoji: c.emoji, skills: c.skills, insight: c.insight, commands: RUN.COMBO_COMMANDS[c.id] || [] })),
+    total: EVO3.CAPS3.length,
+    primes: EVO3.PRIMES3.map(capMeta),
+    combos: EVO3.COMBOS3.map(capMeta),
   });
 });
 
@@ -550,7 +583,7 @@ app.get("/api/fusion", (req, res) => {
   try {
     const cards = KB.loadCards();
     const tax = FUSION.buildTaxonomy(cards);
-    const items = EVO.PRIMES.concat(EVO.COMBOS);
+    const items = EVO3.CAPS3;
     const enrich = FUSION.attachSkills(tax, items);
     const covered = new Set();
     for (const e of enrich) for (const n of e.allSkills || []) covered.add(n);
@@ -563,6 +596,10 @@ app.get("/api/fusion", (req, res) => {
         id: e.id,
         name: e.name,
         emoji: e.emoji,
+        tier: e.tier || null,
+        family: e.family || null,
+        runnable: !!e.runnable,
+        recipe: e.recipe || null,
         insight: e.insight,
         skillCount: (e.allSkills || []).length,
         skills: (e.allSkills || []).slice(0, 60),
@@ -694,7 +731,7 @@ app.get("/api/info", async (req, res) => {
     kb: true,
     kbCards: KB.loadCards().length,
     maxTopSkills: 3,
-    evolution: { primes: EVO.PRIMES.length, combos: EVO.COMBOS.length },
+    evolution: { primes: EVO3.PRIMES3.length, combos: EVO3.COMBOS3.length, total: EVO3.CAPS3.length },
     agentTools: CODEX.TOOL_LIST.map((t) => t.name),
   });
 });
@@ -942,7 +979,7 @@ app.post("/api/run", async (req, res) => {
   let cap = RUN.matchSkill(task);
   const forceId = String((req.body && req.body.combo) || "").trim();
   if (forceId) {
-    const fc = EVO.COMBOS.find((x) => x.id === forceId);
+    const fc = EVO3.CAPS3.find((x) => x.id === forceId) || EVO.COMBOS.find((x) => x.id === forceId);
     if (fc) cap = fc;
   }
   const mission = cap ? RUN.buildMission(task, cap, sessionId) : RUN.buildGeneric(task);

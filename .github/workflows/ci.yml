@@ -33,6 +33,9 @@ jobs:
           echo "Skill di repo: $expected, Skill di index.json: $actual"
           test "$expected" -eq "$actual"
 
+      - name: Periksa konsistensi 4 sumber data (skills/index.json/packs.json/Capabilities.kt)
+        run: node tools/check-consistency.js
+
       - name: Uji server memuat seluruh skill
         working-directory: agen
         run: |
