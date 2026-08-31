@@ -203,7 +203,8 @@ jobs:
 
       - name: Bangun APK dari AAB (bukti AAB berfungsi & distribusi Play)
         run: |
-          curl -fsSL -o /tmp/bundletool.jar \
+          curl -fsSL --retry 8 --retry-all-errors --retry-delay 3 \
+            -o /tmp/bundletool.jar \
             https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar
           mkdir -p /tmp/from-aab
           # APK universal (gabung semua ABI) — bisa di-install langsung
