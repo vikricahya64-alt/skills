@@ -54,7 +54,12 @@ echo "installed=$installed"
 [ "$installed" = "yes" ] && echo "APP INSTALLED OK" || echo "APP NOT INSTALLED"
 
 echo "=== 5. Launch ==="
-$ADB shell am start -W -n "$PKG/.MainActivity"
+# Nama class activity = com.vikri.gcpagent.MainActivity (namespace aplikasi),
+# sedangkan applicationId debug = com.vikri.gcpagent.debug. Gunakan nama class
+# LENGKAP (tidak pakai leading '.') karena am start meresolusi '.MainActivity'
+# relatif ke package -> jadi .debug.MainActivity yang salah.
+ACTIVITY="com.vikri.gcpagent.MainActivity"
+$ADB shell am start -W -n "$PKG/$ACTIVITY"
 
 echo "=== 6. Verifikasi proses berjalan ==="
 running=no
