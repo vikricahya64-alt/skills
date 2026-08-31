@@ -1,6 +1,7 @@
 package com.vikri.gcpagent
 
 import com.vikri.gcpagent.data.CapabilityRepository
+import com.vikri.gcpagent.ui.AppViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -36,7 +37,7 @@ class AppViewModelTest {
     }
 
     @Test
-    fun `state awal: query kosong dan tidak ada grup terpilih`() {
+    fun `state awal query kosong dan tidak ada grup terpilih`() {
         val vm = AppViewModel(CapabilityRepository())
         assertNull(vm.uiState.value.selectedGroup)
         assertEquals("", vm.uiState.value.searchQuery)
