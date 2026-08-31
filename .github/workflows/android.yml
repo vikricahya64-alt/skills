@@ -52,19 +52,16 @@ jobs:
           echo "value=${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           echo "name=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
-  # ====== 1b. UJI JALANKAN DI EMULATOR AWAN (app benar-benar dibuka, bukan sekadar compile) ======
-  # Tujuan akhir: jadi GATE HIJAU yang andal. Action android-emulator-runner
-  # menjalankan SETIAP BARIS `script` sebagai proses `sh -c` TERPISAH — variabel &
-  # loop antar-baris tidak bertahan, dan baris yang gagal akan membatalkan step &
-  # mematikan emulator. Karena itu seluruh logika smoke test disimpan di file
-  # `.github/scripts/device-smoke.sh` dan dipanggil sebagai satu baris, sehingga
-  # variabel, loop, guard device-online/boot, install-retry & verifikasi launch
-  # bekerja secara normal (set +e agar satu kegagalan tak menghentikan yang lain).
+  # ====== 1b. UJI JALANKAN DI EMULATOR AWAN (gate: app benar-benar dibuka) ======
+  # GATE HIJAU: app harus benar-benar terpasang & berjalan di emulator cloud, bukan
+  # sekadar kompilasi. Skrip `.github/scripts/device-smoke.sh` berisi seluruh logika
+  # (guard device-online/boot, install-retry, launch & verifikasi pidof) dan dipanggil
+  # sebagai SATU baris karena action android-emulator-runner menjalankan setiap baris
+  # `script` sebagai proses `sh -c` terpisah (variabel & loop antar-baris tak bertahan).
   device-smoke:
     needs: quality-gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -176,7 +173,7 @@ jobs:
 
       # Verifikasi isi APK yang SEBENARNYA ter-package (manifest/activity/resource)
       # via aapt2 — bukti build bukan sekadar compile; andal & selalu deterministik
-      # (pengganti smoke-emulator yang flaky; tetap dieksekusi penuh di CI).
+      # (melengkapi smoke-test emulator yang kini juga menjadi gate).
       - name: "Verifikasi isi APK via aapt2"
         run: |
           AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
@@ -263,9 +260,9 @@ jobs:
             - ✅ **jarsigner**: AAB terverifikasi
             - ✅ **bundletool**: APK universal berhasil dibangun & diverifikasi dari AAB
             - ✅ **aapt2**: isi APK terverifikasi (package `com.vikri.gcpagent`, launch activity `MainActivity`, DEX) — bukti build & kemasan benar, deterministik
-            - ✅ Android **Lint** bersih (quality gate) + **build** terbukti (APK/AAB)
+            - ✅ Android **Lint** bersih + **unit test JVM** lolos + **build** terbukti (APK/AAB) — gate kualitas
             - 🔒 **Signing stabil** dari GitHub secret + keamanan produksi (backup rules, HTTPS-only)
-            - 📱 **Smoke test emulator** (info, non-blocking): app dijalankan di emulator cloud AOSP API 28
+            - 📱 **Smoke test emulator** (gate): app benar-benar terpasang & berjalan di emulator cloud AOSP API 28 (verifikasi via `pidof` + tidak ada crash)
 
             ## Fitur
             - **Desain kelas internasional**: tema Material 3 gelap/terang + **dynamic color (Material You)** di Android 12+, tipografi M3 lengkap, hero gradient, kartu beraksen, skeleton shimmer, pull-to-refresh, aksesibilitas (konten-deskripsi + haptic)
