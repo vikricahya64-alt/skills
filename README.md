@@ -336,6 +336,20 @@ persis seperti membaca skill internasional, sementara semuanya tetap lahir dari 
 2. Jalankan `node tools/generate-capabilities.js` — semua artefak turunan diperbarui otomatis & konsisten.
 3. Commit + push; CI memverifikasi lewat `node tools/generate-capabilities.js --check` + `tools/check-consistency.js`.
 
+**Rilis & unduhan artefak (arsitektur rilis di atas generator):**
+
+Setiap kemampuan yang di-generate juga **dapat diunduh** sebagai artefak rilis berformat internasional
+via `.github/workflows/release-skills.yml`:
+
+1. **Rekonstruksi deterministik** — generator dijalankan ulang; bila `git diff` berubah berarti artefak
+   menyimpang dari katalog (release ditolak). Memastikan yang diunduh persis sama dengan sumber kebenaran.
+2. **Validasi kesehatan pohon** — `tools/validate-skill-tree.js` memeriksa frontmatter baku (`name`,
+   `metadata.version`, `metadata.category`, `description`) & konsistensi `index.json` untuk semua 55 kemampuan.
+3. **Paket artefak** — `capabilities-<v>.zip` & `.tar.gz` (seluruh pohon SKILL.md), `catalog-<v>.json`
+   (manifest), dan `checksums.txt` (SHA-256).
+4. **GitHub Release** `skills-v<v>` — seluruh artefak siap diunduh konsumen (agen, CLI, marketplace),
+   dengan verifikasi arsip (wajib memuat 55 `SKILL.md`).
+
 **Mengapa ini patut ditiru dari developer internasional:**
 
 - **Satu sumber kebenaran** — tak ada lagi metadata kemampuan yang tersebar/duplikat manual di banyak file

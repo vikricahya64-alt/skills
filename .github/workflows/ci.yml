@@ -39,6 +39,9 @@ jobs:
       - name: Verifikasi generator & katalog (arsitektur 1 generator utk semua kemampuan)
         run: node tools/generate-capabilities.js --check
 
+      - name: Validasi pohon skill kemampuan (frontmatter + index siap rilis/unduh)
+        run: node tools/validate-skill-tree.js
+
       - name: Uji server memuat seluruh skill
         working-directory: agen
         run: |

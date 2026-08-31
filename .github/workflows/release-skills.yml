@@ -1,0 +1,101 @@
+name: Release Skills
+
+# ============================================================================
+# ARSITEKTUR RILIS ARTEFAK KEMAMPUAN — penerbitan (release) pohon SKILL.md
+# format internasional agar SETIAP kemampuan dapat diunduh.
+#
+# Lapisan ini MENDUKUNG arsitektur generator (tools/generate-capabilities.js):
+#   definisi terpusat (catalog) -> codegen -> [release-skills] -> artefak
+#   yang dapat diunduh (zip/tar.gz + catalog.json + checksum SHA-256).
+#
+# Alur:
+#   1. Regenerate dari SATU sumber kebenaran & buktikan deterministik
+#      (git diff bersih => release persis sama dengan katalog).
+#   2. Validasi kesehatan pohon skill (frontmatter + index) lintas kemampuan.
+#   3. Paket artefak yang dapat diunduh (zip, tar.gz, catalog, checksum).
+#   4. Unggah ke GitHub Release (tag skills-v<semver>) — siap diunduh siapa saja.
+# ============================================================================
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'capabilities/**'
+      - 'agen/**'
+      - 'tools/**'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Pasang Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Rekonstruksi artefak dari 1 sumber & buktikan deterministik
+        run: |
+          node tools/generate-capabilities.js
+          # Jika regenerasi mengubah apa pun => artefak menyimpang dari katalog (bukan deterministik).
+          git diff --exit-code capabilities/ agen/catalog.json \
+            && echo "ARTEFAK DETERMINISTIK ✅ (release = katalog)" \
+            || { echo "ARTEFAK MENYIMPANG DARI KATALOG — commit hasil generate"; exit 1; }
+
+      - name: Validasi kesehatan pohon skill (frontmatter + index) semua kemampuan
+        run: node tools/validate-skill-tree.js
+
+      - name: Cek konsistensi 4 sumber data
+        run: node tools/check-consistency.js
+
+      - name: Tetapkan versi rilis
+        id: version
+        run: echo "name=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Paket artefak skill yang dapat diunduh + checksum
+        run: |
+          V=${{ steps.version.outputs.name }}
+          mkdir -p dist
+          (cd capabilities && zip -qr "../dist/capabilities-${V}.zip" .)
+          tar -czf "dist/capabilities-${V}.tar.gz" -C capabilities .
+          cp agen/catalog.json "dist/catalog-${V}.json"
+          (cd dist && sha256sum * > checksums.txt)
+          echo "=== dist/ ==="
+          ls -la dist/
+
+      - name: Verifikasi isi arsip (buat semua 55 SKILL.md ada)
+        run: |
+          V=${{ steps.version.outputs.name }}
+          unzip -l "dist/capabilities-${V}.zip" | grep -cE "SKILL\.md$" | xargs -I{} echo "SKILL.md dalam zip: {}"
+          test "$(unzip -l "dist/capabilities-${V}.zip" | grep -cE 'SKILL\.md$')" -eq 55 \
+            && echo "ARSIP LENGKAP ✅ (55 kemampuan)" || { echo "ARSIP TIDAK LENGKAP"; exit 1; }
+
+      - name: Rilis skill (tag + arsip + catalog + checksum)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: skills-v${{ steps.version.outputs.name }}
+          name: "Capability Skills v${{ steps.version.outputs.name }}"
+          body: |
+            **Arsip kemampuan** — pohon `SKILL.md` format developer internasional, semua **55 kemampuan** (12 meta + 4 PRIME + 39 COMBOS) dapat diunduh.
+
+            ## Artefak
+            - `capabilities-<v>.zip` — seluruh pohon SKILL.md (55) + index.json (siap dipakai konsumen skill)
+            - `capabilities-<v>.tar.gz` — versi tarball
+            - `catalog-<v>.json` — manifest machine-readable (metadata versi/kategori/tag/family/recipe)
+            - `checksums.txt` — SHA-256 untuk verifikasi integritas
+
+            ## Jaminan kualitas
+            - ✅ **Deterministik** — artefak di-rekonstruksi dari satu sumber kebenaran `agen/capability-catalog.js`, dan `git diff` bersih (release persis = katalog)
+            - ✅ **Validasi pohon** — tiap SKILL.md memiliki frontmatter baku (`name`, `metadata.version`, `metadata.category`, `description`) + index konsisten
+            - ✅ **Konsistensi 4 sumber** (skills ↔ index ↔ packs ↔ `Capabilities.kt`)
+            - ✅ **Verifikasi arsip** — 55 `SKILL.md` terpaket lengkap
+
+            _Verifikasi integritas: `sha256sum -c checksums.txt`_
+          files: dist/*
