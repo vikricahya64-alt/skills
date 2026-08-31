@@ -265,7 +265,11 @@ Apache 2.0 license. See the `LICENSE` file for details.
     data engineering, database, cloud-infra, keamanan, accessibility, content, agent orchestration, dll.
 - `skills/ecosystem/` — 74 skill dari ekosistem plugin Gemini/Google (Apache-2.0): AlloyDB, BigQuery, Cloud SQL, Spanner, Looker, Firestore, dll.
 
-## Fusion Kemampuan (Arsitektur v3)
+## Fusion Kemampuan (Arsitektur v3 + Generator)
+
+> Dihasilkan otomatis oleh `tools/generate-capabilities.js` dari satu sumber
+> kebenaran `agen/capability-catalog.js`. Jangan edit blok ini manual — ubah
+> katalog lalu jalankan generator (lihat "Generator Kemampuan" di bawah).
 
 Seluruh **1.042 skill** di-*fusion* menjadi **12 kemampuan tingkat tinggi** (meta-skill) via `agen/capabilities.js`:
 Cloud Full-Stack, Data Engineering, Database Ops, Security & Threat Hunting, Full-Stack App Builder,
@@ -273,22 +277,56 @@ ML/AI Engineering, SRE & Observability, Developer Excellence, Cloud Data+Securit
 Web3, dan Mobile App. Saat bertanya, agen otomatis memilih kemampuan yang relevan dan menyatukannya dalam jawaban
 (endpoint `/api/capabilities`).
 
-Dari 12 meta-skill itu, **arsitektur v3** (`agen/capabilities3.js` + `agen/packs.json`) mensintesis
-**4 PRIME** (umbrella domain evolusi) dan **39 COMBOS** (kemampuan kombinasi operasional nyata) — total
-**43 kemampuan**. Setiap kemampuan kini memakai *rich model* terpadu: `tier` (EVOLUTION untuk PRIME,
-ADVANCED-CAP untuk COMBOS), `family` (prime umbrella yang menaunginya), `commands`, `runnable`, `recipe`,
-dan `outcomes`. Semua 39 COMBOS bersifat *runnable* (punya jalur eksekusi nyata di `agen/outputs.js`).
+Dari 12 meta-skill itu, **arsitektur v3** mensintesis **4 PRIME** (umbrella domain evolusi) dan **39 COMBOS**
+(kemampuan kombinasi operasional nyata) — total **43 kemampuan**. Setiap kemampuan memakai *rich model* terpadu:
+`tier` (EVOLUTION untuk PRIME, ADVANCED-CAP untuk COMBOS), `family` (prime umbrella), `commands`,
+`runnable`, `recipe`, dan `outcomes`. Semua 39 COMBOS bersifat *runnable* (jalur eksekusi nyata di `agen/outputs.js`).
 Inilah yang ditampilkan di app Android dan disajikan agen lewat `/api/evolution` / `/api/fusion`.
+
+**PRIME (payung):** `prime-cloud-platform` **Cloud & Infrastructure Evolution** (5 combo); `prime-data-ai` **Data & AI Evolution** (12 combo); `prime-software-product` **Software & Product Evolution** (17 combo); `prime-secobs-agentics` **Security, Observability & Agentic Evolution** (5 combo).
 
 **Peta family (COMBOS → PRIME umbrella):**
 
 | Family (PRIME) | Combo di dalamnya | Jumlah |
 |---|---|---|
-| `prime-cloud-platform` (Cloud & Infra) | install/download, network-edge, os-environment, backup-dr, finops-cost | 5 |
-| `prime-data-ai` (Data & AI) | sql-data-workflow, web-scraping, live-web, local-db, secure-data, dataviz-reporting, research-ai-pipeline, rag-knowledge, academic-research, healthcare-ai, translation-lang, multi-agent-research | 12 |
-| `prime-software-product` (Software & Product) | build-apk, build-shipping, ai-native-app, mobile-cloud, devtools-dx, e2e-quality, runtime-performance, token-efficiency, game-xr, media-generation, rendering-formats, web3-secure, payment-fintech, growth-content, hr-recruitment, project-delivery, generalist-master | 17 |
-| `prime-secobs-agentics` (Security/Obs/Agentic) | agent-systems, agentic-devops, automation-workflow, mcp-tool-builder, email-notifications | 5 |
+| `prime-data-ai` (Data & AI) | Multi-Agent Deep Research, Research-to-AI Pipeline, RAG & Knowledge Graph, SQL & Data Workflow (Multi-Step), Live Web Execution, Local DB & API App, Translation & Multilingual Fusion, Data Visualization & Automated Reporting, Web Scraping & Data Extraction, Academic & Scientific Research, Healthcare & Medical AI, Secure Data Pipeline | 12 |
+| `prime-software-product` (Software & Product) | Efficiency & Optimization Mastery, AI-Native App Builder, E2E Quality & Benchmark, Growth, Brand & Content Engine, Modern Runtime & Performance, DevTools & Developer Experience, AI Media & Presentation, Mobile × Cloud Backend, Web3 Secure Engineering, Rendering All Formats, Payment, Billing & Fintech, HR & Recruitment Pipeline, Game, 3D & XR Development, Project Management & Geospatial Delivery, Generalist & Operator Fusion, Build App & Project Shipping Fusion, Android APK Build Pipeline | 17 |
+| `prime-secobs-agentics` (Security/Obs/Agentic) | MCP Servers & Agent Tooling, Agent Systems & Orchestration, Agentic DevOps, Automation & Workflow Fusion, Email & Unified Notifications | 5 |
+| `prime-cloud-platform` (Cloud & Infra) | FinOps & Cloud Cost Optimization, Backup, Migrasi & Disaster Recovery, Install, Download & Artifact Distribution, Network & Edge Engineering, OS & Reproducible Environments | 5 |
 
 Total **1.042 skill** terindeks otomatis di `index.json` dan dimuat agen saat runtime. Sinkronisasi
 empat sumber (skills ↔ index ↔ packs ↔ `Capabilities.kt`) dijaga otomatis lewat
-`tools/check-consistency.js` di pipeline CI.
+`tools/check-consistency.js` di pipeline CI, dan seluruh artefak kemampuan ditopang satu generator:
+`tools/generate-capabilities.js`.
+
+## Generator Kemampuan (arsitektur 1 generator utk semua kemampuan)
+
+Mengikuti pola developer internasional **definisi → codegen → verify**: seluruh kemampuan (12 meta + 4 PRIME +
+39 COMBOS = 55) didefinisikan di **satu sumber kebenaran** `agen/capability-catalog.js`, lalu **satu generator**
+`tools/generate-capabilities.js` menghasilkan semua artefak turunan secara deterministik.
+
+```
+agen/capability-catalog.js   ← SARU sumber kebenaran (metadata internasional:
+                                version, category, tags, family, recipe,
+                                commands, outcomes, tier, group)
+        │  tools/generate-capabilities.js  ("codegen")
+        ▼
+ ├─ agen/capabilities3.js     ← lapisan v3 (enrichment + FAMILY)
+ ├─ android/.../Capabilities.kt  ← daftar kemampuan app Android
+ ├─ agen/catalog.json         ← manifest machine-readable (55 kemampuan)
+ └─ README (blok Fusion Kemampuan) ← ringkasan & tabel keluarga
+```
+
+**Alur kerja (CRUD kemampuan):**
+
+1. Ubah definisi di `agen/capability-catalog.js` (mis. tambah combo, ubah `family`, naikkan `version`).
+2. Jalankan `node tools/generate-capabilities.js` — semua artefak turunan diperbarui otomatis & konsisten.
+3. Commit + push; CI memverifikasi lewat `node tools/generate-capabilities.js --check` + `tools/check-consistency.js`.
+
+**Mengapa ini patut ditiru dari developer internasional:**
+
+- **Satu sumber kebenaran** — tak ada lagi metadata kemampuan yang tersebar/duplikat manual di banyak file
+  (dulu `family` di `capabilities3.js`, `group` di `Capabilities.kt`, `commands` di `run.js`, `recipe` di `outputs.js`).
+- **Deterministik & idempoten** — `--check` menjamin artefak selalu sinkron dengan katalog; regenerasi menghasilkan
+  keluaran yang sama (reproducible).
+- **Verifikasi di CI** — pipeline menolak commit bila artefak melenceng dari katalog (shift-left validation).

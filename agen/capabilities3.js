@@ -1,33 +1,20 @@
-// ARSITEKTUR KEMAMPUAN v3 — "Evolusi Terpadu".
-//
-// Lapisan data yang membuat 4 PRIME + 39 COMBOS berevolusi menjadi satu model
-// kemampuan kaya yang bisa dieksekusi nyata:
-//
-//   tier        : level evolusi  (EVOLUTION = PRIME penuh; ADVANCED-CAP = combo
-//                 siap eksekusi; CORE-CAP = cadangan bila tanpa recipe)
-//   family      : id PRIME payung -> hierarki skill → combo → prime
-//   commands[]  : frasa contoh perintah (dari run.js COMBO_COMMANDS)
-//   runnable    : apakah punya jalur eksekusi nyata (outputs.js RECIPES)
-//   recipe      : nama fungsi eksekutor nyata (mis. `dataFlow`, `apkBuild`)
-//   outcomes[]  : hasil nyata yang bisa dihasilkan bila dieksekusi
-//
-// Data asli (capabilities2.js) TIDAK diubah — v3 memperkayanya secara
-// deterministik dan kompatibel-mundur (field lama tetap ada).
+// GENERATED FILE — jangan edit manual. Produk dari tools/generate-capabilities.js
+// (sumber kebenaran: agen/capability-catalog.js).
+// ARSITEKTUR KEMAMPUAN v3 — "Evolusi Terpadu": 4 PRIME + 39 COMBOS dalam satu
+// model terpadu yang kaya & dapat dieksekusi nyata. Metadata (family/tier/
+// recipe/commands/outcomes) digenerate konsisten dari katalog.
 
 const EVO = require("./capabilities2.js");
 const RUN = require("./run.js");
 const OUTPUTS = require("./outputs.js");
 
-// Peta 39 combo → PRIME payung (hierarki kemampuan).
+// Peta 39 combo -> PRIME payung (dari katalog; tunggal & terverifikasi).
 const FAMILY = {
-  // _____ prime-cloud-platform: infrastruktur, network, env, distribusi, keandalan _____
   "combo-install-download": "prime-cloud-platform",
   "combo-network-edge": "prime-cloud-platform",
   "combo-os-environment": "prime-cloud-platform",
   "combo-backup-disaster-recovery": "prime-cloud-platform",
   "combo-finops-cost": "prime-cloud-platform",
-
-  // _____ prime-data-ai: data, ML, riset, pipeline, lokalisasi _____
   "combo-sql-data-workflow": "prime-data-ai",
   "combo-web-scraping-intel": "prime-data-ai",
   "combo-live-web-exec": "prime-data-ai",
@@ -40,8 +27,6 @@ const FAMILY = {
   "combo-healthcare-ai": "prime-data-ai",
   "combo-translation-lang": "prime-data-ai",
   "combo-multi-agent-research": "prime-data-ai",
-
-  // _____ prime-software-product: aplikasi, web/mobile, kualitas, karir produk _____
   "combo-build-apk": "prime-software-product",
   "combo-build-shipping": "prime-software-product",
   "combo-ai-native-app": "prime-software-product",
@@ -59,8 +44,6 @@ const FAMILY = {
   "combo-hr-recruitment": "prime-software-product",
   "combo-project-delivery": "prime-software-product",
   "combo-generalist-master": "prime-software-product",
-
-  // _____ prime-secobs-agentics: agent, keamanan, otomasi, observability _____
   "combo-agent-systems": "prime-secobs-agentics",
   "combo-agentic-devops": "prime-secobs-agentics",
   "combo-automation-workflow": "prime-secobs-agentics",

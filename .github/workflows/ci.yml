@@ -36,6 +36,9 @@ jobs:
       - name: Periksa konsistensi 4 sumber data (skills/index.json/packs.json/Capabilities.kt)
         run: node tools/check-consistency.js
 
+      - name: Verifikasi generator & katalog (arsitektur 1 generator utk semua kemampuan)
+        run: node tools/generate-capabilities.js --check
+
       - name: Uji server memuat seluruh skill
         working-directory: agen
         run: |
