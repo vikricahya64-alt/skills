@@ -82,4 +82,9 @@ dependencies {
     implementation 'androidx.compose.foundation:foundation'
     implementation 'androidx.navigation:navigation-compose:2.8.1'
     debugImplementation 'androidx.compose.ui:ui-tooling'
+
+    // Pengujian lokal (JVM) — berjalan di quality-gate tanpa emulator.
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
 }

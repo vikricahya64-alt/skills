@@ -12,7 +12,7 @@ env:
   GRADLE_VERSION: "8.10.2"
 
 jobs:
-  # ====== 1. GATE KUALITAS: lint + compile penuh (tanpa sign) ======
+  # ====== 1. GATE KUALITAS: lint + unit test + compile penuh (tanpa sign) ======
   # Build Cache & dependency cache ON (gradle.properties + Setup Gradle):
   # dependency/artefak dipakai ulang antar run => build jauh lebih cepat tiap push.
   quality-gate:
@@ -37,6 +37,10 @@ jobs:
       - name: Analisis statik Android Lint (gate kualitas)
         working-directory: android
         run: gradle lintDebug --no-daemon
+
+      - name: Uji unit JVM (gate kebenaran logika)
+        working-directory: android
+        run: gradle testDebugUnitTest --no-daemon
 
       - name: Kompilasi penuh debug (gate validitas)
         working-directory: android
