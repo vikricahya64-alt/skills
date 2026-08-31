@@ -49,8 +49,13 @@ jobs:
           echo "name=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
 
   # ====== 1b. UJI JALANKAN DI EMULATOR AWAN (app benar-benar dibuka, bukan sekadar compile) ======
-  # Job ini INFO/bukan gate: kalau emulator cloud gagal/flaky, pipeline tetap hijau
-  # (continue-on-error) dan tidak pernah menggantung / menahan run lama.
+  # Tujuan akhir: jadi GATE HIJAU yang andal. Action android-emulator-runner
+  # menjalankan tiap baris `script` sebagai proses `sh -c` TERPISAH, jadi sebuah
+  # baris yang gagal (exit != 0) akan MEMBATALKAN seluruh step dan mematikan
+  # emulator (emu kill) — perintah berikutnya tak pernah dijalankan.
+  # Solusi: jalankan SELURUH smoke test sebagai SATU skrip bash (bash -c) dengan
+  # `set +e`, sehingga satu kegagalan tidak menghentikan yang lain, dan lakukan
+  # guard device-online + boot + install + launch dengan retry yang tuntas.
   device-smoke:
     needs: quality-gate
     runs-on: ubuntu-latest
@@ -89,24 +94,71 @@ jobs:
           disable-animations: true
           emulator-boot-timeout: 420
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
-          # Catatan: action menjalankan tiap baris script sebagai `sh -c` tersendiri,
-          # jadi `cd` antarbaris tidak bertahan. Setiap baris dibuat mandiri.
-          # Semua perintah adb di-pin ke emulator-5554 + dibungkus `timeout` agar
-          # TIDAK ADA yang bisa menggantung berjam-jam. Install pakai push+pm install
-          # (lebih andal daripada streamed `adb install` di emulator CI yang lambat).
+          # SEMUA langkah digabung dalam satu skrip bash dengan set +e.
+          # Guard device-online & boot ditulis manual agar pasti tunggu siap.
+          # Instal via push + pm install (lebih andal daripada streamed adb
+          # install di emulator CI yang lambat) + verifikasi loop.
           script: |
-            timeout 30 adb devices
-            timeout 60 adb -s emulator-5554 shell pm path com.vikri.gcpagent >/dev/null 2>&1
-            timeout 60 adb -s emulator-5554 push android/app/build/outputs/apk/debug/app-debug.apk /data/local/tmp/app.apk
-            for i in 1 2 3 4 5; do timeout 60 adb -s emulator-5554 shell pm path com.vikri.gcpagent >/dev/null 2>&1 && break; timeout 90 adb -s emulator-5554 shell pm install -r -t /data/local/tmp/app.apk; sleep 3; done
-            timeout 60 adb -s emulator-5554 shell pm path com.vikri.gcpagent || (echo "APP NOT INSTALLED"; exit 1)
-            timeout 60 adb -s emulator-5554 shell am start -W -n com.vikri.gcpagent/.MainActivity
-            for i in $(seq 1 8); do pid=$(timeout 30 adb -s emulator-5554 shell pidof com.vikri.gcpagent 2>/dev/null | tr -d '\r'); [ -n "$pid" ] && { echo "APP LAUNCHED OK (pid=$pid)"; break; }; sleep 5; done
-            timeout 30 adb -s emulator-5554 shell pidof com.vikri.gcpagent >/dev/null 2>&1 && echo "APP RUNNING OK" || (echo "APP NOT RUNNING"; exit 1)
-            echo "=== Current focus ==="
-            timeout 30 adb -s emulator-5554 shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp" || true
-            echo "=== Crash check (logcat) ==="
-            adb -s emulator-5554 logcat -d | grep -iE "FATAL EXCEPTION|AndroidRuntime.*FATAL" | head -20 || true
+            set +e
+            ADB="adb -s emulator-5554"
+            APK=android/app/build/outputs/apk/debug/app-debug.apk
+            PKG=com.vikri.gcpagent
+
+            echo "=== 1. Tunggu device online ==="
+            for i in $(seq 1 30); do
+              $ADB shell true 2>/dev/null && { echo "device online (iter $i)"; break; }
+              sleep 3
+            done
+
+            echo "=== 2. Tunggu boot selesai ==="
+            for i in $(seq 1 60); do
+              boot=$($ADB shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+              [ "$boot" = "1" ] && { echo "BOOT COMPLETED (iter $i)"; break; }
+              sleep 3
+            done
+            $ADB shell input keyevent 82
+
+            echo "=== 3. Push APK ==="
+            ls -la "$APK"
+            $ADB push "$APK" /data/local/tmp/app.apk
+            echo "push exit=$?"
+
+            echo "=== 4. Install (retry) ==="
+            installed=no
+            for i in 1 2 3 4 5; do
+              $ADB shell pm path "$PKG" 2>/dev/null | grep -q "package:" && { installed=yes; echo "already installed"; break; }
+              $ADB shell pm install -r -t /data/local/tmp/app.apk; code=$?
+              echo "install attempt $i exit=$code"
+              $ADB shell pm path "$PKG" 2>/dev/null | grep -q "package:" && { installed=yes; break; }
+              sleep 3
+            done
+            echo "installed=$installed"
+            if [ "$installed" != "yes" ]; then echo "APP NOT INSTALLED"; else echo "APP INSTALLED OK"; fi
+
+            echo "=== 5. Launch ==="
+            $ADB shell am start -W -n "$PKG/.MainActivity"
+
+            echo "=== 6. Verifikasi proses berjalan ==="
+            running=no
+            for i in $(seq 1 10); do
+              pid=$($ADB shell pidof "$PKG" 2>/dev/null | tr -d '\r')
+              [ -n "$pid" ] && { running=yes; echo "APP LAUNCHED OK (pid=$pid)"; break; }
+              sleep 5
+            done
+            echo "running=$running"
+
+            echo "=== 7. Focus & crash check ==="
+            $ADB shell dumpsys window 2>/dev/null | grep -E "mCurrentFocus|mFocusedApp"
+            echo "--- logcat FATAL ---"
+            $ADB logcat -d 2>/dev/null | grep -iE "FATAL EXCEPTION|PROCESS DIED|ANR in com.vikri.gcpagent" | head -20
+
+            # Hasil: hanya GAGAL bila benar-benar tidak terpasang ATAU tidak berjalan.
+            if [ "$installed" != "yes" ] || [ "$running" != "yes" ]; then
+              echo "SMOKE RESULT: FAIL"
+              exit 1
+            fi
+            echo "SMOKE RESULT: PASS"
+
 
   # ====== 2. RILIS PRODUKSI: APK + AAB (Play-ready) + checksum ======
   release:
