@@ -2,7 +2,12 @@ package com.vikri.gcpagent
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +35,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -229,14 +237,27 @@ private fun ActionCard(
     desc: String,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (pressed) 0.97f else 1f,
+        animationSpec = spring(stiffness = 600f, dampingRatio = 0.7f),
+        label = "actionCardScale"
+    )
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
+        interactionSource = interactionSource,
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 92.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
     ) {
         Row(
             modifier = Modifier.padding(18.dp),
@@ -261,10 +282,17 @@ private fun ActionCard(
                 )
             }
             Spacer(Modifier.width(8.dp))
+            // Panah meluncur ke kanan saat ditekan (micro-interaction)
+            val arrowOffset by animateFloatAsState(
+                targetValue = if (pressed) 6f else 0f,
+                animationSpec = tween(140),
+                label = "arrowOffset"
+            )
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                contentDescription = stringResource(R.string.action_navigate),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.graphicsLayer { translationX = arrowOffset.dp.toPx() }
             )
         }
     }

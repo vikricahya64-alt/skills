@@ -22,6 +22,7 @@
     <string name="action_view_capabilities">Lihat Kemampuan</string>
     <string name="action_open_agent_desc">Jalankan langsung di antarmuka web.</string>
     <string name="action_view_capabilities_desc">Jelajahi semua kombinasi yang tersedia.</string>
+    <string name="action_navigate">Buka</string>
 
     <!-- Kemampuan -->
     <string name="cap_title">Daftar Kemampuan</string>

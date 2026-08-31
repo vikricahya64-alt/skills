@@ -189,6 +189,18 @@ jobs:
           unzip -l "$APK" | grep -qE "res/.*/ic_launcher|mipmap" && echo "ICON OK" || echo "ICON CHECK (non-fatal)"
           echo "APK CONTENT VERIFIED OK"
 
+      - name: "Batas ukuran APK (budget lean)"
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          SIZE_BYTES=$(stat -c%s "$APK")
+          SIZE_KB=$((SIZE_BYTES / 1024))
+          echo "app-release.apk = ${SIZE_KB} KB ($SIZE_BYTES bytes)"
+          # Budget internasional: APK wajib di bawah 20 MB — ukuran tak membengkak seiring fitur
+          if [ "$SIZE_BYTES" -gt 20971520 ]; then
+            echo "APK MELEBIHI BUDGET (>20MB) — ukuran tak terkendali"; exit 1
+          fi
+          echo "APK SIZE BUDGET OK (<=20MB)"
+
       - name: Bangun APK dari AAB (bukti AAB berfungsi & distribusi Play)
         run: |
           curl -fsSL -o /tmp/bundletool.jar \
@@ -261,11 +273,12 @@ jobs:
             - ✅ **bundletool**: APK universal berhasil dibangun & diverifikasi dari AAB
             - ✅ **aapt2**: isi APK terverifikasi (package `com.vikri.gcpagent`, launch activity `MainActivity`, DEX) — bukti build & kemasan benar, deterministik
             - ✅ Android **Lint** bersih + **unit test JVM** lolos + **build** terbukti (APK/AAB) — gate kualitas
+            - ✅ **Budget ukuran APK** dijaga (wajib ≤20 MB) — ukuran tak membengkak seiring fitur
             - 🔒 **Signing stabil** dari GitHub secret + keamanan produksi (backup rules, HTTPS-only)
             - 📱 **Smoke test emulator** (gate): app benar-benar terpasang & berjalan di emulator cloud AOSP API 28 (verifikasi via `pidof` + tidak ada crash)
 
             ## Fitur
-            - **Desain kelas internasional**: tema Material 3 gelap/terang + **dynamic color (Material You)** di Android 12+, tipografi M3 lengkap, hero gradient, kartu beraksen, skeleton shimmer, pull-to-refresh, aksesibilitas (konten-deskripsi + haptic)
+            - **Desain kelas internasional**: tema Material 3 gelap/terang + **dynamic color (Material You)** di Android 12+, tipografi M3 lengkap, hero gradient, kartu beraksen, skeleton shimmer, pull-to-refresh, **micro-interactions** (skala tekan + panah animasi + haptic), aksesibilitas (konten-deskripsi + haptic)
             - **3 layar native**: Beranda (statistik 39 gabungan + cepat akses), Daftar Kemampuan (**pencarian + filter grup** + header sticky), Buka Agen (**progress bar deterministik**)
             - **Dua bahasa**: Indonesia (default) + Inggris (`values-en`)
             - **Splash screen** (core-splashscreen), **deep link** (`vikriagent://`), **pintasan aplikasi** saat tekan-lama ikon

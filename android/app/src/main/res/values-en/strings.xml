@@ -20,6 +20,7 @@
     <string name="action_view_capabilities">View Skills</string>
     <string name="action_open_agent_desc">Launch directly in the web interface.</string>
     <string name="action_view_capabilities_desc">Explore all available combinations.</string>
+    <string name="action_navigate">Open</string>
 
     <string name="cap_title">Skill List</string>
     <string name="cap_subtitle">%1$d combinations ready — grouped automatically</string>
