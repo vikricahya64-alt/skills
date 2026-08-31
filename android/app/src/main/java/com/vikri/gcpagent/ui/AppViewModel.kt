@@ -27,6 +27,10 @@ class AppViewModel(private val repository: CapabilityRepository) : ViewModel() {
     val totalCapabilities: Int
         get() = repository.all.size
 
+    /** Cari kemampuan berdasarkan id (untuk layar detail). */
+    fun capabilityById(id: String): Capability? =
+        repository.all.firstOrNull { it.id == id }
+
     /** Daftar grup (urutan katalog), untuk filter chips. */
     val groups: List<String>
         get() = repository.groups

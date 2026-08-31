@@ -31,6 +31,13 @@
     <string name="cap_loading">Loading…</string>
     <string name="a11y_clear_search">Clear search</string>
 
+    <string name="detail_title">Skill Details</string>
+    <string name="detail_not_found">Skill not found.</string>
+    <string name="detail_prime">PRIME capability (evolution umbrella)</string>
+    <string name="detail_family">Part of the umbrella PRIME</string>
+    <string name="detail_tier_evolution">EVOLUTION</string>
+    <string name="detail_tier_advanced">COMBO</string>
+
     <string name="web_retry">Retry</string>
     <string name="web_back">Back</string>
     <string name="web_error_ssl">Invalid SSL certificate</string>

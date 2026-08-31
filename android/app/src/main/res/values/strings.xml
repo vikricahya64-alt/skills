@@ -34,6 +34,14 @@
     <string name="cap_loading">Memuat…</string>
     <string name="a11y_clear_search">Hapus pencarian</string>
 
+    <!-- Detail kemampuan -->
+    <string name="detail_title">Detail Kemampuan</string>
+    <string name="detail_not_found">Kemampuan tidak ditemukan.</string>
+    <string name="detail_prime">Kemampuan PRIME (induk evolusi)</string>
+    <string name="detail_family">Bagian dari PRIME payung</string>
+    <string name="detail_tier_evolution">EVOLUSI</string>
+    <string name="detail_tier_advanced">KOMBO</string>
+
     <!-- Agen (web) -->
     <string name="web_retry">Coba Lagi</string>
     <string name="web_back">Kembali</string>

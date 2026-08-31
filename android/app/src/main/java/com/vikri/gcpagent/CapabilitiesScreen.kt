@@ -43,7 +43,8 @@ import com.vikri.gcpagent.ui.components.SkeletonBlock
 @Composable
 fun CapabilitiesScreen(
     modifier: Modifier = Modifier,
-    viewModel: AppViewModel
+    viewModel: AppViewModel,
+    onOpenDetail: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val highlightedGroups = viewModel.groups
@@ -101,7 +102,11 @@ fun CapabilitiesScreen(
                         GroupHeader(groupName)
                     }
                     itemsIndexed(items, key = { _, cap -> cap.id }) { _, cap ->
-                        CapabilityRow(cap = cap, showGroup = false)
+                        CapabilityRow(
+                            cap = cap,
+                            showGroup = false,
+                            onClick = { onOpenDetail(cap.id) }
+                        )
                     }
                 }
             }

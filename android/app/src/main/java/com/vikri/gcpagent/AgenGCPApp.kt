@@ -118,7 +118,25 @@ fun AgenGCPApp(viewModel: AppViewModel = viewModel(factory = AppViewModel.Factor
                 route = Routes.CAPABILITIES,
                 deepLinks = listOf(navDeepLink { uriPattern = "vikriagent://capabilities" })
             ) {
-                CapabilitiesScreen(modifier = Modifier, viewModel = viewModel)
+                CapabilitiesScreen(
+                    modifier = Modifier,
+                    viewModel = viewModel,
+                    onOpenDetail = { capId ->
+                        navController.navigate(Routes.capabilityDetail(capId))
+                    }
+                )
+            }
+            composable(
+                route = Routes.CAPABILITY_DETAIL,
+                arguments = listOf(
+                    androidx.navigation.navArgument("capId") { type = androidx.navigation.NavType.StringType }
+                )
+            ) {
+                CapabilityDetailScreen(
+                    modifier = Modifier,
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable(
                 route = Routes.AGENT,
