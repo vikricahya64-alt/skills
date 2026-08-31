@@ -218,11 +218,14 @@ jobs:
         run: |
           PREV=$(git tag --sort=-version:refname | grep -E '^v[0-9]' | head -1 || true)
           if [ -n "$PREV" ]; then
-            git log --oneline --no-merges "$PREV"..HEAD | sed 's/^/- /'
+            LOG=$(git log --oneline --no-merges "$PREV"..HEAD | sed 's/^/- /')
           else
-            git log --oneline --no-merges -20 | sed 's/^/- /'
-          fi | tee /tmp/changelog.txt
-          echo "ok"
+            LOG=$(git log --oneline --no-merges -20 | sed 's/^/- /')
+          fi
+          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$LOG" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "$LOG" | tee /tmp/changelog.txt
 
       - name: Rilis resmi (tag semver + APK + AAB + checksum + changelog)
         uses: softprops/action-gh-release@v2
@@ -243,9 +246,9 @@ jobs:
             - ✅ **apksigner**: signature **v2 + v3** valid, siap install
             - ✅ **jarsigner**: AAB terverifikasi
             - ✅ **bundletool**: APK universal berhasil dibangun & diverifikasi dari AAB
-            - ✅ **Emulator cloud**: app benar-benar dibuka di emulator Android (smoke test)
-            - ✅ Android **Lint** bersih (quality gate)
+            - ✅ Android **Lint** bersih (quality gate) + **build** terbukti (APK/AAB)
             - 🔒 **Signing stabil** dari GitHub secret + keamanan produksi (backup rules, HTTPS-only)
+            - 📱 **Smoke test emulator** (info, non-blocking): app dijalankan di emulator cloud AOSP API 28
 
             ## Fitur
             - 3 layar native: Beranda, Daftar Kemampuan (**39 gabungan**), Buka Agen
@@ -253,7 +256,7 @@ jobs:
             - versionCode `${{ needs.quality-gate.outputs.version_code }}` · semver `v${{ needs.quality-gate.outputs.version_name }}`
 
             ## Changelog
-            $(cat /tmp/changelog.txt)
+            ${{ steps.changelog.outputs.changelog }}
 
             _Verifikasi integritas: `sha256sum -c checksums.txt`_
           files: |
