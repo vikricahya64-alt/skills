@@ -12,7 +12,10 @@ set -u
 
 ADB="adb -s emulator-5554"
 APK="${1:-android/app/build/outputs/apk/debug/app-debug.apk}"
-PKG="com.vikri.gcpagent"
+# APK DEBUG memakai applicationIdSuffix ".debug" di build.gradle
+# (debug { applicationIdSuffix ".debug" }) => applicationId = com.vikri.gcpagent.debug,
+# BUKAN com.vikri.gcpagent. Gunakan nama paket debug yang benar.
+PKG="com.vikri.gcpagent.debug"
 
 echo "=== 1. Device online ==="
 for i in $(seq 1 30); do
