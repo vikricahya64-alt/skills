@@ -314,8 +314,21 @@ agen/capability-catalog.js   ← SARU sumber kebenaran (metadata internasional:
  ├─ agen/capabilities3.js     ← lapisan v3 (enrichment + FAMILY)
  ├─ android/.../Capabilities.kt  ← daftar kemampuan app Android
  ├─ agen/catalog.json         ← manifest machine-readable (55 kemampuan)
+ ├─ capabilities/             ← POHON SKILL per kemampuan (format resmi developer
+ │    ├─ <meta|prime|combo>/<id>/SKILL.md  55 dokumen frontmatter Google/Claude
+ │    │                          (name, metadata.version, metadata.category,
+ │    │                           description imperatif + isi: tier/family/
+ │    │                           recipe/commands/outcomes/skill dasar/tag)
+ │    └─ index.json            ← index internasional {skills:[{name,description,
+ │                              family,layer,tier,version,entrypoint}]}
  └─ README (blok Fusion Kemampuan) ← ringkasan & tabel keluarga
 ```
+
+**Output setara developer internasional:** setiap kemampuan diterbitkan sebagai `SKILL.md`
+dengan frontmatter baku (`name`, `metadata.{version,category}`, `description` kaya) — format
+yang **identik** dengan repositori skill resmi Google/Claude, lengkap dengan `entrypoint` raw
+di `capabilities/index.json`. Jadi konsumen (agen, CLI, marketplace) bisa membaca kemampuan
+persis seperti membaca skill internasional, sementara semuanya tetap lahir dari satu generator.
 
 **Alur kerja (CRUD kemampuan):**
 

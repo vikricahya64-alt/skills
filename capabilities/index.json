@@ -1,0 +1,919 @@
+{
+  "generator": "This file is generated. Do not edit it by hand.",
+  "source": "agen/capability-catalog.js",
+  "schema": "capability-skill-index-v1",
+  "counts": {
+    "meta": 12,
+    "prime": 4,
+    "combo": 39,
+    "total": 55
+  },
+  "skills": [
+    {
+      "name": "Full-Stack Cloud Engineering",
+      "description": "Fusi IaC + CI/CD + container: rancang infra sebagai kode (Terraform), bangun otomatis via Cloud Build, deploy ke Cloud Run/GKE, lalu pantau. Semua env produksi harus reproducible Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/cloud-platform-full-stack/SKILL.md"
+    },
+    {
+      "name": "End-to-End Data Engineering",
+      "description": "Fusi ETL + warehouse + BI: pipeline modular ingest -> transform (dbt/Dataform) -> BigQuery (partition+cluster untuk biaya) -> ekspor/visualisasi. Ukur data quality di tiap tahap Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/data-engineering-pipeline/SKILL.md"
+    },
+    {
+      "name": "Database Ops & Performance",
+      "description": "Fusi desain + admin + tuning: pilih DB sesuai pola workload (OLTP/OLAP/global dengan Spanner), rancang skema & migrasi, lalu optimasi query dengan index/EXPLAIN; otomasi backup & failover Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/database-ops-engineering/SKILL.md"
+    },
+    {
+      "name": "Security & Threat Hunting",
+      "description": "Fusi threat modeling + audit + secrets: defense-in-depth, IAM least-privilege, enkripsi, audit trail, SAST & STRIDE/attack-tree sebelum deploy; deteksi anomali berkelanjutan Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/security-threat-hunting/SKILL.md"
+    },
+    {
+      "name": "Full-Stack App Builder",
+      "description": "Fusi frontend + backend + API: desain responsif & aksesibel, API terkurasi, state management sesuai skala, microservices hanya bila perlu; ukur performa dari awal Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/fullstack-app-builder/SKILL.md"
+    },
+    {
+      "name": "ML & AI Engineering",
+      "description": "Fusi data + training + serving: data quality -> training/eval -> deploy -> monitoring; untuk LLM gunakan RAG + vector search; tuning metrik bukan sekadar akurasi Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/ml-ai-engineer/SKILL.md"
+    },
+    {
+      "name": "SRE & Observability",
+      "description": "Fusi SLO + logging + tracing: definisikan SLO, alarm berbasis SLO, log & trace terstruktur, otomasi remediasi, dan pii-redaction di telemetri Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/site-reliability-observability/SKILL.md"
+    },
+    {
+      "name": "Developer Excellence & Workflow",
+      "description": "Fusi plan + TDD + review + refactor: model domain dulu, rencana tertulis, tulis test sebelum kode, code review, refactor kecil, verifikasi sebelum selesai Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/dev-excellence-workflow/SKILL.md"
+    },
+    {
+      "name": "Cloud Data + Security Fusion",
+      "description": "Fusi data + security: amankan pipeline end-to-end — akses storage, enkripsi, audit akses, deteksi kebocoran & akses anomali; security bukan tahap akhir Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/cloud-data-security-fusion/SKILL.md"
+    },
+    {
+      "name": "Agentic AI Orchestration",
+      "description": "Fusi sub-agent + workflow: pecah tugas jadi sub-task, delegasikan ke sub-agent paralel, koordinasikan hasil, evaluasi tiap langkah; pola orkestrasi & team composition Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/agentic-ai-orchestration/SKILL.md"
+    },
+    {
+      "name": "Web3 & Blockchain Dev",
+      "description": "Fusi kontrak + testing + security: pahami attack vectors (reentrancy, overflow), tulis dengan pola aman, test menyeluruh, audit sebelum mainnet Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/web3-blockchain-dev/SKILL.md"
+    },
+    {
+      "name": "Mobile App Engineering",
+      "description": "Fusi arsitektur + UX mobile: navigasi sederhana, offline-first, performa, gunakan komponen native; uji di banyak ukuran layar & device Ini adalah kemampuan meta pengetahuan pada tier CORE-CAP dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "meta",
+      "tier": "CORE-CAP",
+      "version": "1.0.0",
+      "category": "Meta",
+      "tags": [],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/meta/mobile-app-engineering/SKILL.md"
+    },
+    {
+      "name": "Cloud & Infrastructure Evolution",
+      "description": "Arsitek cloud end-to-end: infrastruktur sebagai kode, platform yang dapat diskalakan, database terkelola, dan keamanan data menyatu sejak desain — bukan lapisan terpisah berperan sebagai payung (umbrella) yang mengorkestrasi 5 combo. Ini adalah kemampuan PRIME evolusi pada tier EVOLUTION dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "prime",
+      "tier": "EVOLUTION",
+      "version": "3.0.0",
+      "category": "Cloud",
+      "tags": [
+        "cloud",
+        "infra",
+        "iac",
+        "database"
+      ],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/prime/prime-cloud-platform/SKILL.md"
+    },
+    {
+      "name": "Data & AI Evolution",
+      "description": "Evolusi data menjadi intelijen: pipeline berkualitas melahirkan model yang dapat di-deploy, dimonitor, dan diamankan — siklus data→AI→keputusan yang berkelanjutan berperan sebagai payung (umbrella) yang mengorkestrasi 12 combo. Ini adalah kemampuan PRIME evolusi pada tier EVOLUTION dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "prime",
+      "tier": "EVOLUTION",
+      "version": "3.0.0",
+      "category": "Data & AI",
+      "tags": [
+        "data",
+        "ml",
+        "ai",
+        "pipeline"
+      ],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/prime/prime-data-ai/SKILL.md"
+    },
+    {
+      "name": "Software & Product Evolution",
+      "description": "Produk digital yang utuh: dari desain & UX, rekayasa frontend/backend/API, kualitas pengembangan, hingga teknologi baru (web3/mobile) — satu alur produk, bukan silo berperan sebagai payung (umbrella) yang mengorkestrasi 17 combo. Ini adalah kemampuan PRIME evolusi pada tier EVOLUTION dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "prime",
+      "tier": "EVOLUTION",
+      "version": "3.0.0",
+      "category": "Software",
+      "tags": [
+        "software",
+        "product",
+        "mobile",
+        "web"
+      ],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/prime/prime-software-product/SKILL.md"
+    },
+    {
+      "name": "Security, Observability & Agentic Evolution",
+      "description": "Operasi yang aman, terukur, dan otonom: ancaman dimitigasi proaktif, sistem diobservasi berbasis SLO, dan agen/otomasi menjalankan remediasi — keandalan sebagai produk berperan sebagai payung (umbrella) yang mengorkestrasi 5 combo. Ini adalah kemampuan PRIME evolusi pada tier EVOLUTION dari arsitektur kemampuan v3.",
+      "family": null,
+      "layer": "prime",
+      "tier": "EVOLUTION",
+      "version": "3.0.0",
+      "category": "Security & Ops",
+      "tags": [
+        "security",
+        "observability",
+        "agentic"
+      ],
+      "runnable": false,
+      "recipe": null,
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/prime/prime-secobs-agentics/SKILL.md"
+    },
+    {
+      "name": "Multi-Agent Deep Research",
+      "description": "Riset mendalam multi-sumber yang diorkestrasi banyak agen: cari → baca → sintesis → laporan dengan sumber, dalam bahasa yang jelas cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Riset pasar kompetitor untuk produk SaaS billing`, `Deep dive: tren AI 2026 dengan sumber`; punya jalur eksekusi nyata via alur `researchFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Riset pasar kompetitor untuk produk SaaS billing, Deep dive: tren AI 2026 dengan sumber. Hindari menggunakannya untuk pekerjaan di luar bidang Research.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Research",
+      "tags": [
+        "research",
+        "deep-dive",
+        "multi-agent"
+      ],
+      "runnable": true,
+      "recipe": "researchFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-multi-agent-research/SKILL.md"
+    },
+    {
+      "name": "Efficiency & Optimization Mastery",
+      "description": "Fusion total efisiensi (restrukturisasi semua logika kode): menyatukan 300+ skill optimasi token, biaya, kinerja, dan resource — kompresi konteks (caveman/ponytail), FinOps cloud, benchmark & profiling loop, paralel/async patterns, optimasi SQL/database/index/vector, build & bundle optimization, LLM cost-aware pipeline, SLO/monitoring, cache & autoscaling, hingga autonomous optimization — satu kemampuan utuh untuk efisiensi maksimal di setiap lapisan stack cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Efisienkan pipeline RAG agar hemat token`, `Optimasi latency dan cost API saya`; punya jalur eksekusi nyata via alur `profileFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Efisienkan pipeline RAG agar hemat token, Optimasi latency dan cost API saya. Hindari menggunakannya untuk pekerjaan di luar bidang Performance.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Performance",
+      "tags": [
+        "efficiency",
+        "optimization",
+        "token"
+      ],
+      "runnable": true,
+      "recipe": "profileFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-token-efficiency/SKILL.md"
+    },
+    {
+      "name": "MCP Servers & Agent Tooling",
+      "description": "Bangun dan integrasikan alat agen: pola server MCP yang aman, workflow berulang yang terotomasi, dan API yang dirancang untuk dipakai agen, bukan hanya manusia cabang operasional dari PRIME `Security, Observability & Agentic Evolution`; dapat dijalankan lewat perintah seperti `Buat server MCP untuk fetch data`, `Integrasikan tool agen lewat MCP`; punya jalur eksekusi nyata via alur `mcpFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat server MCP untuk fetch data, Integrasikan tool agen lewat MCP. Hindari menggunakannya untuk pekerjaan di luar bidang DevTools.",
+      "family": "prime-secobs-agentics",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "DevTools",
+      "tags": [
+        "mcp",
+        "tooling",
+        "agent"
+      ],
+      "runnable": true,
+      "recipe": "mcpFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-mcp-tool-builder/SKILL.md"
+    },
+    {
+      "name": "AI-Native App Builder",
+      "description": "Aplikasi yang lahir dengan AI sebagai inti: UI yang manusiawi, backend/API yang siap generatif, media AI (gambar/video), dan pengalaman pengguna yang mulus cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat app AI kalkulator dengan chat`, `Bikin chatbot AI-Native sederhana`; punya jalur eksekusi nyata via alur `appScaffold` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat app AI kalkulator dengan chat, Bikin chatbot AI-Native sederhana. Hindari menggunakannya untuk pekerjaan di luar bidang AI App.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "AI App",
+      "tags": [
+        "ai",
+        "app",
+        "generative-ui"
+      ],
+      "runnable": true,
+      "recipe": "appScaffold",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-ai-native-app/SKILL.md"
+    },
+    {
+      "name": "E2E Quality & Benchmark",
+      "description": "Kualitas terukur: benchmark & evaluasi metodis, E2E otomatis, standar koding tegas, dan agen meng-inspeksi perilaku sendiri sebelum menyerahkan hasil cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Susun strategi pengujian E2E untuk app`, `Benchmark kualitas model saya`; punya jalur eksekusi nyata via alur `e2eFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Susun strategi pengujian E2E untuk app, Benchmark kualitas model saya. Hindari menggunakannya untuk pekerjaan di luar bidang Quality.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Quality",
+      "tags": [
+        "e2e",
+        "testing",
+        "benchmark"
+      ],
+      "runnable": true,
+      "recipe": "e2eFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-e2e-quality/SKILL.md"
+    },
+    {
+      "name": "Growth, Brand & Content Engine",
+      "description": "Mesin pertumbuhan: temukan identitas brand, produksi konten berkarakter di banyak platform, dan bangun materi yang menarik investor & pasar secara konsisten cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat konten SEO untuk landing page`, `Kembangkan brand voice startup`; punya jalur eksekusi nyata via alur `contentFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat konten SEO untuk landing page, Kembangkan brand voice startup. Hindari menggunakannya untuk pekerjaan di luar bidang Growth.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Growth",
+      "tags": [
+        "growth",
+        "brand",
+        "content"
+      ],
+      "runnable": true,
+      "recipe": "contentFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-growth-content/SKILL.md"
+    },
+    {
+      "name": "Modern Runtime & Performance",
+      "description": "Kinerja maksimal di runtime modern: pilih runtime tepat, optimasi bundle/build, dan pola backend/frontend yang lahir cepat — latensi rendah, skala tinggi cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Optimasi performa runtime Next.js`, `Percepat bundle dan startup app`; punya jalur eksekusi nyata via alur `profileFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Optimasi performa runtime Next.js, Percepat bundle dan startup app. Hindari menggunakannya untuk pekerjaan di luar bidang Performance.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Performance",
+      "tags": [
+        "runtime",
+        "performance",
+        "bundle"
+      ],
+      "runnable": true,
+      "recipe": "profileFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-runtime-performance/SKILL.md"
+    },
+    {
+      "name": "Agent Systems & Orchestration",
+      "description": "Sistem multi-agen produksi: pecah tugas, delegasikan ke subagen yang tepat, koordinasikan hasil paralel, dan jaga konteks tetap ramping sepanjang eksekusi cabang operasional dari PRIME `Security, Observability & Agentic Evolution`; dapat dijalankan lewat perintah seperti `Rancang sistem multi-agen untuk riset`, `Orkestrasi subagent paralel`; punya jalur eksekusi nyata via alur `agentFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang sistem multi-agen untuk riset, Orkestrasi subagent paralel. Hindari menggunakannya untuk pekerjaan di luar bidang Agentic.",
+      "family": "prime-secobs-agentics",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Agentic",
+      "tags": [
+        "multi-agent",
+        "orchestration"
+      ],
+      "runnable": true,
+      "recipe": "agentFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-agent-systems/SKILL.md"
+    },
+    {
+      "name": "Research-to-AI Pipeline",
+      "description": "Dari riset ke model produksi: alur MLE yang terstruktur, benchmark ketat, eksperimen terdokumentasi, dan hasil disajikan sebagai laporan/presentasi yang meyakinkan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Susun MLE pipeline riset ke produksi`, `Rancang eksperimen dan benchmark model`; punya jalur eksekusi nyata via alur `mleFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Susun MLE pipeline riset ke produksi, Rancang eksperimen dan benchmark model. Hindari menggunakannya untuk pekerjaan di luar bidang ML.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "ML",
+      "tags": [
+        "research",
+        "ml",
+        "pipeline"
+      ],
+      "runnable": true,
+      "recipe": "mleFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-research-ai-pipeline/SKILL.md"
+    },
+    {
+      "name": "RAG & Knowledge Graph",
+      "description": "Pengetahuan yang selalu terjangkau: indeks kodebase & dokumen jadi grafik semantik, retrieval RAG yang presisi, dan jawaban selalu berdasar sumber nyata cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Rancang RAG untuk doc internal`, `Buat knowledge graph dari codebase`; punya jalur eksekusi nyata via alur `ragFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang RAG untuk doc internal, Buat knowledge graph dari codebase. Hindari menggunakannya untuk pekerjaan di luar bidang AI.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "AI",
+      "tags": [
+        "rag",
+        "knowledge-graph",
+        "retrieval"
+      ],
+      "runnable": true,
+      "recipe": "ragFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-rag-knowledge/SKILL.md"
+    },
+    {
+      "name": "DevTools & Developer Experience",
+      "description": "Pengalaman pengembang kelas dunia: dokumentasi hidup, CLI & alat yang nyaman, standar koding konsisten, dan umpan balik cepat dari pengujian otomatis cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Tingkatkan DX repo: dokumentasi hidup + tooling CLI`, `Rancang developer experience dan standar koding`; punya jalur eksekusi nyata via alur `dxFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Tingkatkan DX repo: dokumentasi hidup + tooling CLI, Rancang developer experience dan standar koding. Hindari menggunakannya untuk pekerjaan di luar bidang DevTools.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "DevTools",
+      "tags": [
+        "dx",
+        "cli",
+        "documentation"
+      ],
+      "runnable": true,
+      "recipe": "dxFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-devtools-dx/SKILL.md"
+    },
+    {
+      "name": "AI Media & Presentation",
+      "description": "Produksi media berbantuan AI: gambar/video generatif, slide yang dirancang baik, dan konten visual yang konsisten dengan brand — cepat dan profesional cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat presentasi visual untuk pitch deck`, `Generasi infografis untuk konten media`; punya jalur eksekusi nyata via alur `mediaFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat presentasi visual untuk pitch deck, Generasi infografis untuk konten media. Hindari menggunakannya untuk pekerjaan di luar bidang Media.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Media",
+      "tags": [
+        "ai-media",
+        "image",
+        "video",
+        "slides"
+      ],
+      "runnable": true,
+      "recipe": "mediaFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-media-generation/SKILL.md"
+    },
+    {
+      "name": "Agentic DevOps",
+      "description": "DevOps yang dijalankan agen: pipeline CI/CD, review otomatis, debugging sistematis, dan remediasi mandiri — manusia mengawasi, agen mengeksekusi cabang operasional dari PRIME `Security, Observability & Agentic Evolution`; dapat dijalankan lewat perintah seperti `Buat pipeline CI/CD agentik yang self-healing`, `Otomasi deploy dengan debugging sistematis`; punya jalur eksekusi nyata via alur `devopsFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat pipeline CI/CD agentik yang self-healing, Otomasi deploy dengan debugging sistematis. Hindari menggunakannya untuk pekerjaan di luar bidang DevOps.",
+      "family": "prime-secobs-agentics",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "DevOps",
+      "tags": [
+        "devops",
+        "agentic",
+        "ci-cd"
+      ],
+      "runnable": true,
+      "recipe": "devopsFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-agentic-devops/SKILL.md"
+    },
+    {
+      "name": "Mobile × Cloud Backend",
+      "description": "Aplikasi mobile ringan dengan mesin cloud: UI WebView/native yang minim, backend serveless, API aman, dan semua proses berat terjadi di cloud — APK tetap kecil cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Rancang APK android ringan dengan backend cloud`, `Buat aplikasi mobile dengan proses berat di cloud`; punya jalur eksekusi nyata via alur `appScaffold` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang APK android ringan dengan backend cloud, Buat aplikasi mobile dengan proses berat di cloud. Hindari menggunakannya untuk pekerjaan di luar bidang Mobile.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Mobile",
+      "tags": [
+        "mobile",
+        "cloud",
+        "webview"
+      ],
+      "runnable": true,
+      "recipe": "appScaffold",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-mobile-cloud/SKILL.md"
+    },
+    {
+      "name": "Web3 Secure Engineering",
+      "description": "Kontrak pintar & dApps yang aman sejak desain: pahami attack vectors, uji menyeluruh, dan terapkan threat modeling sebelum jaringan utama cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Audit keamanan smart contract Solidity`, `Rancang dApp web3 yang aman`; punya jalur eksekusi nyata via alur `web3Flow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Audit keamanan smart contract Solidity, Rancang dApp web3 yang aman. Hindari menggunakannya untuk pekerjaan di luar bidang Web3.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Web3",
+      "tags": [
+        "web3",
+        "blockchain",
+        "security"
+      ],
+      "runnable": true,
+      "recipe": "web3Flow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-web3-secure/SKILL.md"
+    },
+    {
+      "name": "SQL & Data Workflow (Multi-Step)",
+      "description": "Workflow data menyeluruh yang benar-benar berjalan: buat skema SQL → isi data (dari file/Csv) → query agregasi → verifikasi hasil → laporan. Semua langkah dieksekusi nyata, bukan sekadar dijelaskan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Buat workflow SQL dari CSV ke laporan`, `Analisis agregasi data dengan SQL nyata`; punya jalur eksekusi nyata via alur `dataFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat workflow SQL dari CSV ke laporan, Analisis agregasi data dengan SQL nyata. Hindari menggunakannya untuk pekerjaan di luar bidang Data.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Data",
+      "tags": [
+        "sql",
+        "data",
+        "workflow"
+      ],
+      "runnable": true,
+      "recipe": "dataFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-sql-data-workflow/SKILL.md"
+    },
+    {
+      "name": "Live Web Execution",
+      "description": "Eksekusi langsung terhadap web: ambil halaman/API publik, ekstrak data, olah bersama file lokal, lalu sajikan hasil — semua terpasang pada loop agen nyata cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Ambil data dari API publik dan olah jadi hasil`, `Eksekusi langsung ke halaman web publik`; punya jalur eksekusi nyata via alur `liveWeb` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Ambil data dari API publik dan olah jadi hasil, Eksekusi langsung ke halaman web publik. Hindari menggunakannya untuk pekerjaan di luar bidang Web.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Web",
+      "tags": [
+        "web",
+        "live",
+        "fetch",
+        "scrape"
+      ],
+      "runnable": true,
+      "recipe": "liveWeb",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-live-web-exec/SKILL.md"
+    },
+    {
+      "name": "Local DB & API App",
+      "description": "Bangun aplikasi data lokal-lengkap: database SQLite nyata, API CRUD, dan skrip Node yang berjalan — fondasi aplikasi web/mobile dengan backend data sungguhan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Buat app CRUD SQLite dengan API Express`, `Bangun backend REST dengan database lokal`; punya jalur eksekusi nyata via alur `sqliteCrud` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat app CRUD SQLite dengan API Express, Bangun backend REST dengan database lokal. Hindari menggunakannya untuk pekerjaan di luar bidang Data.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Data",
+      "tags": [
+        "sqlite",
+        "api",
+        "crud",
+        "node"
+      ],
+      "runnable": true,
+      "recipe": "sqliteCrud",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-local-db-app/SKILL.md"
+    },
+    {
+      "name": "Automation & Workflow Fusion",
+      "description": "Otomasi menyeluruh yang benar-benar berjalan: skrip & scheduler, workflow berulang, pipeline CI/CD, orkestrasi agen/task, dan verifikasi otomatis — dieksekusi nyata di cloud, bukan sekadar dijelaskan cabang operasional dari PRIME `Security, Observability & Agentic Evolution`; dapat dijalankan lewat perintah seperti `Otomasi tugas berulang dengan skrip cron`, `Buat pipeline otomatis yang tereksekusi nyata`; punya jalur eksekusi nyata via alur `automationFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Otomasi tugas berulang dengan skrip cron, Buat pipeline otomatis yang tereksekusi nyata. Hindari menggunakannya untuk pekerjaan di luar bidang Automation.",
+      "family": "prime-secobs-agentics",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Automation",
+      "tags": [
+        "automation",
+        "scheduler",
+        "workflow"
+      ],
+      "runnable": true,
+      "recipe": "automationFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-automation-workflow/SKILL.md"
+    },
+    {
+      "name": "Translation & Multilingual Fusion",
+      "description": "Terjemahan & lokalisasi berkualitas tinggi: pertahankan nada, konteks, dan istilah teknis; ubah konten lintas bahasa dengan akurasi budaya; hasilkan versi id/EN lengkap dari knowledge base cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Terjemahkan dokumen ke bahasa Inggris`, `Lokalisasi konten multi-bahasa`; punya jalur eksekusi nyata via alur `translationFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Terjemahkan dokumen ke bahasa Inggris, Lokalisasi konten multi-bahasa. Hindari menggunakannya untuk pekerjaan di luar bidang Language.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Language",
+      "tags": [
+        "translation",
+        "i18n",
+        "multilingual"
+      ],
+      "runnable": true,
+      "recipe": "translationFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-translation-lang/SKILL.md"
+    },
+    {
+      "name": "Rendering All Formats",
+      "description": "Render semua format jadi hasil nyata: markdown/dokumen jadi HTML/PDF, kode jadi visual/UI, data jadi laporan, presentasi & media AI (gambar/video) — semua dihasilkan dari logika & kode asli skill cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Render markdown menjadi PDF/HTML`, `Ubah data menjadi laporan visual`; punya jalur eksekusi nyata via alur `renderFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Render markdown menjadi PDF/HTML, Ubah data menjadi laporan visual. Hindari menggunakannya untuk pekerjaan di luar bidang Rendering.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Rendering",
+      "tags": [
+        "render",
+        "html",
+        "pdf",
+        "report"
+      ],
+      "runnable": true,
+      "recipe": "renderFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-rendering-everything/SKILL.md"
+    },
+    {
+      "name": "FinOps & Cloud Cost Optimization",
+      "description": "Kontrol & tekan biaya cloud nyata: analisis data billing/cost (pakai CSV/SQL), buat budget & alerting, optimasi resource & model AI, dan beri rekomendasi penghematan yang terukur cabang operasional dari PRIME `Cloud & Infrastructure Evolution`; dapat dijalankan lewat perintah seperti `Analisis biaya cloud dan beri rekomendasi penghematan`, `Buat budget dan alerting FinOps`; punya jalur eksekusi nyata via alur `finopsFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Analisis biaya cloud dan beri rekomendasi penghematan, Buat budget dan alerting FinOps. Hindari menggunakannya untuk pekerjaan di luar bidang FinOps.",
+      "family": "prime-cloud-platform",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "FinOps",
+      "tags": [
+        "finops",
+        "cost",
+        "budget",
+        "cloud"
+      ],
+      "runnable": true,
+      "recipe": "finopsFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-finops-cost/SKILL.md"
+    },
+    {
+      "name": "Data Visualization & Automated Reporting",
+      "description": "Ubah data jadi visual nyata: generate chart HTML dari data (bar/line/pie), rancang dashboard, dan susun laporan otomatis yang bisa diunduh — dieksekusi sungguhan, bukan mockup cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Buat dashboard chart dari data CSV`, `Generate laporan otomatis dengan visualisasi`; punya jalur eksekusi nyata via alur `chartReport` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat dashboard chart dari data CSV, Generate laporan otomatis dengan visualisasi. Hindari menggunakannya untuk pekerjaan di luar bidang Data.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Data",
+      "tags": [
+        "dataviz",
+        "dashboard",
+        "reporting"
+      ],
+      "runnable": true,
+      "recipe": "chartReport",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-dataviz-reporting/SKILL.md"
+    },
+    {
+      "name": "Email & Unified Notifications",
+      "description": "Kirim & kelola komunikasi: compose email/notifikasi multi-kanal (email, slack, telegram) dengan template profesional, integrasi mailtrap/ops nyata, dan konsistensi nada brand cabang operasional dari PRIME `Security, Observability & Agentic Evolution`; dapat dijalankan lewat perintah seperti `Susun template email profesional`, `Buat notifikasi multi-kanal telegram/slack`; punya jalur eksekusi nyata via alur `emailFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Susun template email profesional, Buat notifikasi multi-kanal telegram/slack. Hindari menggunakannya untuk pekerjaan di luar bidang Comms.",
+      "family": "prime-secobs-agentics",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Comms",
+      "tags": [
+        "email",
+        "notification",
+        "slack",
+        "telegram"
+      ],
+      "runnable": true,
+      "recipe": "emailFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-email-notifications/SKILL.md"
+    },
+    {
+      "name": "Backup, Migrasi & Disaster Recovery",
+      "description": "Lindungi data & sistem: strategi backup/restore & snapshot, migrasi database antar platform, dan rencana disaster recovery dengan urutan pemulihan yang teruji — bukan sekadar teori cabang operasional dari PRIME `Cloud & Infrastructure Evolution`; dapat dijalankan lewat perintah seperti `Susun strategi backup dan disaster recovery`, `Rancang runbook migrasi database`; punya jalur eksekusi nyata via alur `drFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Susun strategi backup dan disaster recovery, Rancang runbook migrasi database. Hindari menggunakannya untuk pekerjaan di luar bidang Reliability.",
+      "family": "prime-cloud-platform",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Reliability",
+      "tags": [
+        "backup",
+        "restore",
+        "migration",
+        "dr"
+      ],
+      "runnable": true,
+      "recipe": "drFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-backup-disaster-recovery/SKILL.md"
+    },
+    {
+      "name": "Web Scraping & Data Extraction",
+      "description": "Ekstraksi data web nyata: ambil halaman/API (tool fetch), parse HTML/JSON/CSV, bersihkan, lalu olah jadi dataset terstruktur yang siap dianalisis atau disimpan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Scrape data dari halaman web jadi CSV`, `Ekstraksi dataset terstruktur dari URL`; punya jalur eksekusi nyata via alur `liveWeb` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Scrape data dari halaman web jadi CSV, Ekstraksi dataset terstruktur dari URL. Hindari menggunakannya untuk pekerjaan di luar bidang Data.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Data",
+      "tags": [
+        "scraping",
+        "extraction",
+        "parse"
+      ],
+      "runnable": true,
+      "recipe": "liveWeb",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-web-scraping-intel/SKILL.md"
+    },
+    {
+      "name": "Payment, Billing & Fintech",
+      "description": "Integrasi & otomasi pembayaran: integrasi payment gateway (Stripe/PayPal), buat & tarik invoice, kelola transaksi/billing, dan otomasi penagihan — berjalan nyata dengan data contoh yang aman cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Rancang integrasi pembayaran Stripe`, `Buat sistem invoice dan billing otomatis`; punya jalur eksekusi nyata via alur `paymentFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang integrasi pembayaran Stripe, Buat sistem invoice dan billing otomatis. Hindari menggunakannya untuk pekerjaan di luar bidang Fintech.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Fintech",
+      "tags": [
+        "payment",
+        "billing",
+        "invoice"
+      ],
+      "runnable": true,
+      "recipe": "paymentFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-payment-fintech/SKILL.md"
+    },
+    {
+      "name": "HR & Recruitment Pipeline",
+      "description": "Otomasi SDM & rekrutmen: susun deskripsi lowongan, saring kandidat (CV/resume), buat pertanyaan wawancara, email komunikasi kandidat, dan alur onboarding baru cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Saring CV kandidat untuk posisi backend`, `Susun pertanyaan wawancara dan alur onboarding`; punya jalur eksekusi nyata via alur `hrFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Saring CV kandidat untuk posisi backend, Susun pertanyaan wawancara dan alur onboarding. Hindari menggunakannya untuk pekerjaan di luar bidang HR.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "HR",
+      "tags": [
+        "hr",
+        "recruitment",
+        "onboarding"
+      ],
+      "runnable": true,
+      "recipe": "hrFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-hr-recruitment/SKILL.md"
+    },
+    {
+      "name": "Game, 3D & XR Development",
+      "description": "Rekayasa game, 3D & XR nyata: desain level/narasi, skrip gameplay lintas engine (Godot/Unity/Unreal), shader & ECS, multiplayer, audio, hingga pengalaman XR imersif — pola kode asli dari setiap skill dipadukan jadi satu alur produksi cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat prototype game Godot sederhana`, `Rancang skrip gameplay dan shader 3D`; punya jalur eksekusi nyata via alur `gameFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat prototype game Godot sederhana, Rancang skrip gameplay dan shader 3D. Hindari menggunakannya untuk pekerjaan di luar bidang Game.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Game",
+      "tags": [
+        "game",
+        "3d",
+        "xr",
+        "godot",
+        "unity"
+      ],
+      "runnable": true,
+      "recipe": "gameFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-game-xr/SKILL.md"
+    },
+    {
+      "name": "Academic & Scientific Research",
+      "description": "Kajian akademik & ilmiah berstandar: metodologi riset lintas disiplin (sejarah, psikologi, antropologi, geografi), analisis statistik, eksperimen terdokumentasi, sitasi benar, dan laporan ilmiah yang dapat dipertanggungjawabkan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Susun laporan penelitian ilmiah berstandar`, `Riset akademik dengan metodologi dan sitasi`; punya jalur eksekusi nyata via alur `academicFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Susun laporan penelitian ilmiah berstandar, Riset akademik dengan metodologi dan sitasi. Hindari menggunakannya untuk pekerjaan di luar bidang Research.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Research",
+      "tags": [
+        "academic",
+        "scientific",
+        "methodology"
+      ],
+      "runnable": true,
+      "recipe": "academicFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-academic-research/SKILL.md"
+    },
+    {
+      "name": "Healthcare & Medical AI",
+      "description": "Inteligensi kesehatan yang aman & patuh: pola EMR/CDSS, kepatuhan PHI/HIPAA, evaluasi klinis & evidence-based, billing medis, dan arsitektur data kesehatan yang aman sejak desain cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Rancang CDSS yang patuh HIPAA`, `Desain EMR dengan kontrol akses PHI`; punya jalur eksekusi nyata via alur `healthcareFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang CDSS yang patuh HIPAA, Desain EMR dengan kontrol akses PHI. Hindari menggunakannya untuk pekerjaan di luar bidang Healthcare.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Healthcare",
+      "tags": [
+        "healthcare",
+        "medical",
+        "phi",
+        "hipaa"
+      ],
+      "runnable": true,
+      "recipe": "healthcareFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-healthcare-ai/SKILL.md"
+    },
+    {
+      "name": "Project Management & Geospatial Delivery",
+      "description": "Kirim proyek tepat waktu & peta dunia nyata: perencanaan/sprint/roadmap dengan gate kualitas & manajemen stakeholder, lalu eksekusi geospasial (GIS/BIM, kartografi, pemetaan drone) yang teruji QA cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat roadmap proyek sprint 2 minggu`, `Susun rencana delivery dan pemetaan GIS`; punya jalur eksekusi nyata via alur `projectFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat roadmap proyek sprint 2 minggu, Susun rencana delivery dan pemetaan GIS. Hindari menggunakannya untuk pekerjaan di luar bidang Delivery.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Delivery",
+      "tags": [
+        "project",
+        "sprint",
+        "gis",
+        "geospatial"
+      ],
+      "runnable": true,
+      "recipe": "projectFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-project-delivery/SKILL.md"
+    },
+    {
+      "name": "Generalist & Operator Fusion",
+      "description": "Kemampuan serba-bisa: menangkap semua skill lintas-kategori yang tidak masuk satu domain sempit — operasional umum, template, workflow campuran, dan troubleshooting fleksibel — agar tak ada pengetahuan yang terbuang cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Kerjakan tugas umum sesuai kebutuhan`, `Eksekusi operasional lintas-domain`; punya jalur eksekusi nyata via alur `generalFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Kerjakan tugas umum sesuai kebutuhan, Eksekusi operasional lintas-domain. Hindari menggunakannya untuk pekerjaan di luar bidang General.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "General",
+      "tags": [
+        "generalist",
+        "operator",
+        "misc"
+      ],
+      "runnable": true,
+      "recipe": "generalFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-generalist-master/SKILL.md"
+    },
+    {
+      "name": "Secure Data Pipeline",
+      "description": "Pipeline data yang aman end-to-end: enkripsi, kontrol akses, audit trail, dan deteksi anomali — data mengalir cepat tanpa mengorbankan kepatuhan cabang operasional dari PRIME `Data & AI Evolution`; dapat dijalankan lewat perintah seperti `Rancang pipeline data aman dengan enkripsi`, `Desain data governance dan audit trail`; punya jalur eksekusi nyata via alur `cryptoPipeline` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang pipeline data aman dengan enkripsi, Desain data governance dan audit trail. Hindari menggunakannya untuk pekerjaan di luar bidang Data.",
+      "family": "prime-data-ai",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Data",
+      "tags": [
+        "security",
+        "data",
+        "pipeline",
+        "encryption"
+      ],
+      "runnable": true,
+      "recipe": "cryptoPipeline",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-secure-data-pipeline/SKILL.md"
+    },
+    {
+      "name": "Install, Download & Artifact Distribution",
+      "description": "Fusi total distribusi & instalasi: dari package manager (pip/npm/cargo/brew), containerization (Docker/Helm), infrastructure-as-code (Terraform/GKE), hingga CI/CD artifact pipeline — satu kemampuan terpadu untuk mengunduh, menginstal, membangun, dan mendistribusikan artefak apa pun di lingkungan apa pun cabang operasional dari PRIME `Cloud & Infrastructure Evolution`; dapat dijalankan lewat perintah seperti `Instal uv dan setup project Python modern`, `Download & pasang dependensi proyek sesuai best practice`; punya jalur eksekusi nyata via alur `installFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Instal uv dan setup project Python modern, Download & pasang dependensi proyek sesuai best practice. Hindari menggunakannya untuk pekerjaan di luar bidang DevOps.",
+      "family": "prime-cloud-platform",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "DevOps",
+      "tags": [
+        "install",
+        "download",
+        "package",
+        "artifact"
+      ],
+      "runnable": true,
+      "recipe": "installFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-install-download/SKILL.md"
+    },
+    {
+      "name": "Network & Edge Engineering",
+      "description": "Rekayasa jaringan end-to-end: dari konfigurasi BGP/VLAN/Firewall/WAF hingga service mesh (Istio/Linkerd), mTLS, DNS caching (Pi-hole), observability latency kritis, dan SSH automation — satu kemampuan terpadu untuk membangun, mengamankan, dan mengobservasi jaringan apa pun, edge maupun cloud cabang operasional dari PRIME `Cloud & Infrastructure Evolution`; dapat dijalankan lewat perintah seperti `Rancang reverse proxy nginx dengan load balancer`, `Konfigurasi service mesh Istio untuk edge GKE`; punya jalur eksekusi nyata via alur `networkFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Rancang reverse proxy nginx dengan load balancer, Konfigurasi service mesh Istio untuk edge GKE. Hindari menggunakannya untuk pekerjaan di luar bidang Network.",
+      "family": "prime-cloud-platform",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Network",
+      "tags": [
+        "network",
+        "edge",
+        "proxy",
+        "service-mesh"
+      ],
+      "runnable": true,
+      "recipe": "networkFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-network-edge/SKILL.md"
+    },
+    {
+      "name": "OS & Reproducible Environments",
+      "description": "Lingkungan kerja yang portabel, aman, dan reproduksibel: manajemen env deklaratif (Flox/Nix), bash defensif produksi, shellcheck, BATS, secrets management, dan provisioning agen — satu kemampuan untuk menjalankan apa pun secara konsisten di lingkungan apa pun cabang operasional dari PRIME `Cloud & Infrastructure Evolution`; dapat dijalankan lewat perintah seperti `Buat lingkungan dev reproduksibel dengan flox`, `Susun bash script defensif + shellcheck untuk production`; punya jalur eksekusi nyata via alur `osFlow` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat lingkungan dev reproduksibel dengan flox, Susun bash script defensif + shellcheck untuk production. Hindari menggunakannya untuk pekerjaan di luar bidang Environment.",
+      "family": "prime-cloud-platform",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Environment",
+      "tags": [
+        "os",
+        "reproducible",
+        "nix",
+        "env"
+      ],
+      "runnable": true,
+      "recipe": "osFlow",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-os-environment/SKILL.md"
+    },
+    {
+      "name": "Build App & Project Shipping Fusion",
+      "description": "Fusi total membangun & mengirim project: restrukturisasi semua logika kode build menjadi satu kemampuan — scaffold struktur project lengkap (Android/Gradle/Compose Multiplatform, web frontend/backend, React Native), kompilasi/bundling (Gradle, Vite, Next build), containerization (Docker/Cloud Build), manifest GKE/K8s, dan pipeline CI/CD shipping — dengan tool write nyata agar setiap file ditulis ke workspace dan hasilnya bisa diunduh. Terapkan pedoman before-you-build (piprah), arsitektur bersih, optimasi build (lean/bazel), dan emisi produksi yang siap dirilis cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat aplikasi Android editor foto video lengkap`, `Build & compile project saya jadi APK dan kode source lengkap`, `Scaffold project web frontend+backend yang bisa di-build`; punya jalur eksekusi nyata via alur `buildShipping` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat aplikasi Android editor foto video lengkap, Build & compile project saya jadi APK dan kode source lengkap, Scaffold project web frontend+backend yang bisa di-build, Compile project jadi artifact dan susun pipeline CI/CD shipping. Hindari menggunakannya untuk pekerjaan di luar bidang Build.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Build",
+      "tags": [
+        "build",
+        "shipping",
+        "gradle",
+        "docker"
+      ],
+      "runnable": true,
+      "recipe": "buildShipping",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-build-shipping/SKILL.md"
+    },
+    {
+      "name": "Android APK Build Pipeline",
+      "description": "Fusi total membangun APK Android end-to-end: restrukturisasi semua logika kode build Android menjadi satu kemampuan — struktur project Gradle lengkap (settings.gradle, build.gradle root & app, gradle.properties, AndroidManifest.xml, res/values, MainActivity.kt), arsitektur bersih (clean architecture + MVVM), pola Kotlin/Compose/material design, sampai pipeline menghasilkan APK (assembleDebug/assembleRelease), signing (keystore/signingConfig), R8/ProGuard minify, dan distribusi AAB/APK — setiap file ditulis ke workspace memakai tool write agar source project bisa diunduh lalu di-build di Android Studio cabang operasional dari PRIME `Software & Product Evolution`; dapat dijalankan lewat perintah seperti `Buat APK aplikasi editor foto`, `Compile aplikasi android saya jadi APK`, `Buat project Android lengkap lalu build APK debug`; punya jalur eksekusi nyata via alur `apkBuild` di agen. Ini adalah kemampuan COMBO operasional pada tier ADVANCED-CAP dari arsitektur kemampuan v3. Gunakan ketika diminta Buat APK aplikasi editor foto, Compile aplikasi android saya jadi APK, Buat project Android lengkap lalu build APK debug, Susun pipeline build APK release dengan signing. Hindari menggunakannya untuk pekerjaan di luar bidang Build.",
+      "family": "prime-software-product",
+      "layer": "combo",
+      "tier": "ADVANCED-CAP",
+      "version": "3.0.0",
+      "category": "Build",
+      "tags": [
+        "apk",
+        "android",
+        "gradle",
+        "signing"
+      ],
+      "runnable": true,
+      "recipe": "apkBuild",
+      "entrypoint": "https://raw.githubusercontent.com/vikricahya64-alt/skills/main/capabilities/combo/combo-build-apk/SKILL.md"
+    }
+  ]
+}

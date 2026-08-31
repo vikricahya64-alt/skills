@@ -2,7 +2,7 @@
   "generator": "tools/generate-capabilities.js",
   "source": "agen/capability-catalog.js",
   "schema": "capability-catalog-v1",
-  "generatedAt": "2026-08-31T06:51:14.492Z",
+  "fingerprint": "89159b9895b16420",
   "counts": {
     "meta": 12,
     "prime": 4,

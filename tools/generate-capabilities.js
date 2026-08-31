@@ -23,6 +23,7 @@ const CAT_PATH = path.join(ROOT, "agen", "capability-catalog.js");
 const CAP3_PATH = path.join(ROOT, "agen", "capabilities3.js");
 const KT_PATH = path.join(ROOT, "android", "app", "src", "main", "java", "com", "vikri", "gcpagent", "Capabilities.kt");
 const MANIFEST_PATH = path.join(ROOT, "agen", "catalog.json");
+const CAP_INDEX_PATH = path.join(ROOT, "capabilities", "index.json");
 const README_PATH = path.join(ROOT, "README.md");
 
 const CHECK = process.argv.includes("--check");
@@ -145,27 +146,178 @@ ${lines.join("\n")}
 }
 
 // ---------------------------------------------------------------------------
-// 3. generate catalog.json (manifest machine-readable)
+// 3. generate pohon SKILL.md per kemampuan (format resmi developer internasional)
+// ---------------------------------------------------------------------------
+// Setiap kemampuan (meta/prime/combo) diterbitkan sebagai dokumen SKILL.md
+// dengan frontmatter baku Google/Claude (`name`, `metadata.{version,category}`,
+// `description` imperatif kaya) — format yang sama persis dengan skill resmi
+// developer internasional. Ini membuat OUTPUT arsitektur kemampuan identik
+// dengan repositori skill internasional, sambil tetap di-generate dari satu
+// sumber kebenaran.
+function richDescription(c) {
+  const parts = [];
+  if (c.insight) parts.push(c.insight.trim().replace(/\s+/g, " ").replace(/\.+$/, ""));
+
+  const how = [];
+  if (c.layer === "combo" && c.family) {
+    const prime = CAT.byId(c.family);
+    how.push("cabang operasional dari PRIME " + (prime ? "`" + prime.name + "`" : "`" + c.family + "`"));
+  }
+  if (c.commands && c.commands.length) {
+    how.push("dapat dijalankan lewat perintah seperti " + c.commands.slice(0, 3).map((x) => "`" + x + "`").join(", "));
+  }
+  if (c.recipe) {
+    how.push("punya jalur eksekusi nyata via alur `" + c.recipe + "` di agen");
+  } else if (c.layer === "prime") {
+    how.push("berperan sebagai payung (umbrella) yang mengorkestrasi " + CAT.COMBOS.filter((x) => x.family === c.id).length + " combo");
+  }
+  if (how.length) parts.push(how.join("; ") + ".");
+
+  parts.push("Ini adalah " + (c.layer === "meta" ? "kemampuan meta pengetahuan" : c.layer === "prime" ? "kemampuan PRIME evolusi" : "kemampuan COMBO operasional") + " pada tier " + c.tier + " dari arsitektur kemampuan v3.");
+
+  if (c.commands && c.commands.length) {
+    parts.push(
+      "Gunakan ketika diminta " + c.commands.slice(0, 4).join(", ") +
+      ". Hindari menggunakannya untuk pekerjaan di luar bidang " + (c.category || "kemampuan") + "."
+    );
+  }
+  return parts.join(" ");
+}
+
+function bodyMarkdown(c) {
+  const rows = [
+    ["Layer", c.layer],
+    ["Group", c.group || "-"],
+    ["Tier", c.tier],
+    ["Family", c.family || "-"],
+    ["Runnable", c.runnable ? "Ya" : "Tidak"],
+    ["Recipe", c.recipe || "-"],
+    ["Version", c.version],
+    ["Category", c.category],
+  ];
+  const table = rows.map(([k, v]) => "| **" + k + "** | " + (v === null || v === undefined ? "-" : String(v)) + " |").join("\n");
+
+  const commands = (c.commands || []).length
+    ? (c.commands || []).map((x) => "- `" + x + "`").join("\n")
+    : "- (tidak ada perintah contoh)";
+
+  const outcomes = (c.outcomes && c.outcomes.length)
+    ? c.outcomes.map((x) => "- " + x).join("\n")
+    : "- " + c.insight;
+
+  const skills = (c.skills || []).length
+    ? c.skills.map((x) => "`" + x + "`").join(", ")
+    : (c.domains && c.domains.length) ? c.domains.map((x) => "`" + x + "`").join(", ") : "-";
+
+  const tags = (c.tags || []).length ? (c.tags || []).map((x) => "`" + x + "`").join(", ") : "-";
+
+  return `# ${c.name} ${c.emoji}
+
+${c.insight}
+
+| | |\n|---|---|\n${table}
+
+## Perintah
+
+${commands}
+
+## Hasil yang dapat dieksekusi
+
+${outcomes}
+
+## Skill / domain dasar
+
+${skills}
+
+## Tag
+
+${tags}
+`;
+}
+
+function genCapabilityTree() {
+  const files = {};
+  const layers = { meta: CAT.METAS, prime: CAT.PRIMES, combo: CAT.COMBOS };
+  for (const layer of Object.keys(layers)) {
+    for (const c of layers[layer]) {
+      const desc = richDescription(c);
+      const fm = [
+        "---",
+        "name: " + c.id,
+        "metadata:",
+        "  version: " + c.version,
+        "  category: " + c.category,
+        "description: >-",
+        ...(desc.match(/.{1,88}(?:\s|$)/g) || []).map((line) => "  " + line.trim()),
+        "---",
+        "",
+      ].join("\n");
+      const rel = path.join("capabilities", layer, c.id, "SKILL.md");
+      files[rel] = fm + bodyMarkdown(c);
+    }
+  }
+  // index.json per direktori layer (opsional, ringan) — biar tiap layer 'self-describing'
+  return files;
+}
+
+// ---------------------------------------------------------------------------
+// 3b. generate capabilities/index.json (format index internasional)
+// ---------------------------------------------------------------------------
+function genCapabilityIndex() {
+  const REPO = "vikricahya64-alt/skills";
+  const BRANCH = "main";
+  const entries = CAT.CATALOG.map((c) => {
+    const rel = "capabilities/" + c.layer + "/" + c.id + "/SKILL.md";
+    return {
+      name: c.name,
+      description: richDescription(c),
+      family: c.family || null,
+      layer: c.layer,
+      tier: c.tier,
+      version: c.version,
+      category: c.category,
+      tags: c.tags || [],
+      runnable: !!c.runnable,
+      recipe: c.recipe || null,
+      entrypoint: `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${rel}`,
+    };
+  });
+  return JSON.stringify({
+    generator: "This file is generated. Do not edit it by hand.",
+    source: "agen/capability-catalog.js",
+    schema: "capability-skill-index-v1",
+    counts: { meta: CAT.METAS.length, prime: CAT.PRIMES.length, combo: CAT.COMBOS.length, total: CAT.CATALOG.length },
+    skills: entries,
+  }, null, 2) + "\n";
+}
+
+// ---------------------------------------------------------------------------
+// 4. generate catalog.json (manifest machine-readable)
 // ---------------------------------------------------------------------------
 function genManifest() {
+  const capsOut = CAT.CATALOG.map((c) => ({
+    layer: c.layer, id: c.id, name: c.name, emoji: c.emoji,
+    group: c.group, tier: c.tier, family: c.family || null,
+    recipe: c.recipe, runnable: c.runnable,
+    version: c.version, category: c.category, tags: c.tags,
+    commands: (c.commands || []).length,
+    skills: (c.skills || []).length,
+  }));
+  // Fingerprint konten (deterministik) — bukan timestamp, agar output idempoten
+  // dan `--check` bisa membandingkan sinkron secara stabil.
+  const crypto = require("crypto");
+  const fingerprint = crypto.createHash("sha256").update(JSON.stringify(capsOut)).digest("hex").slice(0, 16);
   return JSON.stringify({
     generator: "tools/generate-capabilities.js",
     source: "agen/capability-catalog.js",
     schema: "capability-catalog-v1",
-    generatedAt: new Date().toISOString(),
+    fingerprint: fingerprint,
     counts: { meta: CAT.METAS.length, prime: CAT.PRIMES.length, combo: CAT.COMBOS.length, total: CAT.CATALOG.length },
     families: Object.entries(CAT.FAMILY).reduce((acc, [id, f]) => {
       acc[f] = (acc[f] || 0) + 1;
       return acc;
     }, {}),
-    capabilities: CAT.CATALOG.map((c) => ({
-      layer: c.layer, id: c.id, name: c.name, emoji: c.emoji,
-      group: c.group, tier: c.tier, family: c.family || null,
-      recipe: c.recipe, runnable: c.runnable,
-      version: c.version, category: c.category, tags: c.tags,
-      commands: (c.commands || []).length,
-      skills: (c.skills || []).length,
-    })),
+    capabilities: capsOut,
   }, null, 2);
 }
 
@@ -227,20 +379,29 @@ empat sumber (skills ↔ index ↔ packs ↔ \`Capabilities.kt\`) dijaga otomati
 function writeIfChanged(p, content) {
   if (fs.existsSync(p) && cmp(fs.readFileSync(p, "utf8"), content)) return;
   if (CHECK) { issues.push("GENERATED-OF-DATE: " + path.relative(ROOT, p)); return; }
+  fs.mkdirSync(path.dirname(p), { recursive: true });
   fs.writeFileSync(p, content);
   console.log("  ditulis: " + path.relative(ROOT, p));
 }
 
 console.log(CHECK ? "[generate-capabilities] --check (verifikasi sinkron)" : "[generate-capabilities] generate semua artefak dari katalog");
+
 const targets = [
   [CAP3_PATH, genCapabilities3()],
   [KT_PATH, genCapabilitiesKt()],
 ];
-for (const [p, content] of targets) writeIfChanged(p, content);
-if (!CHECK) {
-  fs.writeFileSync(MANIFEST_PATH, genManifest());
-  console.log("  ditulis: " + path.relative(ROOT, MANIFEST_PATH));
+
+// Pohon SKILL.md per kemampuan (format resmi developer internasional).
+const tree = genCapabilityTree();
+for (const rel of Object.keys(tree)) {
+  targets.push([path.join(ROOT, rel), tree[rel]]);
 }
+
+// index & manifest machine-readable (juga diverifikasi pada --check).
+targets.push([CAP_INDEX_PATH, genCapabilityIndex()]);
+targets.push([MANIFEST_PATH, genManifest()]);
+
+for (const [p, content] of targets) writeIfChanged(p, content);
 
 // README: ganti hanya blok "# Fusion Kemampuan" (sampai "# " berikut atau EOF)
 {
